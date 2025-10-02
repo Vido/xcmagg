@@ -1,0 +1,271 @@
+import re
+from pathlib import Path
+from datetime import datetime
+
+from bs4 import BeautifulSoup
+
+from engine import Event, Crawler, Parser
+
+
+class TIOnline(Crawler, Parser):
+    URL = 'https://tionline.net.br/'
+    REPO = Path('tionline.net.br')
+    TIME_FORMAT = '%d/%m/%Y - %H:%M'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '38',
+        'Tags': ['Kenda Cup',]
+    }
+
+    def title(self, soup) -> str:
+        return soup.find('div', class_='title').text.strip()
+    
+    def date(self, soup) -> datetime:
+        datetime_str = soup.find('div', class_='hours').text.strip()
+        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+
+    def local(self, soup) -> str:
+        return soup.find('div', class_='local').text.strip()
+    
+    def url(self, soup) -> str:
+        return soup.find('a').get('href')
+
+    def trigger(self):
+        html = self.get_html(self.URL, suffix='home.html')
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find_all('div', 'slider__footer')
+
+        events_acc = []
+        for d in div:
+            events_acc.append(self.parse(d))
+
+        return events_acc
+
+
+class CorridaPronta():
+    URL = 'https://www.corridapronta.com.br/eventos.php'
+    REPO = Path('corridapronta.com.br')
+    TIME_FORMAT = '%d/%m/%Y %H:%M'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['FBR Esportes',]
+    }
+
+
+class AtiveSports(Crawler, Parser):
+    URL = 'https://www.activesports.com.br'
+    REPO = Path('activesports.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Rota do Vulcão XCM',],
+        'DDD': '35',
+    }
+
+    def title(self, soup) -> str:
+        #return soup.find('h6', class_='title-course').text.strip()
+        return soup[0].text.strip()
+    
+    def date(self, soup) -> datetime:
+        datetime_str = soup[2].text.strip()
+        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+
+    def local(self, soup) -> str:
+        return soup[1].text.strip()
+    
+    def url(self, soup) -> str:
+        return self.URL + soup[0].get('href')
+
+    def trigger(self):
+        endpoint = self.URL + '/proximos-eventos'
+        html = self.get_html(self.URL, suffix='proximos-eventos')
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find_all('div', class_='content-course')
+
+        events_acc = []
+        for d in div:
+            events_acc.append(self.parse(d.find_all('a')))
+
+        return events_acc
+
+
+class GpsControlCrono():
+    URL = 'https://www.gpscontrolcrono.com.br'
+    REPO = Path('gpscontrolcrono.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+
+    def title(self, soup) -> str:
+        return soup.find('div', class_='title').text.strip()
+    
+    def date(self, soup) -> datetime:
+        datetime_str = d.find('div', class_='hours').text.strip()
+        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+
+    def local(self, soup) -> str:
+        return soup.find('div', class_='local').text.strip()
+    
+    def url(self, soup) -> str:
+        return soup.find('a').get('href')
+
+    def trigger(self):
+        html = self.get_html(self.URL, suffix='home.html')
+        soup = BeautifulSoup(html, "lxml")
+        from IPython import embed; embed()
+
+    def events(self, html):
+        events_acc = []
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find_all('div', 'slider__footer')
+        for d in div:
+            datetime_str = d.find('div', class_='hours').text.strip()
+            events_acc.append({
+                'title': d.find('div', class_='title').text.strip(),
+                'local': d.find('div', class_='local').text.strip(),
+                'datetime': datetime.strptime(datetime_str, self.TIME_FORMAT),
+                'url': d.find('a').get('href')
+            })
+
+class SeuEsporteApp():
+    URL = 'https://inscricao.seuesporte.app/'
+
+class Peloto(Crawler, Parser):
+    URL = 'https://peloto.com.br'
+    REPO = Path('peloto.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Copa Regional de MTB',],
+        'DDD': '16',
+    }
+
+    def title(self, soup) -> str:
+        div = soup.find('div', class_='row red darken-4 white-text center')
+        return div.find('h4').text.strip()
+    
+    def date(self, soup) -> datetime:
+        div = soup.find('div', class_='row red darken-4 white-text center')
+        datetime_str = div.find_all('h5')[1].text.strip()
+        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+
+    def local(self, soup) -> str:
+        local = soup.find('div', class_='col s12 m8 l8 white-text')
+        return local.find('div', class_='card').find('h5').text.strip()
+   
+    def url(self, soup) -> str:
+        #class_ = 'btn-large waves-effect waves-light blue white-text pulse col s12' 
+        return soup.find('a', class_='btn-large').get('href')
+
+    def trigger(self):
+
+        html = self.get_html(self.URL, suffix='home.html')
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find_all('div', 'prox-eventos')
+
+        href_list = []
+        for d in div:
+            href = d.find('a').get('href')
+            href_list.append(href)
+
+        events_acc = []
+        for href in href_list:
+            url = f"{self.URL}/{href}"
+            fn = re.sub(r'(?u)[^-\w.]', '_', href)
+            html = self.get_html(url, suffix=fn)
+            soup2 = BeautifulSoup(html, "lxml")
+            events_acc.append(self.parse(soup2))
+
+        return events_acc
+
+
+class ProximaProva():
+    URL = 'https://proximaprova.com.br/eventos/'
+
+
+class Nuflow():
+    URL = 'https://nuflowpass.com.br/events'
+    REPO = Path('nuflowpass.com.br')
+    TIME_FORMAT = '%d/%m/%Y %H:%M'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '31',
+    }
+
+
+class TicketBr(Crawler, Parser):
+    URL = 'https://www.ticketbr.com.br'
+    REPO = Path('ticketbr.com.br')
+    TIME_FORMAT = '%d/%m/%Y %H:%M'
+    META = {
+        'Category': 'Empresa de Ingressos',
+        'DDD': '16',
+    }
+    def title(self, soup) -> str:
+        return soup.find('h5').text.strip()
+    
+    def date(self, soup) -> datetime:
+        # TODO: Melhorar Retornar datetime
+        return soup.find('h4').text.strip()
+        
+    def local(self, soup) -> str:
+        local = soup.find('div', class_='cidade').text.strip()
+        return local.replace('Cidade: ', '')
+    
+    def url(self, soup) -> str:
+        pk = soup.find('div', class_='inscricao').find('a')
+        if not pk:
+            return '#'
+        pk = ''.join(filter(str.isdigit, pk.get('onclick')))
+        return f'https://www.ticketbr.com.br/evento/undefined/{pk}'
+
+    def trigger(self):
+        endpoint = self.URL + '/calendario.ecm'
+        html = self.get_html(endpoint, suffix='calendario')
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find('div', class_='calendario')
+
+        buffer, events_acc = '', []
+        for node in div.children:
+            if node.name == 'hr':
+                new_soup = BeautifulSoup(buffer, "lxml")
+                event = self.parse(new_soup)
+                events_acc.append(event)
+                buffer = '' # Reset State
+            else:
+                if not node.name and str(node).strip():
+                    continue
+                buffer += str(node)
+
+        return events_acc
+
+
+class ProTiming():
+    URL = 'https://www.protiming.com.br/calendario-eventos'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '47',
+    }
+
+
+class ChipVale():
+    URL = 'https://www.chipvale.com.br/resultados'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '12',
+    }
+
+
+class SportChip():
+    URL = 'https://sportchip.net/'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        # Portugal
+    }
+
+
+class ChipTiming():
+    URL = 'https://www.chiptiming.com.br/calendario'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Corrida a pé',],
+        'DDD': '11',
+    }
