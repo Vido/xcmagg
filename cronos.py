@@ -41,8 +41,8 @@ class TIOnline(Crawler, Parser):
         return events_acc
 
 
-class CorridaPronta():
-    URL = 'https://www.corridapronta.com.br/eventos.php'
+class CorridaPronta(Crawler, Parser):
+    URL = 'https://www.corridapronta.com.br/'
     REPO = Path('corridapronta.com.br')
     META = {
         'Category': 'Empresa de Cronometragem',
@@ -50,7 +50,43 @@ class CorridaPronta():
     }
 
 
-class AtiveSports(Crawler, Parser):
+    def title(self, soup) -> str:
+        p = soup.find('p')
+        return p.contents[0].strip()
+
+    def date(self, soup) -> str:
+        return soup.find('span', class_='local').text.strip()
+        
+    def local(self, soup) -> str:
+        span = soup.find_all('span', class_='local')
+        return span[1].text.strip()
+
+    def url(self, soup) -> str:
+        return self.URL + 'inscricao/' + soup.find('a').get('href')
+
+    def trigger(self):
+        html = self.get_html(self.URL, suffix='eventos.php')
+        soup = BeautifulSoup(html, "lxml")
+        div = soup.find_all('div', 's-12 m-6 l-3')
+
+        href_list = []
+        for d in div:
+            href = d.find('a').get('href')
+            if href != 'http://www.fbresportes.com':
+                href_list.append(href)
+
+        events_acc = []
+        for href in href_list:
+            url = f"{self.URL}/{href}"
+            fn = re.sub(r'(?u)[^-\w.]', '_', href)
+            html = self.get_html(url, suffix=fn)
+            soup2 = BeautifulSoup(html, "lxml")
+            events_acc.append(self.parse(soup2))
+
+        return events_acc
+
+
+class ActiveSports(Crawler, Parser):
     URL = 'https://www.activesports.com.br'
     REPO = Path('activesports.com.br')
     TIME_FORMAT = '%d/%m/%Y'
