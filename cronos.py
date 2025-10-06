@@ -4,7 +4,7 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from engine import Event, Crawler, Parser
+from engine import Crawler, Parser
 
 
 class TIOnline(Crawler, Parser):
@@ -20,9 +20,8 @@ class TIOnline(Crawler, Parser):
     def title(self, soup) -> str:
         return soup.find('div', class_='title').text.strip()
     
-    def date(self, soup) -> datetime:
-        datetime_str = soup.find('div', class_='hours').text.strip()
-        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+    def date(self, soup) -> str:
+        return soup.find('div', class_='hours').text.strip()
 
     def local(self, soup) -> str:
         return soup.find('div', class_='local').text.strip()
@@ -45,7 +44,6 @@ class TIOnline(Crawler, Parser):
 class CorridaPronta():
     URL = 'https://www.corridapronta.com.br/eventos.php'
     REPO = Path('corridapronta.com.br')
-    TIME_FORMAT = '%d/%m/%Y %H:%M'
     META = {
         'Category': 'Empresa de Cronometragem',
         'Tags': ['FBR Esportes',]
@@ -63,12 +61,10 @@ class AtiveSports(Crawler, Parser):
     }
 
     def title(self, soup) -> str:
-        #return soup.find('h6', class_='title-course').text.strip()
         return soup[0].text.strip()
     
-    def date(self, soup) -> datetime:
-        datetime_str = soup[2].text.strip()
-        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+    def date(self, soup) -> str:
+        return soup[2].text.strip()
 
     def local(self, soup) -> str:
         return soup[1].text.strip()
@@ -97,9 +93,8 @@ class GpsControlCrono():
     def title(self, soup) -> str:
         return soup.find('div', class_='title').text.strip()
     
-    def date(self, soup) -> datetime:
-        datetime_str = d.find('div', class_='hours').text.strip()
-        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+    def date(self, soup) -> str:
+        return d.find('div', class_='hours').text.strip()
 
     def local(self, soup) -> str:
         return soup.find('div', class_='local').text.strip()
@@ -142,10 +137,9 @@ class Peloto(Crawler, Parser):
         div = soup.find('div', class_='row red darken-4 white-text center')
         return div.find('h4').text.strip()
     
-    def date(self, soup) -> datetime:
+    def date(self, soup) -> str:
         div = soup.find('div', class_='row red darken-4 white-text center')
-        datetime_str = div.find_all('h5')[1].text.strip()
-        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+        return div.find_all('h5')[1].text.strip()
 
     def local(self, soup) -> str:
         local = soup.find('div', class_='col s12 m8 l8 white-text')
@@ -202,8 +196,7 @@ class TicketBr(Crawler, Parser):
     def title(self, soup) -> str:
         return soup.find('h5').text.strip()
     
-    def date(self, soup) -> datetime:
-        # TODO: Melhorar Retornar datetime
+    def date(self, soup) -> str:
         return soup.find('h4').text.strip()
         
     def local(self, soup) -> str:

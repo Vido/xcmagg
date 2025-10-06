@@ -11,10 +11,10 @@ import requests
 
 
 @dataclass
-class Event:
+class RawEvent:
     title: str
     local: str
-    date: datetime
+    date: str
     url: str
     source: str
     
@@ -95,7 +95,7 @@ class Crawler(ABC):
         return html
 
     @abstractmethod
-    def trigger(self) -> Event:
+    def trigger(self) -> List[RawEvent]:
         raise NotImplementedError
 
 
@@ -105,7 +105,7 @@ class Parser(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def date(self, soup) -> datetime:
+    def date(self, soup) -> str:
         raise NotImplementedError
 
     @abstractmethod
@@ -119,9 +119,9 @@ class Parser(ABC):
     def source(self) -> str:
         return self.URL
  
-    def parse(self, soup) -> Event:
+    def parse(self, soup) -> RawEvent:
         try:
-            return Event(
+            return RawEvent(
                 title=self.title(soup),
                 local=self.local(soup),
                 date=self.date(soup),

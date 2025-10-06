@@ -4,13 +4,12 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from engine import Event, Crawler, Parser
+from engine import Crawler, Parser
 
 
 class FederacaoPaulista():
     URL = 'https://fpciclismo.org.br/index.php/calendario-estrada/'
     REPO = Path('fpciclismo.org.br')
-    TIME_FORMAT = '%d/%m/%Y - %H:%M'
     META = {
         'Category': 'Federação',
         'DDD': '11',
@@ -19,7 +18,6 @@ class FederacaoPaulista():
 class FederacaoMineira():
     URL = 'https://fmc.org.br/calendario/'
     REPO = Path('fmc.org.br')
-    TIME_FORMAT = '%d/%m/%Y'
     META = {
         'Category': 'Federação',
         'DDD': '31',
@@ -28,7 +26,6 @@ class FederacaoMineira():
 class Sprinta():
     URL = 'https://www.ticketsports.com.br/Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
     REPO = Path('sprinta.com.br')
-    TIME_FORMAT = '%d/%m/%Y'
     META = {
         'Category': 'Agregador',
         'DDD': '51',
@@ -37,7 +34,6 @@ class Sprinta():
 class TicketSports():
     URL = 'https://www.ticketsports.com.br/Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
     REPO = Path('peloto.com.br')
-    TIME_FORMAT = '%d/%m/%Y'
     META = {
         'Category': 'Agregador',
         'DDD': '11',
@@ -67,7 +63,6 @@ class CopaInterior():
 class TourDaRoca():
     URL = 'https://tourdaroca.com.br/'
     REPO = Path('tourdaroca.com.br')
-    TIME_FORMAT = '%d/%m/%Y'
     META = {
         'Category': 'Organizador',
         'DDD': '11',
@@ -86,9 +81,8 @@ class TourDoPeixe(Crawler, Parser):
     def title(self, soup) -> str:
         return soup.find_all('td')[1].text.strip()
     
-    def date(self, soup) -> datetime:
-        datetime_str = soup.find_all('td')[0].text.strip()
-        return datetime.strptime(datetime_str, self.TIME_FORMAT)
+    def date(self, soup) -> str:
+        return soup.find_all('td')[0].text.strip
 
     def local(self, soup) -> str:
         return soup.find_all('td')[3].text.strip()
