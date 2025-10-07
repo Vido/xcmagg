@@ -19,6 +19,7 @@ def main():
         events = crawler.trigger()
         print("Done!")
         pprint(events)
+        crawler.store(events)
 
     from IPython import embed; embed()
 

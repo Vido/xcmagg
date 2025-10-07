@@ -8,6 +8,7 @@ dependencies = [
     "beautifulsoup4>=4.13.5",
     "brotli>=1.1.0",
     "ipython>=9.5.0",
+    "jsonlines>=4.0.0",
     "lxml>=6.0.2",
     "requests>=2.32.5",
 ]

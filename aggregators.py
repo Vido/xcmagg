@@ -82,7 +82,7 @@ class TourDoPeixe(Crawler, Parser):
         return soup.find_all('td')[1].text.strip()
     
     def date(self, soup) -> str:
-        return soup.find_all('td')[0].text.strip
+        return soup.find_all('td')[0].text.strip()
 
     def local(self, soup) -> str:
         return soup.find_all('td')[3].text.strip()
@@ -94,8 +94,7 @@ class TourDoPeixe(Crawler, Parser):
 
     def trigger(self):
         endpoint = self.URL + '/calendario/'
-        html = self.get_html(endpoint, suffix='calendario')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(endpoint, suffix='calendario')
         tr = soup.find('table').find_all('tr')
 
         events_acc = []
@@ -103,7 +102,7 @@ class TourDoPeixe(Crawler, Parser):
             if not i:
                 continue # header
             try:
-                events_acc.append(self.parse(t))
+                events_acc.append(self.parse(t, fp))
             except ValueError as ve:
                 continue
 

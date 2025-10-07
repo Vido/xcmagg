@@ -2,8 +2,6 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-from bs4 import BeautifulSoup
-
 from engine import Crawler, Parser
 
 
@@ -30,13 +28,11 @@ class TIOnline(Crawler, Parser):
         return soup.find('a').get('href')
 
     def trigger(self):
-        html = self.get_html(self.URL, suffix='home.html')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(self.URL, suffix='home.html')
         div = soup.find_all('div', 'slider__footer')
-
         events_acc = []
         for d in div:
-            events_acc.append(self.parse(d))
+            events_acc.append(self.parse(d, fp))
 
         return events_acc
 
@@ -66,8 +62,7 @@ class CorridaPronta(Crawler, Parser):
 
     def trigger(self):
         endpoint = self.URL + 'eventos.php'
-        html = self.get_html(endpoint, suffix='eventos')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(endpoint, suffix='eventos')
         div = soup.find_all('div', 's-12 m-6 l-3')
 
         href_list = []
@@ -80,9 +75,8 @@ class CorridaPronta(Crawler, Parser):
         for href in href_list:
             url = f"{self.URL}/{href}"
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
-            html = self.get_html(url, suffix=fn)
-            soup2 = BeautifulSoup(html, "lxml")
-            events_acc.append(self.parse(soup2))
+            fp, soup2 = self.get_html(url, suffix=fn)
+            events_acc.append(self.parse(soup2, fp))
 
         return events_acc
 
@@ -111,13 +105,12 @@ class ActiveSports(Crawler, Parser):
 
     def trigger(self):
         endpoint = self.URL + '/proximos-eventos'
-        html = self.get_html(self.URL, suffix='proximos-eventos')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(self.URL, suffix='proximos-eventos')
         div = soup.find_all('div', class_='content-course')
 
         events_acc = []
         for d in div:
-            events_acc.append(self.parse(d.find_all('a')))
+            events_acc.append(self.parse(d.find_all('a'), fp))
 
         return events_acc
 
@@ -141,24 +134,18 @@ class GpsControlCrono():
 
     def trigger(self):
         html = self.get_html(self.URL, suffix='home.html')
-        soup = BeautifulSoup(html, "lxml")
-        from IPython import embed; embed()
+        fp, soup = BeautifulSoup(html.read_text(), "lxml")
 
-    def events(self, html):
         events_acc = []
-        soup = BeautifulSoup(html, "lxml")
         div = soup.find_all('div', 'slider__footer')
         for d in div:
             datetime_str = d.find('div', class_='hours').text.strip()
-            events_acc.append({
-                'title': d.find('div', class_='title').text.strip(),
-                'local': d.find('div', class_='local').text.strip(),
-                'datetime': datetime.strptime(datetime_str, self.TIME_FORMAT),
-                'url': d.find('a').get('href')
-            })
+            events_acc.append(self.parse(d), fp)
+
 
 class SeuEsporteApp():
     URL = 'https://inscricao.seuesporte.app/'
+
 
 class Peloto(Crawler, Parser):
     URL = 'https://peloto.com.br'
@@ -188,8 +175,7 @@ class Peloto(Crawler, Parser):
 
     def trigger(self):
 
-        html = self.get_html(self.URL, suffix='home.html')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(self.URL, suffix='home.html')
         div = soup.find_all('div', 'prox-eventos')
 
         href_list = []
@@ -201,9 +187,8 @@ class Peloto(Crawler, Parser):
         for href in href_list:
             url = f"{self.URL}/{href}"
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
-            html = self.get_html(url, suffix=fn)
-            soup2 = BeautifulSoup(html, "lxml")
-            events_acc.append(self.parse(soup2))
+            fp, soup2 = self.get_html(url, suffix=fn)
+            events_acc.append(self.parse(soup2, fp))
 
         return events_acc
 
@@ -248,16 +233,16 @@ class TicketBr(Crawler, Parser):
         return f'https://www.ticketbr.com.br/evento/undefined/{pk}'
 
     def trigger(self):
+        from bs4 import BeautifulSoup
         endpoint = self.URL + '/calendario.ecm'
-        html = self.get_html(endpoint, suffix='calendario')
-        soup = BeautifulSoup(html, "lxml")
+        fp, soup = self.get_html(endpoint, suffix='calendario')
         div = soup.find('div', class_='calendario')
 
         buffer, events_acc = '', []
         for node in div.children:
             if node.name == 'hr':
                 new_soup = BeautifulSoup(buffer, "lxml")
-                event = self.parse(new_soup)
+                event = self.parse(new_soup, fp)
                 events_acc.append(event)
                 buffer = '' # Reset State
             else:
