@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Iterator
 from dataclasses import dataclass, asdict
 
 import requests
@@ -20,7 +20,7 @@ class RawEvent:
     url: str
     source: str
     crawled_at: datetime
-    raw_file: str
+    raw_file: Path
     
     def __post_init__(self):
         if not self.title:
@@ -37,6 +37,8 @@ class RawEvent:
 
 
 class RawLayer:
+
+    BASE = Path(__file__).parent / 'data' / 'bronze'
 
     def __init__(self):
         if not hasattr(self, 'REPO'):
@@ -58,8 +60,6 @@ class RawLayer:
 
 
 class Crawler(ABC, RawLayer):
-
-    BASE = Path(__file__).parent / 'data' / 'bronze'
 
     @staticmethod
     def _call(method_f, endpoint, params={}, payload={}):
@@ -104,10 +104,10 @@ class Crawler(ABC, RawLayer):
         # Fresh
         html = Crawler.download(url)
         today = date.today().isoformat()
-        fp = self._repo / f'{today}-{suffix}'
-        fp.write_text(html)
+        fn = self._repo / f'{today}-{suffix}'
+        fn.write_text(html)
 
-        return today, BeautifulSoup(html, "lxml")
+        return fn, BeautifulSoup(html, "lxml")
 
     @abstractmethod
     def trigger(self) -> List[RawEvent]:
@@ -126,12 +126,13 @@ class BronzeLayer:
 
     def store(self, event_list: List[RawEvent]) -> Path:
         today = date.today().isoformat()
-        fp = self._bronze / f'{today}.jsonl'
-        with jsonlines.open(fp, mode='w') as fp:
-            fp.write_all([e.to_dict() for e in event_list])
-        return fp
+        fn = self._bronze / f'{today}.jsonl'
+        with jsonlines.open(fn, mode='w') as writer:
+            writer.write_all([e.to_dict() for e in event_list])
+        return fn
 
-class Parser(ABC, BronzeLayer):
+
+class Extractor(ABC, BronzeLayer):
 
     @abstractmethod
     def title(self, soup) -> str:
@@ -179,9 +180,112 @@ class Parser(ABC, BronzeLayer):
         return event
 
 
-class SilverLayer:
+@dataclass
+class DateRange:
+    data_raw: str
+    multi_day: bool
+    start_date: date
+    end_date: Optional[date] = None
+
+
+@dataclass
+class Location:
+    location_raw: str
+    address: str
+    city: str
+    uf: str
+
+
+@dataclass
+class SchemaEvent:
+    """Cleaned, validated, standardized event"""
+    title: str
+    url: str
+    source: str
+    date_range: DateRange
+    location: Location
+    processed_at: datetime
+    bronze_file: Optional[Path] = None
+
+    def to_dict(self):
+        d = asdict(self)
+
+
+class SilverLayer(ABC):
+
+    BASE = Path(__file__).parent / 'data'
 
     def __init__(self):
         self._silver = self.BASE / 'silver'
         self._silver.mkdir(parents=True, exist_ok=True)
         super().__init__()
+
+    def aggregate(self, bronze_events: List[Crawler]):
+        return sum([repo.lastest(glob='../*.jsonl') for repo in bronze_events], [])
+
+    def store_jsonl(self, event_list: List[SchemaEvent]) -> Path:
+        today = date.today().isoformat()
+        fp = self._silver / f'{today}.jsonl'
+        with jsonlines.open(fp, mode='w') as fp:
+            fp.write_all([e.to_dict() for e in event_list])
+        return fp
+
+    def store_sql(self, event_list: List[SchemaEvent]):
+        raise NotImplementedError
+
+
+class Parser(SilverLayer):
+
+    def __post_init__(self):
+        if not self.title:
+            raise ValueError("Title cannot be empty")
+
+        if not self.url:
+            raise ValueError("URL cannot be empty")
+
+    def title(self, raw_event) -> str:
+        return raw_event.title
+
+    def url(self, raw_event) -> str:
+        return raw_event.url
+
+    def source(self, raw_event) -> str:
+        return self.source
+
+    def date_range(self, raw_event) -> DateRange:
+        # TODO
+        return raw_event.date
+
+    def location(self, raw_event) -> Location:
+        # TODO
+        return raw_event.date
+
+    def processed_at(self) -> datetime:
+        return datetime.now()
+
+    def bronze_file(self, fp: Path) -> Path:
+        return fp.resolve()
+
+    def process(self, raw_event: RawEvent) -> SchemaEvent:
+        event = None
+        try:
+             event = SchemaEvent(
+                title=self.title(raw_event),
+                location=self.location(raw_event),
+                date_range=self.date_range(raw_event),
+                url=self.url(raw_event),
+                source=self.source(raw_event),
+                processed_at=datetime.now(),
+            )
+        except Exception as e:
+            raise
+
+        return event
+
+    def process_all(self, jsonlfile: Path) -> Iterator[SchemaEvent]:
+        with jsonlines.open(jsonlfile) as reader:
+            for obj in reader:
+                raw_event = RawEvent(**obj)
+                event = self.process(raw_event)
+                event.bronze_file = jsonlfile
+                yield event

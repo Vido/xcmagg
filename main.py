@@ -1,7 +1,11 @@
 from pprint import pprint
 
+from engine import Parser
 from cronos import *
 from aggregators import *
+
+from itertools import chain
+flatten = chain.from_iterable
 
 def main():
     print("Hello from xcmagg!")
@@ -17,9 +21,13 @@ def main():
 
     for crawler in crawlers:
         events = crawler.trigger()
-        print("Done!")
-        pprint(events)
+        print(crawler, "Done!")
+        #pprint(events)
         crawler.store(events)
+
+    parser = Parser()
+    bronze_jsonl = parser.aggregate(crawlers)
+    agg = [parser.process_all(x) for x in bronze_jsonl]
 
     from IPython import embed; embed()
 

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from engine import Crawler, Parser
+from engine import Crawler, Extractor
 
 
 class FederacaoPaulista():
@@ -69,7 +69,7 @@ class TourDaRoca():
     }
 
 
-class TourDoPeixe(Crawler, Parser):
+class TourDoPeixe(Crawler, Extractor):
     URL = 'https://tourdopeixe.com.br'
     REPO = Path('tourdopeixe.com.br')
     TIME_FORMAT = '%d/%m/%Y'

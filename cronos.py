@@ -2,10 +2,10 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-from engine import Crawler, Parser
+from engine import Crawler, Extractor
 
 
-class TIOnline(Crawler, Parser):
+class TIOnline(Crawler, Extractor):
     URL = 'https://tionline.net.br/'
     REPO = Path('tionline.net.br')
     TIME_FORMAT = '%d/%m/%Y - %H:%M'
@@ -37,7 +37,7 @@ class TIOnline(Crawler, Parser):
         return events_acc
 
 
-class CorridaPronta(Crawler, Parser):
+class CorridaPronta(Crawler, Extractor):
     URL = 'https://www.corridapronta.com.br/'
     REPO = Path('corridapronta.com.br')
     META = {
@@ -81,7 +81,7 @@ class CorridaPronta(Crawler, Parser):
         return events_acc
 
 
-class ActiveSports(Crawler, Parser):
+class ActiveSports(Crawler, Extractor):
     URL = 'https://www.activesports.com.br'
     REPO = Path('activesports.com.br')
     TIME_FORMAT = '%d/%m/%Y'
@@ -147,7 +147,7 @@ class SeuEsporteApp():
     URL = 'https://inscricao.seuesporte.app/'
 
 
-class Peloto(Crawler, Parser):
+class Peloto(Crawler, Extractor):
     URL = 'https://peloto.com.br'
     REPO = Path('peloto.com.br')
     TIME_FORMAT = '%d/%m/%Y'
@@ -207,7 +207,7 @@ class Nuflow():
     }
 
 
-class TicketBr(Crawler, Parser):
+class TicketBr(Crawler, Extractor):
     URL = 'https://www.ticketbr.com.br'
     REPO = Path('ticketbr.com.br')
     TIME_FORMAT = '%d/%m/%Y %H:%M'
