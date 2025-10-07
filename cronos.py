@@ -65,7 +65,8 @@ class CorridaPronta(Crawler, Parser):
         return self.URL + 'inscricao/' + soup.find('a').get('href')
 
     def trigger(self):
-        html = self.get_html(self.URL, suffix='eventos.php')
+        endpoint = self.URL + 'eventos.php'
+        html = self.get_html(endpoint, suffix='eventos')
         soup = BeautifulSoup(html, "lxml")
         div = soup.find_all('div', 's-12 m-6 l-3')
 
