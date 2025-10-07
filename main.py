@@ -9,7 +9,8 @@ def main():
     crawlers = [
         TIOnline(),
         Peloto(),
-        AtiveSports(),
+        ActiveSports(),
+        CorridaPronta(),
         TourDoPeixe(),
         TicketBr(),
     ]
