@@ -284,3 +284,32 @@ class ChipTiming():
         'Tags': ['Corrida a pé',],
         'DDD': '11',
     }
+
+
+class FPCiclismo(Crawler, Extractor):
+    URL = 'https://fpciclismo.org.br/'
+    REPO = Path('fpciclismo.org.br')
+
+    def title(self, soup) -> str:
+        pass
+
+    def date(self, soup) -> str:
+        pass
+
+    def local(self, soup) -> str:
+        pass
+
+    def url(self, soup) -> str:
+        pass
+
+    def trigger(self):
+        endpoint = self.URL + 'index.php/calendario-mtb/'
+        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
+        span = soup.find_all('div', class_='elementor-widget-container')
+        events_acc = []
+        print(span)
+        for s in span:
+            events_acc.append(self.parse(s, fp))
+        return events_acc
+
+

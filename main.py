@@ -17,6 +17,7 @@ def main():
         CorridaPronta(),
         TourDoPeixe(),
         TicketBr(),
+        #FPCiclismo(),
     ]
 
     for crawler in crawlers:
