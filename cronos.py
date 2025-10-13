@@ -143,8 +143,34 @@ class GpsControlCrono():
             events_acc.append(self.parse(d), fp)
 
 
-class SeuEsporteApp():
+class SeuEsporteApp(Crawler, Extractor):
     URL = 'https://inscricao.seuesporte.app/'
+    REPO = Path('seuesporte.app')
+
+    def title(self, soup) -> str:
+        tag = soup.find_all('a')
+        return tag[1].text.strip()
+
+    def date(self, soup) -> str:
+        tag = soup.find('p').text.split('\n')
+        return tag[2].strip()
+
+    def local(self, soup) -> str:
+        tag = soup.find('p').text.split('\n')
+        return tag[1].strip()
+
+    def url(self, soup) -> str:
+        tag = soup.find_all('a')
+        return tag[1].get('href')
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL)
+        div = soup.find_all('div', class_='block block-rounded h-100 mb-0')
+
+        events_acc = []
+        for d in div:
+            events_acc.append(self.parse(d, fp))
+        return events_acc
 
 
 class Peloto(Crawler, Extractor):
@@ -284,3 +310,32 @@ class ChipTiming():
         'Tags': ['Corrida a pé',],
         'DDD': '11',
     }
+
+
+class FPCiclismo(Crawler, Extractor):
+    URL = 'https://fpciclismo.org.br/'
+    REPO = Path('fpciclismo.org.br')
+
+    def title(self, soup) -> str:
+        pass
+
+    def date(self, soup) -> str:
+        pass
+
+    def local(self, soup) -> str:
+        pass
+
+    def url(self, soup) -> str:
+        pass
+
+    def trigger(self):
+        endpoint = self.URL + 'index.php/calendario-mtb/'
+        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
+        span = soup.find_all('div', class_='elementor-widget-container')
+        events_acc = []
+        print(span)
+        for s in span:
+            events_acc.append(self.parse(s, fp))
+        return events_acc
+
+
