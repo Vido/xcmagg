@@ -142,8 +142,34 @@ class GpsControlCrono():
             events_acc.append(self.parse(d), fp)
 
 
-class SeuEsporteApp():
+class SeuEsporteApp(Crawler, Extractor):
     URL = 'https://inscricao.seuesporte.app/'
+    REPO = Path('seuesporte.app')
+
+    def title(self, soup) -> str:
+        tag = soup.find_all('a')
+        return tag[1].text.strip()
+
+    def date(self, soup) -> str:
+        tag = soup.find('p').text.split('\n')
+        return tag[2].strip()
+
+    def local(self, soup) -> str:
+        tag = soup.find('p').text.split('\n')
+        return tag[1].strip()
+
+    def url(self, soup) -> str:
+        tag = soup.find_all('a')
+        return tag[1].get('href')
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL)
+        div = soup.find_all('div', class_='block block-rounded h-100 mb-0')
+
+        events_acc = []
+        for d in div:
+            events_acc.append(self.parse(d, fp))
+        return events_acc
 
 
 class Peloto(Crawler, Extractor):
