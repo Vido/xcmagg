@@ -86,7 +86,7 @@ class Crawler(ABC, RawLayer):
         return method_f(endpoint, **kwargs)
 
 
-    def download(self, url, suffix) -> str:
+    def download(self, url, suffix) -> Path:
 
         # Cached
         lastest = self.lastest(glob=f'*{suffix}')
