@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import urlparse
 
 from engine import Crawler, Extractor
 
@@ -326,23 +327,21 @@ class FPCiclismo(Crawler, Extractor):
 
     def url(self, soup) -> str:
         return soup[4]
-    
-    def trigger(self):
 
-        import pdfplumber
-
-        endpoint = self.URL + 'index.php/calendario-mtb/'
-        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
+    @staticmethod
+    def parse_html(soup):
         iframe = soup.find('iframe')
         iframe_src = iframe.get('data-lazy-src')
-
         pdf_url = iframe_src.split('file=')[1]
-        pdf_path = self.get_pdf(pdf_url, suffix='CALENDARIO-MTB-2025.pdf')
+        parsed_url = urlparse(pdf_url)
+        suffix = Path(parsed_url.path).name
+        return pdf_url, suffix
 
-        raw_data = []
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages:
-                raw_data += page.extract_table()
+    def trigger(self):
+        endpoint = self.URL + 'index.php/calendario-mtb/'
+        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
+        pdf_url, suffix = FPCiclismo.parse_html(soup)
+        fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
 
         filtered_list = []
         for row in raw_data:

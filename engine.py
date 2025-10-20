@@ -4,11 +4,12 @@ from pathlib import Path
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Iterator
+from typing import Dict, Any, List, Optional, Iterator, Tuple
 from dataclasses import dataclass, asdict
 
 import requests
 import jsonlines
+import pdfplumber
 from bs4 import BeautifulSoup
 
 
@@ -62,7 +63,8 @@ class RawLayer:
 class Crawler(ABC, RawLayer):
 
     @staticmethod
-    def _call(method_f, endpoint, params={}, payload={}):
+    def _call(method_f, endpoint, params={}, payload={}, delay=1):
+        time.sleep(delay)
         kwargs = {
             'headers': {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0',
@@ -83,41 +85,8 @@ class Crawler(ABC, RawLayer):
         kwargs.update({'data': json.dumps(payload)}) if payload else None
         return method_f(endpoint, **kwargs)
 
-    @staticmethod
-    def download(url, delay=1) -> str:
-        print(f'Requesting {url}')
-        time.sleep(delay)
-        response = Crawler._call(requests.get, url)
-        response.raise_for_status()
-        return response.text
 
-    def get_html(self, url, suffix='home.html'):
-
-        # Cached
-        lastest = self.lastest(glob=f'*{suffix}')
-        if lastest:
-            last = max(lastest)
-            if self._is_file_fresh(last):
-                print(f'Reading from: {last}')
-                return last, BeautifulSoup(last.read_text(), "lxml")
-
-        # Fresh
-        html = Crawler.download(url)
-        today = date.today().isoformat()
-        fn = self._repo / f'{today}-{suffix}'
-        fn.write_text(html)
-
-        return fn, BeautifulSoup(html, "lxml")
-
-    @staticmethod
-    def download_pdf(url, delay=1) -> str:
-        print(f'Requesting {url}')
-        time.sleep(delay)
-        response = Crawler._call(requests.get, url)
-        response.raise_for_status()
-        return response.content
-
-    def get_pdf(self, url, suffix='.pdf'):
+    def download(self, url, suffix) -> str:
 
         # Cached
         lastest = self.lastest(glob=f'*{suffix}')
@@ -127,14 +96,27 @@ class Crawler(ABC, RawLayer):
                 print(f'Reading from: {last}')
                 return last
 
-        # Fresh
-        content = Crawler.download_pdf(url)
+        print(f'Requesting {url}')
+        response = Crawler._call(requests.get, url)
+        response.raise_for_status()
+
         today = date.today().isoformat()
         fn = self._repo / f'{today}-{suffix}'
-        with open(fn, 'wb') as f:
-            f.write(content)
+        fn.write_bytes(response.content)
         return fn
 
+    def get_html(self, url, suffix='home.html') -> Tuple[Path, BeautifulSoup]:
+        fn = self.download(url, suffix)
+        html = fn.read_text()
+        return fn, BeautifulSoup(html, "lxml")
+
+    def get_pdf(self, url, suffix='doc.pdf') -> Tuple[Path, List]:
+        fn = self.download(url, suffix)
+        raw_data = []
+        with pdfplumber.open(fn) as pdf:
+            for page in pdf.pages:
+                raw_data += page.extract_table()
+        return fn, raw_data
 
     @abstractmethod
     def trigger(self) -> List[RawEvent]:
