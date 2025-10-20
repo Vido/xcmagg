@@ -10,11 +10,12 @@ flatten = chain.from_iterable
 def main():
     print("Hello from xcmagg!")
 
+    # TODO: Use a config file
     crawlers = [
-        TIOnline(),
+        # TIOnline(),
         Peloto(),
         ActiveSports(),
-        CorridaPronta(),
+        # CorridaPronta(),
         TourDoPeixe(),
         TicketBr(),
         FPCiclismo(),
@@ -28,9 +29,11 @@ def main():
         crawler.store(events)
 
     parser = Parser()
-    bronze_jsonl = parser.aggregate(crawlers)
+    bronze_jsonl = parser.collect(crawlers)
     agg = [parser.process_all(x) for x in bronze_jsonl]
 
+    # Upgrade to Silver
+    parser.aggregate_jsonl(agg)
     from IPython import embed; embed()
 
 if __name__ == "__main__":

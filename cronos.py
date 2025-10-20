@@ -261,7 +261,7 @@ class TicketBr(Crawler, Extractor):
     def trigger(self):
         from bs4 import BeautifulSoup
         endpoint = self.URL + '/calendario.ecm'
-        fp, soup = self.get_html(endpoint, suffix='calendario')
+        fp, soup = self.get_html(endpoint, suffix='calendario', encoding='iso-8859-1')
         div = soup.find('div', class_='calendario')
 
         buffer, events_acc = '', []
