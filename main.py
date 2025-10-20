@@ -11,13 +11,13 @@ def main():
     print("Hello from xcmagg!")
 
     crawlers = [
-        TIOnline(),
-        Peloto(),
-        ActiveSports(),
-        CorridaPronta(),
-        TourDoPeixe(),
-        TicketBr(),
-        #FPCiclismo(),
+        #TIOnline(),
+        #Peloto(),
+        #ActiveSports(),
+        #CorridaPronta(),
+        #TourDoPeixe(),
+        #TicketBr(),
+        FPCiclismo(),
     ]
 
     for crawler in crawlers:

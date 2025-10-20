@@ -77,7 +77,6 @@ class CorridaPronta(Crawler, Extractor):
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
             fp, soup2 = self.get_html(url, suffix=fn)
             events_acc.append(self.parse(soup2, fp))
-
         return events_acc
 
 
@@ -291,25 +290,44 @@ class FPCiclismo(Crawler, Extractor):
     REPO = Path('fpciclismo.org.br')
 
     def title(self, soup) -> str:
-        pass
+        return soup[1]
 
     def date(self, soup) -> str:
-        pass
+        return soup[0]
 
     def local(self, soup) -> str:
-        pass
+        return soup[3]
 
     def url(self, soup) -> str:
-        pass
-
+        return soup[4]
+    
     def trigger(self):
+
+        import pdfplumber
+
         endpoint = self.URL + 'index.php/calendario-mtb/'
         fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
-        span = soup.find_all('div', class_='elementor-widget-container')
+        iframe = soup.find('iframe')
+        iframe_src = iframe.get('data-lazy-src')
+
+        pdf_url = iframe_src.split('file=')[1]
+        pdf_path = self.get_pdf(pdf_url, suffix='CALENDARIO-MTB-2025.pdf')
+
+        raw_data = []
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages:
+                raw_data += page.extract_table()
+
+        filtered_list = []
+        for row in raw_data:
+            if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
+                filtered_list.append(row)
+
         events_acc = []
-        print(span)
-        for s in span:
-            events_acc.append(self.parse(s, fp))
+        for content in filtered_list:
+            event = self.parse(content, fp)
+            events_acc.append(event)
+
         return events_acc
 
 

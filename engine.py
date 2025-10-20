@@ -109,6 +109,33 @@ class Crawler(ABC, RawLayer):
 
         return fn, BeautifulSoup(html, "lxml")
 
+    @staticmethod
+    def download_pdf(url, delay=1) -> str:
+        print(f'Requesting {url}')
+        time.sleep(delay)
+        response = Crawler._call(requests.get, url)
+        response.raise_for_status()
+        return response.content
+
+    def get_pdf(self, url, suffix='.pdf'):
+
+        # Cached
+        lastest = self.lastest(glob=f'*{suffix}')
+        if lastest:
+            last = max(lastest)
+            if self._is_file_fresh(last):
+                print(f'Reading from: {last}')
+                return last
+
+        # Fresh
+        content = Crawler.download_pdf(url)
+        today = date.today().isoformat()
+        fn = self._repo / f'{today}-{suffix}'
+        with open(fn, 'wb') as f:
+            f.write(content)
+        return fn
+
+
     @abstractmethod
     def trigger(self) -> List[RawEvent]:
         raise NotImplementedError
