@@ -1,6 +1,7 @@
 import os
 import time
 from pathlib import Path
+from itertools import chain
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
@@ -105,9 +106,12 @@ class Crawler(ABC, RawLayer):
         fn.write_bytes(response.content)
         return fn
 
-    def get_html(self, url, suffix='home.html') -> Tuple[Path, BeautifulSoup]:
+    def get_html(self,
+            url: str,
+            suffix: str ='home.html',
+            encoding: str | None = 'utf-8') -> Tuple[Path, BeautifulSoup]:
         fn = self.download(url, suffix)
-        html = fn.read_text()
+        html = fn.read_text(encoding=encoding)
         return fn, BeautifulSoup(html, "lxml")
 
     def get_pdf(self, url, suffix='doc.pdf') -> Tuple[Path, List]:
@@ -196,6 +200,12 @@ class DateRange:
     start_date: date
     end_date: Optional[date] = None
 
+    def to_dict(self):
+        d = asdict(self)
+        d['start_date'] = self.start_date.isoformat()
+        end = self.end_date.isoformat() if self.end_date else ''
+        d['end_date'] = end
+        return d
 
 @dataclass
 class Location:
@@ -204,6 +214,8 @@ class Location:
     city: str
     uf: str
 
+    def to_dict(self):
+        return asdict(self)
 
 @dataclass
 class SchemaEvent:
@@ -218,7 +230,14 @@ class SchemaEvent:
 
     def to_dict(self):
         d = asdict(self)
+        d['processed_at'] = self.processed_at.isoformat()
+        d['bronze_file'] = str(self.bronze_file)
 
+        # TODO:
+        #d['date_range'] = self.date_range.to_dict()
+        #d['location'] = asdict(self.location())
+        print(d)
+        return d
 
 class SilverLayer(ABC):
 
@@ -229,17 +248,24 @@ class SilverLayer(ABC):
         self._silver.mkdir(parents=True, exist_ok=True)
         super().__init__()
 
-    def aggregate(self, bronze_events: List[Crawler]):
+    def collect(self, bronze_events: List[Crawler]):
         return sum([repo.lastest(glob='../*.jsonl') for repo in bronze_events], [])
 
-    def store_jsonl(self, event_list: List[SchemaEvent]) -> Path:
+    def aggregate_jsonl(self, event_list: List[SchemaEvent]) -> Path:
+        # Normalize?
+        # Deduplicate?
+
         today = date.today().isoformat()
         fp = self._silver / f'{today}.jsonl'
         with jsonlines.open(fp, mode='w') as fp:
-            fp.write_all([e.to_dict() for e in event_list])
+            # TODO: Custom decoder
+            objs = [e.to_dict() for e in chain(*event_list)]
+            print(objs)
+            fp.write_all(objs)
         return fp
 
     def store_sql(self, event_list: List[SchemaEvent]):
+        # duckdb?
         raise NotImplementedError
 
 
@@ -259,7 +285,7 @@ class Parser(SilverLayer):
         return raw_event.url
 
     def source(self, raw_event) -> str:
-        return self.source
+        return raw_event.source
 
     def date_range(self, raw_event) -> DateRange:
         # TODO
@@ -296,5 +322,5 @@ class Parser(SilverLayer):
             for obj in reader:
                 raw_event = RawEvent(**obj)
                 event = self.process(raw_event)
-                event.bronze_file = jsonlfile
+                event.bronze_file = self.bronze_file(jsonlfile)
                 yield event

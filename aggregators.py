@@ -22,6 +22,14 @@ class FederacaoMineira():
         'Category': 'Federação',
         'DDD': '31',
     }
+class ASCABiker():
+    URL = 'https://ascabiker.com.br/'
+    REPO = Path('ascabiker.com.br')
+    META = {
+        'Category': 'Organizador',
+        'DDD': '35',
+    }
+
 
 class Sprinta():
     URL = 'https://www.ticketsports.com.br/Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
