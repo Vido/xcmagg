@@ -17,7 +17,7 @@ def main():
         CorridaPronta(),
         TourDoPeixe(),
         TicketBr(),
-        #FPCiclismo(),
+        FPCiclismo(),
         SeuEsporteApp(),
     ]
 

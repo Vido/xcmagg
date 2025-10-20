@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import urlparse
 
 from engine import Crawler, Extractor
 
@@ -77,7 +78,6 @@ class CorridaPronta(Crawler, Extractor):
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
             fp, soup2 = self.get_html(url, suffix=fn)
             events_acc.append(self.parse(soup2, fp))
-
         return events_acc
 
 
@@ -317,25 +317,42 @@ class FPCiclismo(Crawler, Extractor):
     REPO = Path('fpciclismo.org.br')
 
     def title(self, soup) -> str:
-        pass
+        return soup[1]
 
     def date(self, soup) -> str:
-        pass
+        return soup[0]
 
     def local(self, soup) -> str:
-        pass
+        return soup[3]
 
     def url(self, soup) -> str:
-        pass
+        return soup[4]
+
+    @staticmethod
+    def parse_html(soup):
+        iframe = soup.find('iframe')
+        iframe_src = iframe.get('data-lazy-src')
+        pdf_url = iframe_src.split('file=')[1]
+        parsed_url = urlparse(pdf_url)
+        suffix = Path(parsed_url.path).name
+        return pdf_url, suffix
 
     def trigger(self):
         endpoint = self.URL + 'index.php/calendario-mtb/'
         fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
-        span = soup.find_all('div', class_='elementor-widget-container')
+        pdf_url, suffix = FPCiclismo.parse_html(soup)
+        fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
+
+        filtered_list = []
+        for row in raw_data:
+            if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
+                filtered_list.append(row)
+
         events_acc = []
-        print(span)
-        for s in span:
-            events_acc.append(self.parse(s, fp))
+        for content in filtered_list:
+            event = self.parse(content, fp)
+            events_acc.append(event)
+
         return events_acc
 
 
