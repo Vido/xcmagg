@@ -195,10 +195,14 @@ class Extractor(ABC, BronzeLayer):
 
 @dataclass
 class DateRange:
-    data_raw: str
-    multi_day: bool
-    start_date: date
+    date_raw: str
+    multi_day: Optional[bool] = None
+    start_date: Optional[date] = None
     end_date: Optional[date] = None
+
+    def __post_init__(self):
+        if not self.date_raw:
+            raise ValueError("date_raw cannot be empty")
 
     def to_dict(self):
         d = asdict(self)
@@ -210,9 +214,13 @@ class DateRange:
 @dataclass
 class Location:
     location_raw: str
-    address: str
-    city: str
-    uf: str
+    address: Optional[str] = None
+    city: Optional[str] = None
+    uf: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.location_raw:
+            raise ValueError("location_raw cannot be empty")
 
     def to_dict(self):
         return asdict(self)
@@ -288,12 +296,10 @@ class Parser(SilverLayer):
         return raw_event.source
 
     def date_range(self, raw_event) -> DateRange:
-        # TODO
-        return raw_event.date
+        return DateRange(date_raw=raw_event.date)
 
     def location(self, raw_event) -> Location:
-        # TODO
-        return raw_event.date
+        return Location(location_raw=raw_event.local)
 
     def processed_at(self) -> datetime:
         return datetime.now()
