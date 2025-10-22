@@ -15,6 +15,12 @@ fetch('https://xcmagg.lvido.tech/data.jsonl')
        `;
 			body.appendChild(row);
 		});
+	$('#table').DataTable();
 	})
 	.catch(error => console.error('Erro:', error));
+
+
+
+
+
 
