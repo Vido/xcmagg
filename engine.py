@@ -2,6 +2,7 @@ import os
 import time
 from pathlib import Path
 from itertools import chain
+from urllib.parse import urlparse
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
@@ -23,13 +24,21 @@ class RawEvent:
     source: str
     crawled_at: datetime
     raw_file: Path
-    
+
     def __post_init__(self):
         if not self.title:
-            raise ValueError("Title cannot be empty")
+            raise ValueError('Title cannot be empty')
 
         if not self.url:
-            raise ValueError("URL cannot be empty")
+            raise ValueError('URL cannot be empty')
+
+        parsed = urlparse(self.url)
+        if not parsed.scheme:
+            self.url = "https://" + self.url
+            parsed = urlparse(self.url)
+
+        if not parsed.netloc:
+            raise ValueError(f'Malformed URL: {self.url}')
 
     def to_dict(self):
         d = asdict(self)
@@ -325,8 +334,14 @@ class Parser(SilverLayer):
 
     def process_all(self, jsonlfile: Path) -> Iterator[SchemaEvent]:
         with jsonlines.open(jsonlfile) as reader:
-            for obj in reader:
-                raw_event = RawEvent(**obj)
+            for line, obj in enumerate(reader):
+                try:
+                    raw_event = RawEvent(**obj)
+                except Exception as e:
+                    # TODO: Better Logs
+                    print(e)
+                    print(f'{jsonlfile} - Line: {line}')
+                    continue
                 event = self.process(raw_event)
                 event.bronze_file = self.bronze_file(jsonlfile)
                 yield event

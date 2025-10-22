@@ -254,7 +254,7 @@ class TicketBr(Crawler, Extractor):
     def url(self, soup) -> str:
         pk = soup.find('div', class_='inscricao').find('a')
         if not pk:
-            return '#'
+            return self.URL
         pk = ''.join(filter(str.isdigit, pk.get('onclick')))
         return f'https://www.ticketbr.com.br/evento/undefined/{pk}'
 

@@ -47,6 +47,22 @@ class TicketSports():
         'DDD': '11',
     }
 
+class AgendaEsportiva():
+    URL = 'https://agendaesportiva.com.br/eventos?esporte=ciclismo'
+    REPO = Path('agendaesportiva.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '41',
+    }
+
+class AgendaOffroad():
+    URL = 'https://agendaoffroad.com.br/eventos?modalidade=mountain+bike'
+    REPO = Path('agendaoffroad.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '41',
+    }
+
 class Fotop():
     URL = 'https://fotop.com.br'
     META = {
@@ -97,7 +113,7 @@ class TourDoPeixe(Crawler, Extractor):
     
     def url(self, soup) -> str:
         if not soup.find('a'):
-            return '#'
+            return self.URL
         return soup.find('a').get('href')
 
     def trigger(self):
