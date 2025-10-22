@@ -197,7 +197,7 @@ class Peloto(Crawler, Extractor):
    
     def url(self, soup) -> str:
         #class_ = 'btn-large waves-effect waves-light blue white-text pulse col s12' 
-        return soup.find('a', class_='btn-large').get('href')
+        return self.URL + soup.find('a', class_='btn-large').get('href')
 
     def trigger(self):
 
