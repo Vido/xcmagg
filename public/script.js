@@ -1,6 +1,6 @@
 const body = document.querySelector('#table tbody');
 
-fetch('https://api.allorigins.win/raw?url=https://xcmagg.lvido.tech/data.jsonl')
+fetch('https://xcmagg.lvido.tech/data.jsonl')
 	.then(response => response.text())
 	.then(text => {
 		const lines = text.trim().split('\n').filter(Boolean);
