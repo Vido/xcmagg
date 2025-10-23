@@ -1,29 +1,103 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>XCMAGG</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <nav>
-            <ul>
-                <li><a href="#">XCMAGG</a></li>
-                <li style="float:right"><a href="#">Contato</a></li>
-            </ul>
-        </nav>
-        <h1 style="text-align: center">Próximos eventos</h1>
-        <table id="table">
-            <thead>
-                <tr>
-                    <th>Nome do evento</th>
-                    <th>Data</th>
-                    <th>Local</th>
-                    <th>Inscrição</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </body>
-    <script src="script.js" defer></script>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XCMAGG</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css"/>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333333;
+      }
+
+      ul li {
+        float: left;
+      }
+
+      ul li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+      }
+
+      ul li a:hover {
+        background-color: #111111;
+      }
+
+      .table-setup {
+        width: 80%;
+        margin: 0 auto;
+      }
+
+      nav {
+        width: 100%;
+      }
+
+      nav a.logo{
+        font-size: 16px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="#" class="logo">XCMAGG</a></li>
+        <li style="float:right"><a href="#">Contato</a></li>
+      </ul>
+    </nav>
+    <h1 style="text-align: center">Próximos eventos</h1>
+    <div class="table-setup">
+      <table id="table" class="display">
+        <thead>
+          <tr>
+            <th>Nome do evento</th>
+            <th>Data</th>
+            <th>Local</th>
+            <th>Inscrição</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+  <script>
+    const body = document.querySelector('#table tbody');
+
+    fetch('https://xcmagg.lvido.tech/data.jsonl')
+      .then(response => response.text())
+      .then(text => {
+            const lines = text.trim().split('\n').filter(Boolean);
+            const jsonArray = lines.map(line => JSON.parse(line));
+            jsonArray.forEach(item => {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+   <td data-label="Título">${item.title}</td>
+   <td data-label="Data">${item.date_range.date_raw}</td>
+   <td data-label="Local">${item.location.location_raw}</td>
+   <td><a href="${item.url}" target="_blank">Acessar</a></td>
+   `;
+                  body.appendChild(row);
+                });
+            $('#table').DataTable();
+          })
+      .catch(error => console.error('Erro:', error));
+
+  </script>
 </html>
