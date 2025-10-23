@@ -40,7 +40,7 @@ class Sprinta():
     }
 
 class TicketSports(Crawler, Extractor):
-    URL = 'https://www.ticketsports.com.br'
+    URL = 'https://www.ticketsports.com.br/'
     REPO = Path('ticketsports.com.br')
     META = {
         'Category': 'Agregador',
@@ -59,7 +59,9 @@ class TicketSports(Crawler, Extractor):
         return span[2].text.strip() 
 
     def url(self, soup) -> str:
-        return self.URL + soup.find('a').get('href')
+        link = soup.find('link', rel="canonical")
+        return link.get('href')
+        
 
     def trigger(self):
         endpoint = self.URL + 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
