@@ -12,14 +12,15 @@ def main():
 
     # TODO: Use a config file
     crawlers = [
-        TIOnline(),
-        Peloto(),
-        ActiveSports(),
-        CorridaPronta(),
-        TourDoPeixe(),
-        TicketBr(),
-        FPCiclismo(),
-        SeuEsporteApp(),
+        #TIOnline(),
+        #Peloto(),
+        #ActiveSports(),
+        #CorridaPronta(),
+        #TourDoPeixe(),
+        #TicketBr(),
+        #FPCiclismo(),
+        #SeuEsporteApp(),
+        TicketSports(),
     ]
 
     for crawler in crawlers:
