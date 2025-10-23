@@ -1,6 +1,8 @@
 import re
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import urljoin
+
 
 from bs4 import BeautifulSoup
 
@@ -63,7 +65,7 @@ class TicketSports(Crawler, Extractor):
         return link.get('href')
 
     def trigger(self):
-        endpoint = self.URL + 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
+        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/')
         fp, soup = self.get_html(endpoint, suffix='calendario')
         div = soup.find_all('div', 'card-evento')
 
@@ -74,7 +76,7 @@ class TicketSports(Crawler, Extractor):
 
         events_acc = []
         for href in href_list:
-            url = f"{self.URL}{href}"
+            url = urljoin(self.URL, href)
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
             fp, soup2 = self.get_html(url, suffix=fn)
             events_acc.append(self.parse(soup2, fp))
