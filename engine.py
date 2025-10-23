@@ -72,9 +72,12 @@ class RawLayer:
 
 class Crawler(ABC, RawLayer):
 
+    # TODO:
+    # set crawl_delay based on robots.txt
+
     @staticmethod
-    def _call(method_f, endpoint, params={}, payload={}, delay=1):
-        time.sleep(delay)
+    def _call(method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        time.sleep(crawl_delay)
         kwargs = {
             'headers': {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0',
@@ -243,6 +246,7 @@ class SchemaEvent:
     date_range: DateRange
     location: Location
     processed_at: datetime
+    crawled_at: datetime
     bronze_file: Optional[Path] = None
 
     def to_dict(self):
@@ -261,29 +265,34 @@ class SilverLayer(ABC):
     BASE = Path(__file__).parent / 'data'
 
     def __init__(self):
+        self.unique_urls = set()
         self._silver = self.BASE / 'silver'
         self._silver.mkdir(parents=True, exist_ok=True)
         super().__init__()
 
-    def collect(self, bronze_events: List[Crawler]):
+    def collect(self, bronze_events: List[Crawler]) -> List[RawEvent]:
         return sum([repo.lastest(glob='../*.jsonl') for repo in bronze_events], [])
 
     def aggregate_jsonl(self, event_list: List[SchemaEvent]) -> Path:
         # Normalize?
-        # Deduplicate?
 
         today = date.today().isoformat()
         fp = self._silver / f'{today}.jsonl'
         with jsonlines.open(fp, mode='w') as fp:
             # TODO: Custom decoder
             objs = [e.to_dict() for e in chain(*event_list)]
-            print(objs)
+            print(objs[0])
+            objs.sort(key=lambda x: x['crawled_at'], reverse=True)
             fp.write_all(objs)
         return fp
 
     def store_sql(self, event_list: List[SchemaEvent]):
         # duckdb?
         raise NotImplementedError
+
+
+class DuplicatedEvent(ValueError):
+    """A Duplciated Event was found"""
 
 
 class Parser(SilverLayer):
@@ -316,8 +325,20 @@ class Parser(SilverLayer):
     def bronze_file(self, fp: Path) -> Path:
         return fp.resolve()
 
+    def dedup_strategy(self, event: RawEvent) -> bool:
+        print('EVENT', event)
+        """ Basic deduplication: Checks for duplicated URLS """
+        if event.url in self.unique_urls:
+            return True
+        self.unique_urls.add(event.url)
+        return False
+
     def process(self, raw_event: RawEvent) -> SchemaEvent:
         event = None
+
+        if self.dedup_strategy(raw_event):
+            raise DuplicatedEvent(f'Duplicated: {raw_event.url}')
+
         try:
              event = SchemaEvent(
                 title=self.title(raw_event),
@@ -325,8 +346,9 @@ class Parser(SilverLayer):
                 date_range=self.date_range(raw_event),
                 url=self.url(raw_event),
                 source=self.source(raw_event),
+                crawled_at=raw_event.crawled_at,
                 processed_at=datetime.now(),
-            )
+             )
         except Exception as e:
             raise
 
@@ -336,12 +358,16 @@ class Parser(SilverLayer):
         with jsonlines.open(jsonlfile) as reader:
             for line, obj in enumerate(reader):
                 try:
-                    raw_event = RawEvent(**obj)
-                except Exception as e:
-                    # TODO: Better Logs
-                    print(e)
+                    raw_event_iter = RawEvent(**obj)
+                    event = self.process(raw_event_iter)
+                except DuplicatedEvent as D:
+                    print(D)
                     print(f'{jsonlfile} - Line: {line}')
                     continue
-                event = self.process(raw_event)
+                except Exception as E:
+                    print(E)
+                    print(f'{jsonlfile} - Line: {line}')
+                    continue
+
                 event.bronze_file = self.bronze_file(jsonlfile)
                 yield event
