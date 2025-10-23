@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional, Iterator, Tuple
 from dataclasses import dataclass, asdict
 
 import requests
+import validators
 import jsonlines
 import pdfplumber
 from bs4 import BeautifulSoup
@@ -26,6 +27,10 @@ class RawEvent:
     raw_file: Path
 
     def __post_init__(self):
+        self.validate()
+
+    def validate(self):
+
         if not self.title:
             raise ValueError('Title cannot be empty')
 
@@ -39,6 +44,10 @@ class RawEvent:
 
         if not parsed.netloc:
             raise ValueError(f'Malformed URL: {self.url}')
+
+        if not validators.url(self.url):
+            raise ValueError(f'Invalid URL: {self.url}')
+
 
     def to_dict(self):
         d = asdict(self)
@@ -66,8 +75,9 @@ class RawLayer:
         age = datetime.now() - datetime.fromtimestamp(filepath.stat().st_mtime)
         return age < timedelta(hours=max_age_hours)
 
-    def lastest(self, glob='*.html'):
-        return sorted(Path(self._repo).glob(glob), key=os.path.getctime)
+    def latest(self, glob='*.html'):
+        return sorted(Path(self._repo).glob(glob),
+                key=os.path.getctime, reverse=True)
 
 
 class Crawler(ABC, RawLayer):
@@ -102,9 +112,9 @@ class Crawler(ABC, RawLayer):
     def download(self, url, suffix) -> Path:
 
         # Cached
-        lastest = self.lastest(glob=f'*{suffix}')
-        if lastest:
-            last = max(lastest)
+        latest = self.latest(glob=f'*{suffix}')
+        if latest:
+            last = max(latest)
             if self._is_file_fresh(last):
                 print(f'Reading from: {last}')
                 return last
@@ -257,7 +267,7 @@ class SchemaEvent:
         # TODO:
         #d['date_range'] = self.date_range.to_dict()
         #d['location'] = asdict(self.location())
-        print(d)
+
         return d
 
 class SilverLayer(ABC):
@@ -265,13 +275,18 @@ class SilverLayer(ABC):
     BASE = Path(__file__).parent / 'data'
 
     def __init__(self):
-        self.unique_urls = set()
+        self.unique_events = set()
         self._silver = self.BASE / 'silver'
         self._silver.mkdir(parents=True, exist_ok=True)
         super().__init__()
 
-    def collect(self, bronze_events: List[Crawler]) -> List[RawEvent]:
+    def collect_all(self, bronze_events: List[Crawler]) -> List[RawEvent]:
+        """ Historical """
         return sum([repo.lastest(glob='../*.jsonl') for repo in bronze_events], [])
+
+    def collect(self, bronze_events: List[Crawler]) -> List[RawEvent]:
+        """ Only the Last """
+        return [max(repo.latest(glob='../*.jsonl')) for repo in bronze_events]
 
     def aggregate_jsonl(self, event_list: List[SchemaEvent]) -> Path:
         # Normalize?
@@ -281,7 +296,6 @@ class SilverLayer(ABC):
         with jsonlines.open(fp, mode='w') as fp:
             # TODO: Custom decoder
             objs = [e.to_dict() for e in chain(*event_list)]
-            print(objs[0])
             objs.sort(key=lambda x: x['crawled_at'], reverse=True)
             fp.write_all(objs)
         return fp
@@ -326,18 +340,17 @@ class Parser(SilverLayer):
         return fp.resolve()
 
     def dedup_strategy(self, event: RawEvent) -> bool:
-        print('EVENT', event)
         """ Basic deduplication: Checks for duplicated URLS """
-        if event.url in self.unique_urls:
+        superkey = (event.title, event.url)
+        if superkey in self.unique_events:
             return True
-        self.unique_urls.add(event.url)
+        self.unique_events.add(superkey)
         return False
 
     def process(self, raw_event: RawEvent) -> SchemaEvent:
         event = None
-
         if self.dedup_strategy(raw_event):
-            raise DuplicatedEvent(f'Duplicated: {raw_event.url}')
+            raise DuplicatedEvent(f'Duplicated: {raw_event.title}: {raw_event.url}')
 
         try:
              event = SchemaEvent(
@@ -358,15 +371,16 @@ class Parser(SilverLayer):
         with jsonlines.open(jsonlfile) as reader:
             for line, obj in enumerate(reader):
                 try:
-                    raw_event_iter = RawEvent(**obj)
-                    event = self.process(raw_event_iter)
+                    raw_event = RawEvent(**obj)
+                    raw_event.validate()
+                    event = self.process(raw_event)
                 except DuplicatedEvent as D:
                     print(D)
-                    print(f'{jsonlfile} - Line: {line}')
+                    print(f'{jsonlfile.resolve()} - Line: {line}')
                     continue
                 except Exception as E:
                     print(E)
-                    print(f'{jsonlfile} - Line: {line}')
+                    print(f'{jsonlfile.resolve()} - Line: {line}')
                     continue
 
                 event.bronze_file = self.bronze_file(jsonlfile)

@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 from engine import Crawler, Extractor
 
@@ -59,10 +59,10 @@ class CorridaPronta(Crawler, Extractor):
         return span[1].text.strip()
 
     def url(self, soup) -> str:
-        return self.URL + 'inscricao/' + soup.find('a').get('href')
+        return urljoin(self.URL, 'inscricao/', soup.find('a').get('href'))
 
     def trigger(self):
-        endpoint = self.URL + 'eventos.php'
+        endpoint = urljoin(self.URL, 'eventos.php')
         fp, soup = self.get_html(endpoint, suffix='eventos')
         div = soup.find_all('div', 's-12 m-6 l-3')
 
@@ -74,7 +74,7 @@ class CorridaPronta(Crawler, Extractor):
 
         events_acc = []
         for href in href_list:
-            url = f"{self.URL}/{href}"
+            url = urljoin(self.URL, href)
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
             fp, soup2 = self.get_html(url, suffix=fn)
             events_acc.append(self.parse(soup2, fp))
@@ -82,7 +82,7 @@ class CorridaPronta(Crawler, Extractor):
 
 
 class ActiveSports(Crawler, Extractor):
-    URL = 'https://www.activesports.com.br'
+    URL = 'https://www.activesports.com.br/'
     REPO = Path('activesports.com.br')
     TIME_FORMAT = '%d/%m/%Y'
     META = {
@@ -101,11 +101,11 @@ class ActiveSports(Crawler, Extractor):
         return soup[1].text.strip()
     
     def url(self, soup) -> str:
-        return self.URL + soup[0].get('href')
+        return urljoin(self.URL, soup[0].get('href'))
 
     def trigger(self):
-        endpoint = self.URL + '/proximos-eventos'
-        fp, soup = self.get_html(self.URL, suffix='proximos-eventos')
+        endpoint = urljoin(self.URL, 'proximos-eventos')
+        fp, soup = self.get_html(endpoint, suffix='proximos-eventos')
         div = soup.find_all('div', class_='content-course')
 
         events_acc = []
@@ -116,7 +116,7 @@ class ActiveSports(Crawler, Extractor):
 
 
 class GpsControlCrono():
-    URL = 'https://www.gpscontrolcrono.com.br'
+    URL = 'https://www.gpscontrolcrono.com.br/'
     REPO = Path('gpscontrolcrono.com.br')
     TIME_FORMAT = '%d/%m/%Y'
 
@@ -174,7 +174,7 @@ class SeuEsporteApp(Crawler, Extractor):
 
 
 class Peloto(Crawler, Extractor):
-    URL = 'https://peloto.com.br'
+    URL = 'https://peloto.com.br/'
     REPO = Path('peloto.com.br')
     TIME_FORMAT = '%d/%m/%Y'
     META = {
@@ -197,10 +197,10 @@ class Peloto(Crawler, Extractor):
    
     def url(self, soup) -> str:
         #class_ = 'btn-large waves-effect waves-light blue white-text pulse col s12' 
-        return self.URL + soup.find('a', class_='btn-large').get('href')
+        href = soup.find('a', class_='btn-large').get('href')
+        return urljoin(self.URL, href)
 
     def trigger(self):
-
         fp, soup = self.get_html(self.URL, suffix='home.html')
         div = soup.find_all('div', 'prox-eventos')
 
@@ -211,7 +211,7 @@ class Peloto(Crawler, Extractor):
 
         events_acc = []
         for href in href_list:
-            url = f"{self.URL}/{href}"
+            url = urljoin(self.URL, href)
             fn = re.sub(r'(?u)[^-\w.]', '_', href)
             fp, soup2 = self.get_html(url, suffix=fn)
             events_acc.append(self.parse(soup2, fp))
@@ -234,7 +234,7 @@ class Nuflow():
 
 
 class TicketBr(Crawler, Extractor):
-    URL = 'https://www.ticketbr.com.br'
+    URL = 'https://www.ticketbr.com.br/'
     REPO = Path('ticketbr.com.br')
     TIME_FORMAT = '%d/%m/%Y %H:%M'
     META = {
@@ -256,11 +256,12 @@ class TicketBr(Crawler, Extractor):
         if not pk:
             return self.URL
         pk = ''.join(filter(str.isdigit, pk.get('onclick')))
-        return f'https://www.ticketbr.com.br/evento/undefined/{pk}'
+        url = urljoin(self.URL, f'/evento/undefined/{pk}')
+        return url
 
     def trigger(self):
         from bs4 import BeautifulSoup
-        endpoint = self.URL + '/calendario.ecm'
+        endpoint = urljoin(self.URL, '/calendario.ecm')
         fp, soup = self.get_html(endpoint, suffix='calendario', encoding='iso-8859-1')
         div = soup.find('div', class_='calendario')
 
@@ -338,7 +339,7 @@ class FPCiclismo(Crawler, Extractor):
         return pdf_url, suffix
 
     def trigger(self):
-        endpoint = self.URL + 'index.php/calendario-mtb/'
+        endpoint = urljoin(self.URL, 'index.php/calendario-mtb/')
         fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
         pdf_url, suffix = FPCiclismo.parse_html(soup)
         fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
@@ -354,5 +355,3 @@ class FPCiclismo(Crawler, Extractor):
             events_acc.append(event)
 
         return events_acc
-
-
