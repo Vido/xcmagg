@@ -20,6 +20,7 @@ def main():
         TicketBr(),
         FPCiclismo(),
         SeuEsporteApp(),
+        TicketSports(),
     ]
 
     for crawler in crawlers:

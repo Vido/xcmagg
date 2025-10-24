@@ -1,6 +1,8 @@
 import re
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import urljoin
+
 
 from bs4 import BeautifulSoup
 
@@ -39,13 +41,48 @@ class Sprinta():
         'DDD': '51',
     }
 
-class TicketSports():
-    URL = 'https://www.ticketsports.com.br/Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/'
-    REPO = Path('peloto.com.br')
+class TicketSports(Crawler, Extractor):
+    URL = 'https://www.ticketsports.com.br/'
+    REPO = Path('ticketsports.com.br')
     META = {
         'Category': 'Agregador',
         'DDD': '11',
     }
+
+    def title(self, soup) -> str:
+        return soup.find('h1').text.strip()
+
+    def date(self, soup) -> str:
+        span = soup.find_all('span')
+        return span[1].text.strip() 
+
+    def local(self, soup) -> str:
+        span = soup.find_all('span')
+        return span[2].text.strip() 
+
+    def url(self, soup) -> str:
+        link = soup.find('link', rel="canonical")
+        return link.get('href')
+
+    def trigger(self):
+        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/')
+        fp, soup = self.get_html(endpoint, suffix='calendario')
+        div = soup.find_all('div', 'card-evento')
+
+        href_list = []
+        for d in div:
+            href = d.find('a').get('href')
+            href_list.append(href)
+
+        events_acc = []
+        for href in href_list:
+            url = urljoin(self.URL, href)
+            fn = re.sub(r'(?u)[^-\w.]', '_', href)
+            fp, soup2 = self.get_html(url, suffix=fn)
+            events_acc.append(self.parse(soup2, fp))
+
+        return events_acc
+
 
 class AgendaEsportiva():
     URL = 'https://agendaesportiva.com.br/eventos?esporte=ciclismo'
