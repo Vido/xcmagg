@@ -65,7 +65,7 @@ class TicketSports(Crawler, Extractor):
         return link.get('href')
 
     def trigger(self):
-        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/')
+        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/Todo-o-Brasil/Todas-as-cidades/0,00/0,00/false/?termo=&periodo=0&mes=&inicio=&fim=&ordenacao=3&pais=')
         fp, soup = self.get_html(endpoint, suffix='calendario')
         div = soup.find_all('div', 'card-evento')
 
