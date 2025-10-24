@@ -1,4 +1,5 @@
 import re
+import json
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin
@@ -168,3 +169,39 @@ class TourDoPeixe(Crawler, Extractor):
                 continue
 
         return events_acc
+
+
+class InscricoesBike(Crawler, Extractor):
+    URL = 'https://inscricoes.bike/'
+    REPO = Path('inscricoes.bike')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '79',
+    }
+
+    def title(self, soup) -> str:
+        return soup['titulo']
+
+    def date(self, soup) -> str:
+        return soup['dataevento']
+
+    def local(self, soup) -> str:
+        return soup['cidade'] + '-' + soup['uf']
+
+    def url(self, soup) -> str:
+        return urljoin(self.URL, soup['url'])
+
+    def trigger(self):
+        api = 'https://static.inscricoes.bike/eventos/eventos-bike.json'
+        fp, soup = self.get_html(api, suffix='eventos.html')
+        data = json.loads(soup.text)
+
+        events_acc = []
+        for row in data:
+            events_acc.append(self.parse(row, fp))
+
+        return events_acc
+
+
+
+

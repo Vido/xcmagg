@@ -21,6 +21,7 @@ def main():
         FPCiclismo(),
         SeuEsporteApp(),
         TicketSports(),
+        InscricoesBike(),
     ]
 
     for crawler in crawlers:
