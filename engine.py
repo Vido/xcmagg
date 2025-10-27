@@ -2,7 +2,7 @@ import os
 import time
 from pathlib import Path
 from itertools import chain
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
@@ -91,9 +91,11 @@ class Crawler(ABC, RawLayer):
         time.sleep(crawl_delay)
         kwargs = {
             'headers': {
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0',
+                #'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
+                #'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Language': 'pt-BR,en-US;q=0.8,en;q=0.6,pt;q=0.4',
                 'Accept-Encoding': 'gzip, deflate, br, zstd',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
@@ -101,8 +103,8 @@ class Crawler(ABC, RawLayer):
                 'Sec-Fetch-Mode': 'navigate',
                 'Sec-Fetch-Site': 'cross-site',
                 'Priority': 'u=0, i',
-                'Pragma': 'no-cache',
-                'Cache-Control': 'no-cache'
+                #'Pragma': 'no-cache',
+                #'Cache-Control': 'no-cache'
             },
         }
         kwargs.update({'params': params}) if params else None
@@ -329,7 +331,11 @@ class Parser(SilverLayer):
         return raw_event.title
 
     def url(self, raw_event) -> str:
-        return raw_event.url
+        parsed = urlparse(raw_event.url)
+        query = parse_qs(parsed.query)
+        query["utm_source"] = ['xcmagg']
+        new_query = urlencode(query, doseq=True)
+        return urlunparse(parsed._replace(query=new_query))
 
     def source(self, raw_event) -> str:
         return raw_event.source

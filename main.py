@@ -20,7 +20,7 @@ def main():
         TicketBr(),
         FPCiclismo(),
         SeuEsporteApp(),
-        TicketSports(),
+        #TicketSports(),
         InscricoesBike(),
     ]
 
