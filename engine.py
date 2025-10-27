@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Iterator, Tuple
 from dataclasses import dataclass, asdict
 
+import json
 import requests
 import validators
 import jsonlines
@@ -143,6 +144,12 @@ class Crawler(ABC, RawLayer):
             for page in pdf.pages:
                 raw_data += page.extract_table()
         return fn, raw_data
+
+    def get_json(self, url, suffix='eventos.json') -> Tuple[Path, List]:
+        fn = self.download(url, suffix)
+        text = fn.read_text(encoding='utf-8')
+        data = json.loads(text)
+        return fn, data
 
     @abstractmethod
     def trigger(self) -> List[RawEvent]:

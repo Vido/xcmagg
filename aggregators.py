@@ -1,4 +1,5 @@
 import re
+import json
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin
@@ -65,7 +66,7 @@ class TicketSports(Crawler, Extractor):
         return link.get('href')
 
     def trigger(self):
-        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/SP/')
+        endpoint = urljoin(self.URL, 'Calendario/Todos-os-organizadores/Ciclismo,Mountain-bike/Todo-o-Brasil/Todas-as-cidades/0,00/0,00/false/?termo=&periodo=0&mes=&inicio=&fim=&ordenacao=3&pais=')
         fp, soup = self.get_html(endpoint, suffix='calendario')
         div = soup.find_all('div', 'card-evento')
 
@@ -168,3 +169,38 @@ class TourDoPeixe(Crawler, Extractor):
                 continue
 
         return events_acc
+
+
+class InscricoesBike(Crawler, Extractor):
+    URL = 'https://inscricoes.bike/'
+    REPO = Path('inscricoes.bike')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '79',
+    }
+
+    def title(self, soup) -> str:
+        return soup['titulo']
+
+    def date(self, soup) -> str:
+        return soup['dataevento']
+
+    def local(self, soup) -> str:
+        return soup['cidade'] + '-' + soup['uf']
+
+    def url(self, soup) -> str:
+        return urljoin(self.URL, soup['url'])
+
+    def trigger(self):
+        api = 'https://static.inscricoes.bike/eventos/eventos-bike.json'
+        fp, data = self.get_json(api, suffix='eventos.json')
+
+        events_acc = []
+        for row in data:
+            events_acc.append(self.parse(row, fp))
+
+        return events_acc
+
+
+
+
