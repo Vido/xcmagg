@@ -338,16 +338,32 @@ class FPCiclismo(Crawler, Extractor):
         suffix = Path(parsed_url.path).name
         return pdf_url, suffix
 
-    def trigger(self):
-        endpoint = urljoin(self.URL, 'index.php/calendario-mtb/')
-        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
-        pdf_url, suffix = FPCiclismo.parse_html(soup)
+    def process_data(self, path, append_month = False) -> list:
+        endpoint = urljoin(self.URL, f'index.php/{path}')
+        fp, soup = self.get_html(endpoint, suffix=path)
+        pdf_url, suffix = self.parse_html(soup)
         fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
 
         filtered_list = []
-        for row in raw_data:
-            if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
-                filtered_list.append(row)
+        if append_month:
+            months = [
+                    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+                    "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "NOVEMEBRO", "DEZEMBRO"
+                    ]
+            month = ''
+            month_typo = {'NOVEMEBRO': 'NOVEMBRO'}
+            for row in raw_data:
+                if row[0]:
+                    if any(row[0].startswith(month) for month in months):
+                        month = row[0]
+                        month = month_typo.get(month, month)
+                    if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
+                        row[0] = f"{row[0]} {month}"
+                        filtered_list.append(row)
+        else:
+            for row in raw_data:
+                if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
+                    filtered_list.append(row)
 
         events_acc = []
         for content in filtered_list:
@@ -355,3 +371,14 @@ class FPCiclismo(Crawler, Extractor):
             events_acc.append(event)
 
         return events_acc
+
+    def trigger(self):
+        events_acc = []
+        events_mtb = self.process_data('calendario-mtb')
+        events_estrada = self.process_data('calendario-estrada', append_month=True)
+
+        events_acc.extend(events_mtb)
+        events_acc.extend(events_estrada)
+
+        return events_acc
+
