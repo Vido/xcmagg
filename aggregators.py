@@ -193,8 +193,7 @@ class InscricoesBike(Crawler, Extractor):
 
     def trigger(self):
         api = 'https://static.inscricoes.bike/eventos/eventos-bike.json'
-        fp, soup = self.get_html(api, suffix='eventos.html')
-        data = json.loads(soup.text)
+        fp, data = self.get_json(api, suffix='eventos.json')
 
         events_acc = []
         for row in data:
