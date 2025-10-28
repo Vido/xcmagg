@@ -338,20 +338,47 @@ class FPCiclismo(Crawler, Extractor):
         suffix = Path(parsed_url.path).name
         return pdf_url, suffix
 
-    def trigger(self):
-        endpoint = urljoin(self.URL, 'index.php/calendario-mtb/')
-        fp, soup = self.get_html(endpoint, suffix='calendario-mtb')
-        pdf_url, suffix = FPCiclismo.parse_html(soup)
-        fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
+    def get_latest_pdf(self, category):
+        endpoint = urljoin(self.URL, f'index.php/{category}')
+        fp, soup = self.get_html(endpoint, suffix=f'{category}.html')
+        pdf_url, suffix = self.parse_html(soup)
+        return self.get_pdf(pdf_url, suffix=suffix)
 
-        filtered_list = []
+    @staticmethod
+    def sanitize_calendar(raw_data, format_date = False):
+
+        m = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO","JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"]
+        months = dict(zip(m, range(1, 13)))
+        # Typo
+        months['NOVEMEBRO'] = 11
+
+        sanitize_list = []
+        # Skip headers
         for row in raw_data:
-            if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
-                filtered_list.append(row)
+            if not row[0]:
+                continue
+            head = row[0].strip().upper()
+
+            # HEADER
+            if head in months:
+                month = months.get(head, head)
+
+            # EVENT
+            if all(row[-3:]) and re.search(r'\d', row[0]):
+                row[0] = f'{head}/{month}/2025' if format_date else row[0]
+                sanitize_list.append(row)
+
+        return sanitize_list
+
+    def trigger(self):
 
         events_acc = []
-        for content in filtered_list:
-            event = self.parse(content, fp)
-            events_acc.append(event)
+        for category in {'calendario-mtb', 'calendario-estrada'}:
+            fn, raw_data = self.get_latest_pdf(category)
+            format_date = category in {'calendario-estrada'}
+            sanitize_list = FPCiclismo.sanitize_calendar(raw_data, format_date)
+            for content in sanitize_list:
+                event = self.parse(content, fn)
+                events_acc.append(event)
 
         return events_acc
