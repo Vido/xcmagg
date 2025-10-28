@@ -338,47 +338,47 @@ class FPCiclismo(Crawler, Extractor):
         suffix = Path(parsed_url.path).name
         return pdf_url, suffix
 
-    def process_data(self, path, append_month = False) -> list:
-        endpoint = urljoin(self.URL, f'index.php/{path}')
-        fp, soup = self.get_html(endpoint, suffix=path)
+    def get_latest_pdf(self, category):
+        endpoint = urljoin(self.URL, f'index.php/{category}')
+        fp, soup = self.get_html(endpoint, suffix=f'{category}.html')
         pdf_url, suffix = self.parse_html(soup)
-        fn, raw_data = self.get_pdf(pdf_url, suffix=suffix)
+        return self.get_pdf(pdf_url, suffix=suffix)
 
-        filtered_list = []
-        if append_month:
-            months = [
-                    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
-                    "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "NOVEMEBRO", "DEZEMBRO"
-                    ]
-            month = ''
-            month_typo = {'NOVEMEBRO': 'NOVEMBRO'}
-            for row in raw_data:
-                if row[0]:
-                    if any(row[0].startswith(month) for month in months):
-                        month = row[0]
-                        month = month_typo.get(month, month)
-                    if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
-                        row[0] = f"{row[0]} {month}"
-                        filtered_list.append(row)
-        else:
-            for row in raw_data:
-                if all(row[-3:]) and re.match(r'^\d', row[0].strip()):
-                    filtered_list.append(row)
+    @staticmethod
+    def sanitize_calendar(raw_data, format_date = False):
 
-        events_acc = []
-        for content in filtered_list:
-            event = self.parse(content, fp)
-            events_acc.append(event)
+        m = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO","JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"]
+        months = dict(zip(m, range(1, 13)))
+        # Typo
+        months['NOVEMEBRO'] = 11
 
-        return events_acc
+        sanitize_list = []
+        # Skip headers
+        for row in raw_data:
+            if not row[0]:
+                continue
+            head = row[0].strip().upper()
+
+            # HEADER
+            if head in months:
+                month = months.get(head, head)
+
+            # EVENT
+            if all(row[-3:]) and re.search(r'\d', row[0]):
+                row[0] = f'{head}/{month}/2025' if format_date else row[0]
+                sanitize_list.append(row)
+
+        return sanitize_list
 
     def trigger(self):
-        events_acc = []
-        events_mtb = self.process_data('calendario-mtb')
-        events_estrada = self.process_data('calendario-estrada', append_month=True)
 
-        events_acc.extend(events_mtb)
-        events_acc.extend(events_estrada)
+        events_acc = []
+        for category in {'calendario-mtb', 'calendario-estrada'}:
+            fn, raw_data = self.get_latest_pdf(category)
+            format_date = category in {'calendario-estrada'}
+            sanitize_list = FPCiclismo.sanitize_calendar(raw_data, format_date)
+            for content in sanitize_list:
+                event = self.parse(content, fn)
+                events_acc.append(event)
 
         return events_acc
-
