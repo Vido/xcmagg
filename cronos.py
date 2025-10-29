@@ -223,15 +223,35 @@ class ProximaProva():
     URL = 'https://proximaprova.com.br/eventos/'
 
 
-class Nuflow():
-    URL = 'https://nuflowpass.com.br/events'
+class Nuflow(Crawler, Extractor):
+    URL = 'https://nuflowpass.com.br/'
     REPO = Path('nuflowpass.com.br')
-    TIME_FORMAT = '%d/%m/%Y %H:%M'
     META = {
         'Category': 'Empresa de Cronometragem',
         'DDD': '31',
     }
+    def title(self, data):
+        return data['name']
 
+    def date(self, data):
+        return data['formatted_date']
+
+    def local(self, data):
+        return data['full_address']
+
+    def url(self, data):
+        event_id = data['id']
+        return urljoin(self.URL, f'events/{event_id}')
+
+    def trigger(self):
+        api = 'https://nuflowpass.herokuapp.com/api/v2/events'
+        fp, data = self.get_json(api, suffix='events.json')
+
+        events_acc = []
+        for row in data['events']:
+            events_acc.append(self.parse(row, fp))
+
+        return events_acc
 
 class TicketBr(Crawler, Extractor):
     URL = 'https://www.ticketbr.com.br/'
