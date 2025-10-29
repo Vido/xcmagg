@@ -22,6 +22,7 @@ def main():
         SeuEsporteApp(),
         #TicketSports(),
         InscricoesBike(),
+        Nuflow(),
     ]
 
     for crawler in crawlers:
