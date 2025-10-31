@@ -237,9 +237,8 @@ class DateRange:
 
     def to_dict(self):
         d = asdict(self)
-        d['start_date'] = self.start_date.isoformat()
-        end = self.end_date.isoformat() if self.end_date else ''
-        d['end_date'] = end
+        d['start_date'] = self.start_date.strftime("%d-%m-%Y") if self.start_date else ''
+        d['end_date'] = self.end_date.strftime("%d-%m-%Y") if self.end_date else ''
         return d
 
 @dataclass
@@ -272,10 +271,8 @@ class SchemaEvent:
         d = asdict(self)
         d['processed_at'] = self.processed_at.isoformat()
         d['bronze_file'] = str(self.bronze_file)
-
-        # TODO:
-        #d['date_range'] = self.date_range.to_dict()
-        #d['location'] = asdict(self.location())
+        d['date_range'] = self.date_range.to_dict()
+        d['location'] = asdict(self.location)
 
         return d
 
@@ -301,8 +298,8 @@ class SilverLayer(ABC):
         # Normalize?
 
         today = date.today().isoformat()
-        fp = self._silver / f'{today}.jsonl'
-        with jsonlines.open(fp, mode='w') as fp:
+        fn = self._silver / f'{today}.jsonl'
+        with jsonlines.open(fn, mode='w') as fp:
             # TODO: Custom decoder
             objs = [e.to_dict() for e in chain(*event_list)]
             objs.sort(key=lambda x: x['crawled_at'], reverse=True)
@@ -341,10 +338,18 @@ class Parser(SilverLayer):
         return raw_event.source
 
     def date_range(self, raw_event) -> DateRange:
-        return DateRange(date_raw=raw_event.date)
+        from agents import normalize_daterange
+        llm_parsed = normalize_daterange(f'{raw_event.date} {raw_event.title}')
+        llm_parsed['date_raw'] = raw_event.date
+        print(llm_parsed)
+        return DateRange(**llm_parsed)
 
     def location(self, raw_event) -> Location:
-        return Location(location_raw=raw_event.local)
+        from agents import normalize_location
+        llm_parsed = normalize_location(f'{raw_event.local} {raw_event.title}')
+        llm_parsed['location_raw'] = raw_event.local
+        print(llm_parsed)
+        return Location(**llm_parsed)
 
     def processed_at(self) -> datetime:
         return datetime.now()
@@ -360,11 +365,8 @@ class Parser(SilverLayer):
         self.unique_events.add(superkey)
         return False
 
-    def process(self, raw_event: RawEvent) -> SchemaEvent:
+    def process(self, raw_event: RawEvent, source: Path) -> SchemaEvent:
         event = None
-        if self.dedup_strategy(raw_event):
-            raise DuplicatedEvent(f'Duplicated: {raw_event.title}: {raw_event.url}')
-
         try:
              event = SchemaEvent(
                 title=self.title(raw_event),
@@ -374,6 +376,7 @@ class Parser(SilverLayer):
                 source=self.source(raw_event),
                 crawled_at=raw_event.crawled_at,
                 processed_at=datetime.now(),
+                bronze_file=self.bronze_file(source)
              )
         except Exception as e:
             raise
@@ -386,7 +389,9 @@ class Parser(SilverLayer):
                 try:
                     raw_event = RawEvent(**obj)
                     raw_event.validate()
-                    event = self.process(raw_event)
+                    if self.dedup_strategy(raw_event):
+                        raise DuplicatedEvent(f'Duplicated: {raw_event.title}: {raw_event.url}')
+                    event = self.process(raw_event, jsonlfile)
                 except DuplicatedEvent as D:
                     print(D)
                     print(f'{jsonlfile.resolve()} - Line: {line}')
@@ -396,5 +401,4 @@ class Parser(SilverLayer):
                     print(f'{jsonlfile.resolve()} - Line: {line}')
                     continue
 
-                event.bronze_file = self.bronze_file(jsonlfile)
                 yield event

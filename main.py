@@ -20,7 +20,7 @@ def main():
         TicketBr(),
         FPCiclismo(),
         SeuEsporteApp(),
-        #TicketSports(),
+        TicketSports(),
         InscricoesBike(),
         Nuflow(),
     ]
@@ -37,7 +37,7 @@ def main():
 
     # Upgrade to Silver
     parser.aggregate_jsonl(agg)
-    from IPython import embed; embed()
+    #from IPython import embed; embed()
 
 if __name__ == "__main__":
     main()

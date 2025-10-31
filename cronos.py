@@ -299,6 +299,12 @@ class TicketBr(Crawler, Extractor):
 
         return events_acc
 
+class TimerRacing():
+    URL = 'https://www.timerracing.com.br/resultados-eventos'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '71',
+    }
 
 class ProTiming():
     URL = 'https://www.protiming.com.br/calendario-eventos'
@@ -306,7 +312,6 @@ class ProTiming():
         'Category': 'Empresa de Cronometragem',
         'DDD': '47',
     }
-
 
 class ChipVale():
     URL = 'https://www.chipvale.com.br/resultados'
