@@ -7,6 +7,7 @@ from silver import Parser
 from itertools import chain
 flatten = chain.from_iterable
 
+
 # TODO: Use a config file
 crawlers = [
     TIOnline(),
@@ -18,6 +19,7 @@ crawlers = [
     FPCiclismo(),
     SeuEsporteApp(),
     TicketSports(),
+    TicketSportsAPI(),
     InscricoesBike(),
     Nuflow(),
 ]

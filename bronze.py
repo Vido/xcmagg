@@ -112,7 +112,7 @@ class Crawler(ABC, RawLayer):
         return method_f(endpoint, **kwargs)
 
 
-    def download(self, url, suffix) -> Path:
+    def download(self, url, suffix, method_f=requests.get, **kwargs) -> Path:
 
         # Cached
         latest = self.latest(glob=f'*{suffix}')
@@ -123,7 +123,7 @@ class Crawler(ABC, RawLayer):
                 return last
 
         print(f'Requesting {url}')
-        response = Crawler._call(requests.get, url)
+        response = Crawler._call(method_f, url, **kwargs)
         response.raise_for_status()
 
         today = date.today().isoformat()
@@ -147,8 +147,9 @@ class Crawler(ABC, RawLayer):
                 raw_data += page.extract_table()
         return fn, raw_data
 
-    def get_json(self, url, suffix='eventos.json') -> Tuple[Path, List]:
-        fn = self.download(url, suffix)
+    def get_json(self, url, suffix='eventos.json', payload=None) -> Tuple[Path, List]:
+        method_f = requests.post if payload else requests.get
+        fn = self.download(url, suffix, method_f=method_f, params=payload)
         text = fn.read_text(encoding='utf-8')
         data = json.loads(text)
         return fn, data
