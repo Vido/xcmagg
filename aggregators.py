@@ -100,7 +100,7 @@ class TicketSportsAPI(Crawler, Extractor):
         return data['DataRealizacaoString']
 
     def local(self, data) -> str:
-        return data['Cidade'] + '/' + data['UF']
+        return data['UF'] + ' / ' + data['Cidade']
 
     def url(self, data) -> str:
         return urljoin(self.URL, f'e/{data["TituloUrl"]}-{data["IdEvento"]}')
