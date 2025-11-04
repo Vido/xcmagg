@@ -7,20 +7,24 @@ from silver import Parser
 from itertools import chain
 flatten = chain.from_iterable
 
-# TODO: Use a config file
-crawlers = [
-    TIOnline(),
-    Peloto(),
-    ActiveSports(),
-    CorridaPronta(),
-    TourDoPeixe(),
-    TicketBr(),
-    FPCiclismo(),
-    SeuEsporteApp(),
-    TicketSports(),
-    InscricoesBike(),
-    Nuflow(),
-]
+def main():
+    print("Hello from xcmagg!")
+
+    # TODO: Use a config file
+    crawlers = [
+        TIOnline(),
+        Peloto(),
+        ActiveSports(),
+        CorridaPronta(),
+        TourDoPeixe(),
+        TicketBr(),
+        FPCiclismo(),
+        SeuEsporteApp(),
+        TicketSports(),
+        TicketSportsAPI(),
+        InscricoesBike(),
+        Nuflow(),
+    ]
 
 def extract():
     for crawler in crawlers:

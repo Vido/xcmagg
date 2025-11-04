@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin
-
+from collections import OrderedDict
 
 from bs4 import BeautifulSoup
 
@@ -83,6 +83,64 @@ class TicketSports(Crawler, Extractor):
             events_acc.append(self.parse(soup2, fp))
 
         return events_acc
+
+
+class TicketSportsAPI(Crawler, Extractor):
+    URL = 'https://www.ticketsports.com.br/'
+    REPO = Path('api.ticketsports.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '11',
+    }
+
+    def title(self, data) -> str:
+        return data['Titulo']
+
+    def date(self, data) -> str:
+        return data['DataRealizacaoString']
+
+    def local(self, data) -> str:
+        return data['Cidade'] + '/' + data['UF']
+
+    def url(self, data) -> str:
+        return urljoin(self.URL, f'e/{data["TituloUrl"]}-{data["IdEvento"]}')
+
+    def trigger(self):
+        api = urljoin(self.URL, 'Calendario')
+        ids_set = OrderedDict()
+        page = 1
+        payload = lambda: {
+            'organizador':'Todos-os-organizadores',
+            'termo':'',
+            'uf':'Todo-o-Brasil',
+            'cidade':'Todas-as-cidades',
+            'periodo':0,
+            'mes':'',
+            'inicio':'',
+            'fim':'',
+            'filtroRapido':'Ciclismo,Mountain-bike',
+            'ids': ','.join([f'{k}' for k in (ids_set.keys())]),
+            'apenasInscricoesAbertas':'true',
+            'precoDe':'',
+            'precoAte':'',
+            'freteGratis':'false',
+            'ordenacao':1,
+            'pais':'',
+        }
+
+        events_acc = []
+        while True:
+            fp, data = self.get_json(api, suffix=f'calendario{page}.json', payload=payload())
+            if not data:
+                break
+            for row in data:
+                events_acc.append(self.parse(row, fp))
+
+            ids_set |= {obj['IdEvento']:'' for obj in data if 'IdEvento' in obj}
+            page += 1
+
+        return events_acc
+
 
 
 class AgendaEsportiva():
