@@ -125,7 +125,7 @@ class TicketSportsAPI(Crawler, Extractor):
             'precoAte':'',
             'freteGratis':'false',
             'ordenacao':1,
-            'pais':'',
+            'pais':'Brasil',
         }
 
         events_acc = []
