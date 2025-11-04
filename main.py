@@ -7,30 +7,29 @@ from silver import Parser
 from itertools import chain
 flatten = chain.from_iterable
 
-def main():
-    print("Hello from xcmagg!")
+# TODO: Use a config file
+crawlers = [
+    TIOnline(),
+    Peloto(),
+    ActiveSports(),
+    CorridaPronta(),
+    TourDoPeixe(),
+    TicketBr(),
+    FPCiclismo(),
+    SeuEsporteApp(),
+    TicketSports(),
+    InscricoesBike(),
+    Nuflow(),
+]
 
-    # TODO: Use a config file
-    crawlers = [
-        TIOnline(),
-        Peloto(),
-        ActiveSports(),
-        CorridaPronta(),
-        TourDoPeixe(),
-        TicketBr(),
-        FPCiclismo(),
-        SeuEsporteApp(),
-        TicketSports(),
-        InscricoesBike(),
-        Nuflow(),
-    ]
-
+def extract():
     for crawler in crawlers:
         events = crawler.trigger()
         print(crawler, "Done!")
         #pprint(events)
         crawler.store(events)
 
+def load():
     parser = Parser()
     bronze_jsonl = parser.collect(crawlers)
     agg = [parser.process_all(x) for x in bronze_jsonl]
@@ -40,4 +39,6 @@ def main():
     #from IPython import embed; embed()
 
 if __name__ == "__main__":
-    main()
+    print("Hello from xcmagg!") 
+    extract()
+    load()

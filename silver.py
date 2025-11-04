@@ -155,21 +155,23 @@ class Parser(SilverLayer):
         self.unique_events.add(superkey)
         return False
 
-    def process(self, raw_event: RawEvent, source: Path) -> SchemaEvent:
+    def process(self, event_obj: Dict, source: Path) -> SchemaEvent:
         event = None
-        try:
-             event = SchemaEvent(
-                title=self.title(raw_event),
-                location=self.location(raw_event),
-                date_range=self.date_range(raw_event),
-                url=self.url(raw_event),
-                source=self.source(raw_event),
-                crawled_at=raw_event.crawled_at,
-                processed_at=datetime.now(),
-                bronze_file=self.bronze_file(source)
-             )
-        except Exception as e:
-            raise
+        raw_event = RawEvent(**event_obj)
+        raw_event.validate()
+        if self.dedup_strategy(raw_event):
+            raise DuplicatedEvent(f'Duplicated: {raw_event.title}: {raw_event.url}')
+
+        event = SchemaEvent(
+            title=self.title(raw_event),
+            location=self.location(raw_event),
+            date_range=self.date_range(raw_event),
+            url=self.url(raw_event),
+            source=self.source(raw_event),
+            crawled_at=raw_event.crawled_at,
+            processed_at=datetime.now(),
+            bronze_file=self.bronze_file(source)
+        )
 
         return event
 
@@ -177,11 +179,7 @@ class Parser(SilverLayer):
         with jsonlines.open(jsonlfile) as reader:
             for line, obj in enumerate(reader):
                 try:
-                    raw_event = RawEvent(**obj)
-                    raw_event.validate()
-                    if self.dedup_strategy(raw_event):
-                        raise DuplicatedEvent(f'Duplicated: {raw_event.title}: {raw_event.url}')
-                    event = self.process(raw_event, jsonlfile)
+                    event = self.process(obj, jsonlfile)
                 except DuplicatedEvent as D:
                     print(D)
                     print(f'{jsonlfile.resolve()} - Line: {line}')
