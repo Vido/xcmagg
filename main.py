@@ -1,8 +1,8 @@
 from pprint import pprint
 
-from engine import Parser
 from cronos import *
 from aggregators import *
+from silver import Parser
 
 from itertools import chain
 flatten = chain.from_iterable

@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse, urljoin
 
-from engine import Crawler, Extractor
+from bronze import Crawler, Extractor
 
 
 class TIOnline(Crawler, Extractor):

@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from engine import Crawler, Extractor
+from bronze import Crawler, Extractor
 
 
 class FederacaoPaulista():
