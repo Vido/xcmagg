@@ -106,9 +106,7 @@ class TicketSportsAPI(Crawler, Extractor):
         return urljoin(self.URL, f'e/{data["TituloUrl"]}-{data["IdEvento"]}')
 
     def trigger(self):
-        api = urljoin(self.URL, 'Calendario')
-        ids_set = OrderedDict()
-        page = 1
+
         payload = lambda: {
             'organizador':'Todos-os-organizadores',
             'termo':'',
@@ -128,14 +126,16 @@ class TicketSportsAPI(Crawler, Extractor):
             'pais':'Brasil',
         }
 
+        page = 1
         events_acc = []
+        ids_set = OrderedDict()
+        api = urljoin(self.URL, 'Calendario')
+
         while True:
             fp, data = self.get_json(api, suffix=f'calendario{page}.json', payload=payload())
             if not data:
                 break
-            for row in data:
-                events_acc.append(self.parse(row, fp))
-
+            events_acc += [self.parse(row, fp) for row in data]
             ids_set |= {obj['IdEvento']:'' for obj in data if 'IdEvento' in obj}
             page += 1
 

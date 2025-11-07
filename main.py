@@ -18,7 +18,6 @@ crawlers = [
     TicketBr(),
     FPCiclismo(),
     SeuEsporteApp(),
-    TicketSports(),
     TicketSportsAPI(),
     InscricoesBike(),
     Nuflow(),
