@@ -175,10 +175,31 @@ class BronzeLayer:
     @classmethod
     def store_db(klass, events_jsonl: Path):
         from db import Persistence
-        p = Persistence(klass.BASE / 'raw_events.duckdb')
+        p = Persistence()
         results = p.store_raw_events(events_jsonl)
         p._vacuum() # Optional
         return results
+
+    @classmethod
+    def load_new_events(klass):
+        from db import Persistence
+        p = Persistence()
+        try:
+            results = p.load_new_events()
+        except: # TODO
+            results = p.load_all_events()
+
+        return results
+
+    @staticmethod
+    def collect_all(bronze_events: List[Crawler]) -> List[RawEvent]:
+        """ Historical """
+        return sum([repo.lastest(glob='../*.jsonl') for repo in bronze_events], [])
+
+    @staticmethod
+    def collect(bronze_events: List[Crawler]) -> List[RawEvent]:
+        """ Only the Last """
+        return [max(repo.latest(glob='../*.jsonl')) for repo in bronze_events]
 
 
 class Extractor(ABC):

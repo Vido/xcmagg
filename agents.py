@@ -11,7 +11,7 @@ parse_location_tool = {
     "type": "function",
     "function": {
         "name": "parse_location",
-        "description": "Extract address, city, and UF (brazilian state).",
+        "description": "Extract address, city, and UF (Brazilian state). Use common Brazilian geographic and institutional knowledge (e.g., IBGE city names) to infer missing fields. Always check for the patterns: CITY/UF, CITY - UF, CITY (UF), or CITY, UF.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -71,12 +71,13 @@ def normalize_location(location_raw: str):
                 "content": (
                     "You are a location parser specialized in Brazilian geography. "
                     "Your task is to extract three fields from the input: address, city, and UF (Brazilian state abbreviation). "
-                    "If the text refers to a local business, venue, public facility, or landmark (for example, a gym, school, or stadium), treat it as an address and identify the corresponding city. "
+                    "If the text refers to a local business, venue, public facility, or landmark (for example, a gym, school, park, stadium, etc...), treat it as an address and identify the corresponding city. "
                     "If it looks like an event name (e.g., a race or competition), do not treat it as an address and leave all fields null. "
                     "When a city name is identified, always infer its corresponding UF (Brazilian state) using your knowledge of Brazil. "
-                    "Do not leave UF empty if you know which state the city belongs to. If you are unsure, use the city size as proxy."
-					"If you are not completely certain about the city–UF pair, set confidence to 'low' "
-                    "Normalize all text to title case. Return null fields for anything that cannot be confidently determined."
+                    "Do not leave UF empty if you know which state the city belongs to."
+					"If you are not completely certain about the city–UF pair, set confidence to 'low'"
+                    "Normalize text to title case if it is all-caps. If it's a mix of upper and lower case: Keep as is."
+                    "Return null fields for anything that cannot be confidently determined."
                 ),
             },
             {"role": "user", "content": location_raw},
@@ -86,8 +87,8 @@ def normalize_location(location_raw: str):
     )
 
     message = response.choices[0].message
-    if not getattr(message, "tool_calls", None):
-        return {"address": None, "city": None, "uf": None}
+    if not getattr(message, "tool_calls"):
+        return {'address': None, 'city': None, 'uf': None, 'confidence': 'N/A'}
 
     tool_call = message.tool_calls[0]
     return json.loads(tool_call.function.arguments)
@@ -136,6 +137,9 @@ if __name__ == '__main__':
         "A DEFINIR",
         "Poliesportivo - Vereador Adilson Martins",
         "Parque do Povo: Marginal Pinheiros (via expressa) , São Paulo, SP, Brasil",
+        "Evento: DUATHLON SÃO JOAQUIM DA BARRA Local: Poliesportivo - Vereador Adilson Martins",
+        "Evento: 2026 Itaú BBA IRONMAN 70.3 Rio de Janeiro Local:",
+        "Evento: DESAFIO BRUTTUS Local: Parque dos Namorados",
     ]
 
     for location_raw in locations:
