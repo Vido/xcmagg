@@ -15,9 +15,27 @@ parse_location_tool = {
         "parameters": {
             "type": "object",
             "properties": {
-                "address": {"type": ["string", "null"]},
-                "city": {"type": ["string", "null"]},
-                "uf": {"type": ["string", "null"]},
+                "address": {
+                    "type": ["string", "null"],
+                    "description": "Street, facility, or local business address if applicable.",
+                },
+                "city": {
+                    "type": ["string", "null"],
+                    "description": "Brazilian city name, normalized to title case.",
+                },
+                "uf": {
+                    "type": ["string", "null"],
+                    "enum": [None, "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"],
+                    "description": "Brazilian UF abbreviation or null.",
+                },
+                "confidence": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high"],
+                    "description": ("Confidence level of the location extraction (low, medium, or high). "
+                                    "Use 'high' when all fields are confidently identified, "
+                                    "'medium' when partial uncertainty exists, "
+                                    "and 'low' when the result is mostly inferred or ambiguous."),
+                },
             },
         },
     },
@@ -50,24 +68,35 @@ def normalize_location(location_raw: str):
         messages=[
             {
                 "role": "system",
-                "content": "You are a location parser. Extract address, city, and UF (brazilian state) if possible."
-                "The input might be a local businnes or a city facility (like a polisportive stadium), consider this as address and try to find the brazilian city"
-                "If the input looks like an sport event - do not consider it as address"
-                "If this input is not an address - just the fields empty fields. Normalize the case-fold to title-case in all fields."
-                ,
+                "content": (
+                    "You are a location parser specialized in Brazilian geography. "
+                    "Your task is to extract three fields from the input: address, city, and UF (Brazilian state abbreviation). "
+                    "If the text refers to a local business, venue, public facility, or landmark (for example, a gym, school, or stadium), treat it as an address and identify the corresponding city. "
+                    "If it looks like an event name (e.g., a race or competition), do not treat it as an address and leave all fields null. "
+                    "When a city name is identified, always infer its corresponding UF (Brazilian state) using your knowledge of Brazil. "
+                    "Do not leave UF empty if you know which state the city belongs to. If you are unsure, use the city size as proxy."
+					"If you are not completely certain about the city–UF pair, set confidence to 'low' "
+                    "Normalize all text to title case. Return null fields for anything that cannot be confidently determined."
+                ),
             },
-            {"role": "user", "content": location_raw},],
+            {"role": "user", "content": location_raw},
+        ],
         tools=[parse_location_tool],
         tool_choice={"type": "function", "function": {"name": "parse_location"}},
     )
 
-    tool_call = response.choices[0].message.tool_calls[0]
+    message = response.choices[0].message
+    if not getattr(message, "tool_calls", None):
+        return {"address": None, "city": None, "uf": None}
+
+    tool_call = message.tool_calls[0]
     return json.loads(tool_call.function.arguments)
 
 
 def normalize_daterange(date_raw: str):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
+        temperature=0,
         messages=[
             {
                 "role": "system",
@@ -97,24 +126,23 @@ def normalize_daterange(date_raw: str):
 
 if __name__ == '__main__':
 
-    """
     locations = [
         "PENTÁUREA CLUBE MONTES CLAROS",
         "Colégio Anglo Salto, Avenida Brasília, 936, Jardim D'Icaraí - Salto / SP",
         "Parque estadual Serra de Jaraguá - S/N - Parque estadual Serra de Jaraguá , Zona Rural, Jaraguá - GO",
         "CAMARI - PORK ANGUS",
-        "EXTREMA/MG",
+        "CURVELO/MG",
         "Local: Mairiporã/SP",
         "A DEFINIR",
         "Poliesportivo - Vereador Adilson Martins",
-        "Parque do Povo: Marginal Pinheiros (via expressa) , São Paulo, SP, Brasil"
+        "Parque do Povo: Marginal Pinheiros (via expressa) , São Paulo, SP, Brasil",
     ]
 
     for location_raw in locations:
         parsed = normalize_location(location_raw)
         print(location_raw, parsed)
-    """
 
+    """
     dates = [
         "01/11/2025 - 07:00",
         "09 de Novembro de 2025",
@@ -129,3 +157,4 @@ if __name__ == '__main__':
     for date_raw in dates:
         parsed = normalize_daterange(date_raw)
         print(parsed, date_raw)
+    """
