@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Sensitive environment variables
+.env
+ 
 # Data
 data/
 public/data.jsonl

@@ -161,23 +161,27 @@ class Crawler(ABC, RawLayer):
 
 class BronzeLayer:
 
-    def __init__(self):
-        if not hasattr(self, 'REPO'):
-            raise AttributeError("REPO must be defined in concrete class")
+    BASE = Path(__file__).parent / 'data' / 'bronze'
 
-        self._bronze = self.BASE / self.REPO
-        self._bronze.mkdir(parents=True, exist_ok=True)
-        super().__init__()
-
-    def store(self, event_list: List[RawEvent]) -> Path:
+    @classmethod
+    def store_jsonl(klass,
+            event_list: List[RawEvent], repo: Path | str = '') -> Path:
         today = date.today().isoformat()
-        fn = self._bronze / f'{today}.jsonl'
+        fn = klass.BASE / repo / f'{today}.jsonl'
         with jsonlines.open(fn, mode='w') as writer:
             writer.write_all([e.to_dict() for e in event_list])
         return fn
 
+    @classmethod
+    def store_db(klass, events_jsonl: Path):
+        from db import Persistence
+        p = Persistence(klass.BASE / 'raw_events.duckdb')
+        results = p.store_raw_events(events_jsonl)
+        p._vacuum() # Optional
+        return results
 
-class Extractor(ABC, BronzeLayer):
+
+class Extractor(ABC):
 
     @abstractmethod
     def title(self, soup) -> str:

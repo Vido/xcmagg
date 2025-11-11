@@ -2,11 +2,11 @@ from pprint import pprint
 
 from cronos import *
 from aggregators import *
+from bronze import BronzeLayer
 from silver import Parser
 
 from itertools import chain
 flatten = chain.from_iterable
-
 
 # TODO: Use a config file
 crawlers = [
@@ -24,11 +24,15 @@ crawlers = [
 ]
 
 def extract():
+    all_events = []
     for crawler in crawlers:
         events = crawler.trigger()
+        BronzeLayer.store_jsonl(events, crawler.REPO)
+        all_events += events
         print(crawler, "Done!")
-        #pprint(events)
-        crawler.store(events)
+
+    jsonlfile = BronzeLayer.store_jsonl(all_events)
+    BronzeLayer.store_db(jsonlfile)
 
 def load():
     parser = Parser()
