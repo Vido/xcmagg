@@ -71,8 +71,4 @@ class Persistence:
     def store_schema_events(self, jsonlfile: Path):
         return self._store_data('schema_events', jsonlfile)
 
-    def load_schema_events(self):
-        rows = self.CONN.execute("SELECT * FROM schema_events").fetchall()
-        cols = [c[0] for c in self.CONN.description]
-        data = [dict(zip(cols, row)) for row in rows]
-        return data
+

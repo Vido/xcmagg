@@ -138,11 +138,7 @@ class Parser:
     def processed_at(self) -> datetime:
         return datetime.now()
 
-    #def bronze_file(self, fp: Path) -> Path:
-    #    return fp.resolve()
-
     def process(self, event_obj: Dict) -> SchemaEvent:
-        #self, event_obj: Dict, source: Path) -> SchemaEvent:
         event = None
         raw_event = RawEvent(**event_obj)
         raw_event.validate()
@@ -155,7 +151,6 @@ class Parser:
             source=self.source(raw_event),
             crawled_at=raw_event.crawled_at,
             processed_at=datetime.now(),
-            #bronze_file=self.bronze_file(source)
         )
 
         return event

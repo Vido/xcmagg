@@ -163,14 +163,10 @@
 						const jsonArray = lines.map(line => JSON.parse(line));
 						jsonArray.forEach(item => {
 									const row = document.createElement('tr');
-									var location = item.location.location_raw
-									if (item.location.uf && item.location.city){
-												location = item.location.uf + ' / ' + item.location.city
-											}
 									row.innerHTML = `
-		   <td data-label="Data">${item.date_range.start_date}</td>
+		   <td data-label="Data">${item.date}</td>
 	       <td data-label="Título"><a href="${item.url}" target="_blank">${item.title}</a></td>
-	       <td data-label="UF/Cidade">${location}</td>
+	       <td data-label="UF/Cidade">${item.uf}/${item.city}</td>
 	       `;
 									body.appendChild(row);
 								});

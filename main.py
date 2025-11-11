@@ -59,10 +59,13 @@ def load_v2():
     SilverLayer.store_db(jsonlfile)
 
 def publish():
-    print('publish')
+    from gold import GoldLayer
+    agg = []
+    schema_events = GoldLayer.publish()
+    events = schema_events.fetchall()
 
 if __name__ == "__main__":
     print("Hello from xcmagg!") 
-    #extract()
-    #load_v2()
+    extract()
+    load_v2()
     publish()
