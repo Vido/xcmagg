@@ -20,8 +20,9 @@ class GoldLayer:
                         WHEN POSITION('?' IN url) > 0 THEN url || '&utm_source=xcmagg'
                         ELSE url || '?utm_source=xcmagg'
                         END AS url,
-                        -- STRPTIME(date_range->>'start_date', '%d-%m-%Y') AS start_date,
-                        date_range->>'start_date' AS date,
+                        STRFTIME(
+                            STRPTIME(date_range->>'start_date', '%Y-%m-%d'),
+                            '%d-%m-%Y') AS start_date,
                         location->>'city' AS city,
                         location->>'uf' AS uf
                 FROM schema_events

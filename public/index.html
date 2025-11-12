@@ -3,8 +3,41 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>XCMAGG</title>
-		<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css"/>
+		<title>XCMAGG (Beta) - Calendário unificado de Eventos de Cilismo</title>
+		<meta name="description" content="O calendário unificado de eventos de ciclismo e MTB." />
+		<meta name="keywords" content="Calendário, Provas, Corridas, Ciclismo de Estrada, Ciclismo MTB, Cross Crounty" />
+		<meta name="author" content="Lucas Vido" />
+
+		<!--
+		<link rel="canonical" href="https://example.com/cycling-calculator" />
+		<link rel="icon" href="/favicon.ico" />
+		Canonical URL -->
+
+		<!-- Open Graph / Social Sharing -->
+		<meta property="og:title" content="XCMAGG - Calendário unificado de Eventos de Cilismo" />
+		<meta property="og:description" content="O calendário unificado de eventos de ciclismo e MTB." />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://gearftp.lvido.tech/" />
+		<!-- <meta property="og:image" content="https://yourdomain.com/preview.png" /> -->
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="XCMAGG - Calendário unificado de Eventos de Cilismo" />
+		<meta name="twitter:description" content="O calendário unificado de eventos de ciclismo e MTB." />
+		<!-- <meta name="twitter:image" content="https://example.com/images/preview.png"> -->
+
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-K196Y4ZCFK');
+		</script>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"/>
 		<style>
 			body {
 				margin: 0;
@@ -50,33 +83,23 @@
 			.content{
 				margin: auto;
 				flex: 1;
-				width: 85%;
-				max-width: 100%;
+				width: 80%;
+				max-width: 95%;
 				box-sizing: border-box;
 			}
-			.content h1{
-				text-align: center;
-			}
-			.table-setup {
-				width: 100%;
-				overflow-x: auto
-			}
+
 			#table th, #table td {
 				word-break: break-word;
 			}
+
 			div#contato div.banner-contato{
 				background-image: url('contato.png');
 				background-repeat: no-repeat;
 				background-size: contain;
 				background-position: center;
-				height: 15vh;
+				height: 9vh;
 			}
-			div#contato p{
-				margin: 15px 0 5px;
-				text-align: center;
-				font-weight: bold;
-				font-size: 24px;
-			}
+	
 			footer.footer {
 				background: #333333;
 				color: white;
@@ -85,7 +108,7 @@
 			}
 
 			.footer-content {
-				width: 85%;
+				width: 80%;
 				margin: 0 auto;
 				display: flex;
 				align-items: center;
@@ -115,32 +138,38 @@
 	</head>
 	<body>
 		<nav class="navbar">
-			<a href="#" class="logo">XCMAGG</a>
+			<a href="#" class="logo">XCMAGG (Beta)</a>
 			<ul class="nav-list">
-				<li><a href="#">Gear FTP</a></li>
-				<li><a href="#contato">Contato</a></li>
+				<li><a href="https://gearftp.lvido.tech/">Calculadora FTP</a></li>
 				<li><a href="https://forms.gle/oo9s7hdqg29Wznkz7">Newsletter</a></li>
 			</ul>
 		</nav>
 		<div class="content">
-			<h1>Próximos eventos</h1>
-			<div class="table-setup">
-				<table id="table" class="display">
+			<div class="row table-setup">
+			<h1 class="pt-2 text-center">Próximos eventos:</h1>
+			<p class="lead mb-1">Use a ordenação e filtros para selecionar os eventos.</p>
+
+				<table id="calendar" class="table table-striped">
 					<thead>
 						<tr>
 							<th>Data</th>
-							<th>Nome do evento</th>
 							<th>UF/Cidade</th>
+							<th>Nome do evento</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody>	
 					</tbody>
 				</table>
 			</div>
-			<div id="contato">
-				<p>Entre em contato</p>
-				<div class="banner-contato">
-				</div>
+			<div class="row justify-content-center">
+			    <div class="col-lg-8 text-center">
+					<h2 class="mt-5 mb-3 fw-bold text-success">Inscreva-se para Receber Atualzações!</h2>
+					<p class="lead mb-3">Vamos te enviar semanalmente um email sobre as eventos disponíveis.</p>
+					<a href="https://forms.gle/oo9s7hdqg29Wznkz7" class="btn btn-success btn-lg">Quero Atualzações!</a>
+			    </div>
+			</div>
+			<div id="contato" class="pt-4">
+				<div class="banner-contato"></div>
 			</div>
 		</div>
 		<footer class="footer">
@@ -148,36 +177,41 @@
 				<p>&copy; 2025 XCMAGG. Todos os direitos reservados.</p>
 			</div>
 	</footer>
-
 	</body>
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
-	<script src="https://cdn.datatables.net/plug-ins/1.13.7/sorting/date-eu.js"></script>
-	<script>
-		const body = document.querySelector('#table tbody');
 
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
+	<script src="https://cdn.datatables.net/plug-ins/1.13.7/sorting/date-eu.js"></script>
+
+	<script>
+		const body = document.querySelector('#calendar tbody');
 		fetch('https://xcmagg.lvido.tech/data.jsonl')
 			.then(response => response.text())
 			.then(text => {
 						const lines = text.trim().split('\n').filter(Boolean);
 						const jsonArray = lines.map(line => JSON.parse(line));
+
 						jsonArray.forEach(item => {
 									const row = document.createElement('tr');
 									row.innerHTML = `
-		   <td data-label="Data">${item.date}</td>
-	       <td data-label="Título"><a href="${item.url}" target="_blank">${item.title}</a></td>
-	       <td data-label="UF/Cidade">${item.uf}/${item.city}</td>
-	       `;
+										<td data-label="Data">${item.start_date}</td>
+										<td data-label="UF/Cidade">${item.uf}/${item.city}</td>
+										<td data-label="Título"><a href="${item.url}" target="_blank">${item.title}</a></td>
+									`;
 									body.appendChild(row);
 								});
-						$('#table').DataTable({
+
+						const calendar = new DataTable('#calendar', {
 								columnDefs: [
 									{ type: 'date-eu', targets: 0 }
 								],
-								order: [[0, 'asc']]
+								order: [[0, 'asc']],
+								responsive: true,
+								scrollX: false,
 						});
 					})
 			.catch(error => console.error('Erro:', error));
-
 	</script>
 </html>
