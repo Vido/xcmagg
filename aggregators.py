@@ -10,6 +10,14 @@ from bs4 import BeautifulSoup
 from bronze import Crawler, Extractor
 
 
+class ConfederacaoBrasileira:
+    URL = 'https://www.cbc.esp.br/modalidades/calendario/busca/mtb'
+    REPO = Path('cbc.esp.br')
+    META = {
+        'Category': 'Federação',
+        'DDD': '43',
+    }
+
 class FederacaoPaulista():
     URL = 'https://fpciclismo.org.br/index.php/calendario-estrada/'
     REPO = Path('fpciclismo.org.br')
@@ -25,12 +33,70 @@ class FederacaoMineira():
         'Category': 'Federação',
         'DDD': '31',
     }
+
+class FederacaoCarioca():
+    URL = 'https://fecierj.org.br/calendario/xcm/'
+    REPO = Path('fecierj.org.br')
+    META = {
+        'Category': 'Federação',
+        'DDD': '24',
+    }
+
+
 class ASCABiker():
     URL = 'https://ascabiker.com.br/'
     REPO = Path('ascabiker.com.br')
     META = {
         'Category': 'Organizador',
         'DDD': '35',
+    }
+
+class ASCABiker():
+    URL = 'https://www.bikedosul.com.br/'
+    REPO = Path('bikedosul.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '54',
+    }
+
+
+class AgendaEsportiva():
+    URL = 'https://agendaesportiva.com.br/eventos?esporte=ciclismo'
+    REPO = Path('agendaesportiva.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '41',
+    }
+
+class AgendaOffroad():
+    URL = 'https://agendaoffroad.com.br/eventos?modalidade=mountain+bike'
+    REPO = Path('agendaoffroad.com.br')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '41',
+    }
+
+
+class Chelso():
+    URL = 'https://chelso.com.br/site/category/provas-presenciais'
+    META = {
+        'Category': 'Organizador',
+        'DDD': '19',
+    }
+
+
+class CopaInterior():
+    URL = 'https://www.copainterior.com.br/'
+    META = {
+        'Category': 'Organizador',
+        'DDD': '19',
+    }
+
+
+class Fotop():
+    URL = 'https://fotop.com.br'
+    META = {
+        'Category': 'Fotografos',
     }
 
 
@@ -41,6 +107,7 @@ class Sprinta():
         'Category': 'Agregador',
         'DDD': '51',
     }
+
 
 class TicketSports(Crawler, Extractor):
     URL = 'https://www.ticketsports.com.br/'
@@ -141,43 +208,6 @@ class TicketSportsAPI(Crawler, Extractor):
 
         return events_acc
 
-
-
-class AgendaEsportiva():
-    URL = 'https://agendaesportiva.com.br/eventos?esporte=ciclismo'
-    REPO = Path('agendaesportiva.com.br')
-    META = {
-        'Category': 'Agregador',
-        'DDD': '41',
-    }
-
-class AgendaOffroad():
-    URL = 'https://agendaoffroad.com.br/eventos?modalidade=mountain+bike'
-    REPO = Path('agendaoffroad.com.br')
-    META = {
-        'Category': 'Agregador',
-        'DDD': '41',
-    }
-
-class Fotop():
-    URL = 'https://fotop.com.br'
-    META = {
-        'Category': 'Fotografos',
-    }
-
-class Chelso():
-    URL = 'https://chelso.com.br/site/category/provas-presenciais'
-    META = {
-        'Category': 'Organizador',
-        'DDD': '19',
-    }
-
-class CopaInterior():
-    URL = 'https://www.copainterior.com.br/'
-    META = {
-        'Category': 'Organizador',
-        'DDD': '19',
-    }
 
 
 class TourDaRoca():

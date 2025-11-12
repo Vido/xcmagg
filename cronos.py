@@ -115,6 +115,15 @@ class ActiveSports(Crawler, Extractor):
         return events_acc
 
 
+class GLPromo:
+    URL = 'https://www.glpromo.com.br/eventos-esportivos-tipo/bike/4'
+    REPO = Path('glpromo.com.br')
+    META = {
+        'Category': 'Empresa de Organizadora',
+        'DDD': '43',
+    }
+
+
 class GpsControlCrono():
     URL = 'https://www.gpscontrolcrono.com.br/'
     REPO = Path('gpscontrolcrono.com.br')
