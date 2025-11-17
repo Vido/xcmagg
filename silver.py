@@ -90,7 +90,7 @@ class SilverLayer:
             objs = [e.to_dict() for e in event_list]
             objs.sort(key=lambda x: x['crawled_at'], reverse=True)
             fp.write_all(objs)
-        return fp
+        return fn
 
     @classmethod
     def store_db(klass, events_jsonl: Path):
