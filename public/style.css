@@ -1,0 +1,96 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	overflow-x: hidden;
+}
+nav a {
+	text-decoration: none;
+	color: white;
+	transition: 0.3s;
+}
+nav a:hover {
+	opacity: 0.7;
+}
+.logo {
+	font-size: 24px;
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+nav.navbar {
+	box-sizing: border-box;
+	background: #333333;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	height: 8vh;
+	flex-wrap: wrap;
+}
+.nav-list {
+	padding: 0;
+	list-style: none;
+	display: flex;
+}
+.nav-list li {
+	letter-spacing: 1px;
+	margin-left: 17px;
+	margin-right: 17px;
+}
+.content{
+	margin: auto;
+	flex: 1;
+	width: 80%;
+	max-width: 95%;
+	box-sizing: border-box;
+}
+
+#table th, #table td {
+	word-break: break-word;
+}
+
+div#contato div.banner-contato{
+	background-image: url('contato.png');
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	height: 9vh;
+}
+
+footer.footer {
+	background: #333333;
+	color: white;
+	padding: 20px 0;
+	margin-top: 40px;
+}
+
+.footer-content {
+	width: 80%;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.footer-content p {
+	margin: 0;
+	font-size: 14px;
+}
+
+@media (max-width: 768px) {
+	.content {
+		width: 95%;
+	}
+
+	nav.navbar {
+		flex-direction: column;
+		height: auto;
+		padding: 10px 0;
+	}
+
+	.logo {
+		margin-bottom: 10px;
+	}
+}

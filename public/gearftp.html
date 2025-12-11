@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gear vs FTP - Cycling Calculator</title>
+  <meta name="description" content="Interactive calculator to visualize Gear Ratios vs FTP Power Zones. Ideal for mountain bikers, road cyclists, and triathletes." />
+  <meta name="keywords" content="cycling calculator, gear ratio, FTP zones, climbing grade, cadence, bike setup, mountain biking, road cycling" />
+  <meta name="author" content="Lucas Vido" />
+  
+  <link rel="canonical" href="https://racefeed.com.br/gearftp.html" />
+  <link rel="icon" href="/favicon.ico" />
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:title" content="Gear vs FTP - Cycling Calculator" />
+  <meta property="og:description" content="Visualize how your cadence, gearing, and power zones interact. Built for cyclists and triathletes." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://gearftp.lvido.tech/" />
+  <!-- <meta property="og:image" content="https://yourdomain.com/preview.png" /> -->
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gear Ratio vs FTP Zone Calculator" />
+  <meta name="twitter:description" content="Interactive calculator for cyclists to explore gearing and power output." />
+  <!-- <meta name="twitter:image" content="https://example.com/images/preview.png"> -->
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-K196Y4ZCFK');
+  </script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="style.css"/>
+
+
+  <style> <!-- Gear -->
+    .gear-widget {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .slider-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      /* gap: 10px; */
+    }
+
+    canvas {
+      /* border: 1px solid #ccc; */
+      margin-bottom: 10px;
+    }
+  </style>
+
+  <style> <!-- Grade -->
+    .widget-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+    }
+
+    #triangleCanvas {
+      touch-action: none;
+    }
+  </style>
+
+  <style>
+    
+    #wheelSizeLabel {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #wheelSizeSlider {
+      width: 45%;
+    }
+
+    #cadence-handle,
+    #ftp-handle {
+      width: 2em;
+      height: 1.5em;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <nav role="navigation" class="navbar">
+          <a href="https://racefeed.com.br/" class="logo">RaceFeed</a>
+          <ul class="nav-list">
+    <li><a href="index.html">Calendário</a></li>
+    <li><a href="gearftp.html">Calculadora FTP</a></li>
+    <li><a href="https://forms.gle/oo9s7hdqg29Wznkz7">Newsletter</a></li>
+          </ul>
+  </nav>
+  <main role="main" class="content">
+  <div class="container py-4">
+      <div class="card">
+      <div class="card-header">⚙️ Gearing</div>
+
+      <div class="card-body">
+      <div class="row">
+      <div class="col-md-7 d-none d-md-block text-center">
+        <div class="gear-widget"><canvas id="gearCanvas" width="750" height="290"></canvas></div>
+      </div><!-- col7 -->
+      <div class="col-md-5 col-12 text-center">
+        <div class="slider-row">
+          <label>
+            Cassette Cog
+            <input type="range" id="cassetteSlider" min="10" max="52" value="51" />
+            <span id="cassetteValue">51</span>t
+          </label>
+        </div>
+        <div class="slider-row">
+          <label>
+            Crank Chainring
+            <input type="range" id="cranksetSlider" min="22" max="64" value="32" />
+            <span id="cranksetValue">32</span>t
+          </label>
+        </div>
+
+        <div class="slider-row">
+          <label for="wheelSizeSlider">Wheel/Tire Size:
+          <input type="range" id="wheelSizeSlider" min="0" max="22" step="1" value="17" />
+          <span id="wheelValue">2328</span>mm
+          </label>
+          <div id="wheelSizeLabel">29" x 2.25" (57-622)</div>
+        </div>
+        
+
+        <img class="center" alt="Sheldon Brown's Spoke" src="https://www.sheldonbrown.com/images/spokeflop.gif" width="100%" height="12">
+
+        <div class="slider-row">
+          <p>Ratio: <b><span id="ratioValue">0.64</span></label></b>&nbsp;</p>
+          <p>- Gear Inches: <b><span id="gearInchesValue">18.3</span> in</label></b>&nbsp;</p>
+          <p>- Development: <b><span id="developmentValue">1.45</span> m</label></b></p>
+        </div> <!-- slider -->
+        <div id='speedDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+
+      </div>  <!-- col4 -->
+      </div>  <!-- row -->
+    </div> <!-- card-body -->
+    </div> <!-- card -->
+
+    <div class="row">
+      <!-- Column 1: Bike Info -->
+      <div class="col-md-4 mb-3 text-center">
+        <div class="card">
+          <div class="card-header">🚴 System Mass: <span id="totalMassValue">84.0</span> kg</div>
+          <div class="card-body">
+          <div class="mb-4">
+            <label for="bikeWeightSlider" class="form-label">
+              🚲 Bike Weight: <span id="bikeWeightValue">12</span> kg
+            </label>
+            <input type="range" class="form-range" min="4" max="20" value="12" step=0.1 id="bikeWeightSlider">
+          </div>
+          <div class="mb-4">
+            <label for="riderWeightSlider" class="form-label">
+              🏃 Rider Weight: <span id="riderWeightValue">70</span> kg
+            </label>
+            <input type="range" class="form-range" min="40" max="120" value="70" step=0.5 id="riderWeightSlider">
+          </div>
+          <div class="mb-4">
+            <label for="payloadWeightSlider" class="form-label">
+              🎒 Payload: <span id="payloadWeightValue">1</span> kg
+            </label>
+            <input type="range" class="form-range" min="0" max="50" value="1" id="payloadWeightSlider">
+          </div>
+          </div> <!-- card-body -->
+        </div> <!--card -->
+
+        <div class="card">
+          <div class="card-header">Resistances</div>
+          <div class="card-body"><div id='lossesDiv'></div></div> <!-- card-body -->
+        </div> <!-- card -->
+
+      </div><!-- col -->
+
+      <!-- Column 2: Terrain Info -->
+      <div class="col-md-4 mb-3 text-center">
+        <div class="card">
+          <div class="card-header">🏔️ Terrain Info</div>
+          <div class="card-body">
+                <div class="widget-container">
+                  <canvas id="triangleCanvas" width="280" height="155"></canvas>
+                  <input type="number" id="gradeInput" hidden value="10" />
+                </div>
+          <label>Gradient: <spam id="gradeLabel">10</spam>%</label>
+          </div> <!-- Card Body -->
+        </div>
+
+        <div class="card">
+          <div class="card-header">Parameters</div>
+          <div class="card-body">
+
+            <div class="mb-4">
+            <label for="rollingResistenceSlider" class="form-label">
+                🛞 Rolling Resist.: CCR = <span id="rollingResistenceValue">0.007</span> (BRR <spam id="brrValue">23.3</spam> W)
+              </label>
+              <input type="range" class="form-range" min="0.0015" max="0.015" value="0.007" step=0.0001 id="rollingResistenceSlider">
+            </div>
+
+            <div class="mb-4">
+              <label for="cdaSlider" class="form-label">
+                🏎️ CdA: <span id="cdaValue">0.4</span> m²
+              </label>
+              <input type="range" class="form-range" min="0.18" max="0.5" step=0.01 value="0.4" id="cdaSlider">
+            </div>
+
+            <div class="mb-4">
+              <label for="drivetrainLossSlider" class="form-label">
+                ⛓️ Drivetrain Loss: <span id="drivetrainLossValue">3</span> %
+              </label>
+              <input type="range" class="form-range" min="2" max="5" value="3" step=0.5 id="drivetrainLossSlider">
+            </div>
+          </div> <!-- Card Body -->
+        </div>
+      </div>
+
+      <!-- Column 3: Rider Ouput -->
+      <div class="col-md-4 mb-3 text-center">
+        <div class="card">
+          <div class="card-header">🚀 Rider Output: <span id="wpkValue">3.0</span> W/kg</div>
+          <div class="card-body">
+            <div id='cadenceDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+            <div id="cadence-slider">
+              <div id="cadence-handle" class="ui-slider-handle"></div>
+            </div>
+            <div id='ftpDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+            <div id="ftp-slider">
+              <div id="ftp-handle" class="ui-slider-handle"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Omni Power Duration Model -->
+        <div class="card">
+        <div class="card-header">Omni Power Duration Model (Beta)</div>
+        <div class="card-body">
+          <label>Sustainable for: <span id="sustainableValue">N/A</span></label>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+  </main>
+ 
+    <footer role="contentinfo" class="footer">
+      <div class="footer-content">
+        <p>&copy; 2025 RaceFeed. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+
+    var ccr = 0.005;
+    var cda = 0.4;
+    var rider_mass = 70;
+    var total_mass = 83;
+    var dt_loss = 3;
+
+    $(function () {
+      $('#bikeWeightSlider').on('input', function () {
+        $('#bikeWeightValue').text($(this).val());
+        update_mass();
+        update_gauges(crankrpm);
+      });
+
+      $('#riderWeightSlider').on('input', function () {
+        rider_mass = $(this).val();
+        $('#riderWeightValue').text(rider_mass);
+        update_mass();
+        update_gauges(crankrpm);
+      });
+
+      $('#payloadWeightSlider').on('input', function () {
+        $('#payloadWeightValue').text($(this).val());
+        update_mass();
+        update_gauges(crankrpm);
+      });
+
+      $('#rollingResistenceSlider').on('input', function () {
+        ccr = $(this).val();
+        $('#rollingResistenceValue').text(ccr);
+        const brr = Number(ccr * brr_w).toFixed(1);
+        $('#brrValue').text(brr);
+        update_gauges(crankrpm);
+      });
+
+      $('#cdaSlider').on('input', function () {
+        cda = $(this).val();
+        $('#cdaValue').text(cda);
+        update_gauges(crankrpm);
+      });
+
+      $('#drivetrainLossSlider').on('input', function () {
+        dt_loss = $(this).val();
+        $('#drivetrainLossValue').text(dt_loss);
+        update_gauges(crankrpm);
+      });
+      update_mass();
+    });
+
+    function update_mass() {
+      total_mass = Number($('#bikeWeightSlider').val()) +
+                Number($('#riderWeightSlider').val()) +
+                Number($('#payloadWeightSlider').val());
+
+      $('#totalMassValue').text(Number(total_mass).toFixed(1));
+      $('#wpkValue').text(Number(ftp/rider_mass).toFixed(1));
+    };
+  </script>
+
+  <script>
+    /* Physics */
+    const gn = 9.80665;
+    function f_gravity(grade_pp, mass) {
+      return mass * gn * Math.sin(Math.atan(grade_pp / 100.0));
+    }
+
+
+    brr_w = gn * 42.5 * 8;
+    function f_rolling(grade_pp, crr, mass) {
+      return mass * gn * Math.cos(Math.atan(grade_pp / 100.0)) * crr;
+    }
+
+    let w_circumference = 2320;
+    let crankrpm = 70;
+    let ratio = 0.6;
+
+    let gearinches = 18.3;
+    let development = 1.464;
+
+    const inch = 0.0254
+    function speed_formula_kph(circumference, crankrpm, gearratio) {
+      // crankrpm*60 -> Revs / hours
+      // circumference/10**6 -> kilometers
+      development = circumference * gearratio / 1000
+      gearinches = development / (inch * Math.PI)
+      return gearratio*(crankrpm*60)*(circumference/10**6);
+    }
+
+    let velocity = 5; // Km/h
+
+    const rho = 1.225;
+    function f_drag(cda, velocity_kph) {
+      return cda * rho * Math.pow(velocity_kph / 3.6, 2) / 2;
+    }
+
+    let gravity = 0;
+    let rolling = 0;
+    let drag = 0;
+
+    function p_wheel(grade_pp, mass, crr, cda, velocity_kph) {
+      gravity = f_gravity(grade_pp, mass);
+      rolling = f_rolling(grade_pp, crr, mass);
+      drag = f_drag(cda, velocity_kph);
+      return (gravity + rolling +  drag) * (velocity_kph / 3.6);
+    }
+
+    function p_legs(whp, loss_pp){
+      return whp / (1-(loss_pp/100));
+    }
+
+    let power_wheel = 200;
+    let power_legs = 210;
+    let grade = 10;
+
+    function update_power(){
+      power_wheel = p_wheel(grade, total_mass, ccr, cda, velocity);
+      power_legs = p_legs(power_wheel, dt_loss);
+    }
+  </script>
+
+  <script>
+
+    var ftp = 210
+
+    function cadence_gauge(x, lower, higher) {
+      return {
+        title: { text: "Cadence (rpm)" },
+        type: "indicator",
+        mode: "gauge+number",
+        value: x,
+        // delta: { reference: 160 },
+        gauge: { axis: { visible: true, range: [lower, higher] } },
+        domain: { x: [.1, .9], y: [0, .75] },
+
+      };
+    }
+
+    function speed_bullet(x) {
+      return {
+        type: "indicator",
+        value: x,
+        title: { text: "Speed (Km/h)" },
+        mode: "number+delta+gauge",
+        delta: { reference: 5 },
+        gauge: {
+          shape: "bullet",
+          axis: {visible: true, type:"log", range: [0, 60]}
+        },
+        domain: { x: [.30, 1], y: [0, 1] }
+      };
+    }
+
+    function ftp_gauge(x, zone) {
+      z = zone;
+      return {
+        domain: { x: [.1, .9], y: [0, .75] },
+        //domain: { row: 0, column: 0 },
+        value: x,
+        title: { text: "Power vs FTP (W)" },
+        type: "indicator",
+        mode: "gauge+number",
+        gauge: {
+          axis: { range: [z[1] * 0.5, z[2] * 2] },
+          steps: [
+            { range: [z[1] * 0.5, z[1]], color: "lightblue" },
+            { range: [z[1], z[2]], color: "lightgreen" },
+            { range: [z[2], z[3]], color: "yellow" },
+            { range: [z[3], z[4]], color: "orange" },
+            { range: [z[4], z[5]], color: "orange" },
+            { range: [z[5], z[6]], color: "red" }
+          ],
+          threshold: {
+            line: { color: "red", width: 4 },
+            thickness: 0.75,
+            value: z[4]
+          }
+        }
+      };
+    }
+
+    function ftp_zones(x) {
+          zones = [0,
+                   0.55*x,
+                   0.75*x,
+                   0.90*x,
+                   x,
+                   1.05*x,
+                   1.20*x]
+          return zones
+    }
+
+    const layout1 = {
+      autosize: true,
+      height: 50,
+      margin: { t: 0, b: 0, l: 0, r: 0 },
+      grid: { rows: 1, columns: 1, pattern: "independent" }
+    };
+
+    const layout2 = {
+      autosize: true,
+      height: 200,
+      margin: { t: 0, b: 10, l: 0, r: 0 },
+      grid: { rows: 1, columns: 2, pattern: "independent" }
+    };
+
+    const layout3 = {
+      autosize: true,
+      height: 200,
+      margin: { t: 20, b: 10, l: 0, r: 0 },
+      grid: { rows: 1, columns: 2, pattern: "independent" }
+    };
+
+function update_gauges(cadence) {
+      const cassetteT = parseInt(cassetteSlider.value);
+      const cranksetT = parseInt(cranksetSlider.value);
+      ratio = cranksetT/cassetteT;
+      velocity = speed_formula_kph(w_circumference, cadence, ratio);
+      update_power();
+      render_losses();
+
+      Plotly.newPlot("speedDiv", [speed_bullet(velocity)], layout1);
+      Plotly.newPlot("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
+      Plotly.newPlot("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
+
+      t_sustainable = bisection(wrap, power_legs)[0];
+      $('#sustainableValue').text(humanize(t_sustainable));
+}
+
+$(function () {
+  var handle = $("#cadence-handle");
+  $("#cadence-slider").slider({
+    value: 70,
+    min: 30,
+    max: 120,
+    create: function () {
+      handle.text($(this).slider("value"));
+    },
+    slide: function (event, ui) {
+      handle.text(ui.value);
+      crankrpm = ui.value;
+      update_gauges(ui.value);
+    }
+  });
+});
+
+
+$(function () {
+  var handle = $("#ftp-handle");
+  $("#ftp-slider").slider({
+    value: 210,
+    min: 100,
+    max: 500,
+    step: 10,
+    create: function () {
+      ftp = $(this).slider("value");
+      handle.text(ftp);
+    },
+    slide: function (event, ui) {
+      ftp = ui.value;
+      handle.text(ftp);
+      update_gauges(crankrpm);
+      $('#wpkValue').text(Number(ftp/rider_mass).toFixed(1));
+    }
+  });
+});
+
+</script>
+
+  <script>
+    const canvas = document.getElementById('gearCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const cassetteSlider = document.getElementById('cassetteSlider');
+    const cranksetSlider = document.getElementById('cranksetSlider');
+    const cassetteValue = document.getElementById('cassetteValue');
+    const cranksetValue = document.getElementById('cranksetValue');
+    const wheelValue = document.getElementById('wheelValue');
+
+    // Scaling: 51t = 220mm diameter => radius = 110mm
+    // So 1t = 220 / 51 = ~4.31 mm diameter => ~2.15 mm radius
+    const mmPerTooth = 220 / 51;
+    const pxPerMm = 1; // 1mm = 1px for now (1:1 scale)
+
+    const crankDistanceMm = 425;
+
+    function drawGears(cassetteT, cranksetT, wheelCircumference) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerY = 150;
+
+      // Cassette center on the left
+      const cassetteCenter = { x: 150, y: centerY };
+      const cranksetCenter = { x: cassetteCenter.x + crankDistanceMm * pxPerMm, y: centerY };
+
+      // Radii
+      const cassetteRadius = (cassetteT * mmPerTooth) / 2 * pxPerMm;
+      const cranksetRadius = (cranksetT * mmPerTooth) / 2 * pxPerMm;
+      const wheelDiameter = wheelCircumference / Math.PI;
+      const wheelRadius = (wheelDiameter / 2) * pxPerMm;
+
+      // Draw wheel (behind cassette)
+      ctx.beginPath();
+      ctx.arc(cassetteCenter.x, cassetteCenter.y, wheelRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = '#999';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
+
+      // Draw cassette gear
+      ctx.beginPath();
+      ctx.arc(cassetteCenter.x, cassetteCenter.y, cassetteRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ccc';
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.stroke();
+      ctx.fillStyle = '#000';
+      ctx.fillText(`${cassetteT}t`, cassetteCenter.x - 10, cassetteCenter.y + 4);
+
+      // Draw crankset gear
+      ctx.beginPath();
+      ctx.arc(cranksetCenter.x, cranksetCenter.y, cranksetRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#eee';
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.stroke();
+      ctx.fillStyle = '#000';
+      ctx.fillText(`${cranksetT}t`, cranksetCenter.x - 10, cranksetCenter.y + 4);
+    }
+
+    function update_gears_plot() {
+      const cassetteT = parseInt(cassetteSlider.value);
+      const cranksetT = parseInt(cranksetSlider.value);
+
+      cassetteValue.textContent = cassetteT;
+      cranksetValue.textContent = cranksetT;
+      ratio = cranksetT/cassetteT
+
+      drawGears(cassetteT, cranksetT, w_circumference);
+      update_gauges(crankrpm);
+
+      $('#ratioValue').text(ratio.toFixed(2));
+      $('#gearInchesValue').text(gearinches.toFixed(1));
+      $('#developmentValue').text(development.toFixed(2));
+      
+    }
+
+    cassetteSlider.addEventListener('input', update_gears_plot);
+    cranksetSlider.addEventListener('input', update_gears_plot);
+
+    $(document).ready(function() {
+        // Initial render
+        update_gears_plot();
+    });
+
+  </script>
+
+  <script>
+    const canvas2 = document.getElementById('triangleCanvas');
+    const ctx2 = canvas2.getContext('2d');
+    const label = document.getElementById('gradeLabel');
+    const input = document.getElementById('gradeInput');
+
+    const baseLength = 250;
+    const maxGrade = 30;
+    const maxHeight = maxGrade * baseLength / 100; 
+
+    // Initialize height from 10% grade
+    const defaultPercent = parseFloat(input.value);
+    let height = (defaultPercent / 100) * baseLength;
+
+    function drawTriangle() {
+      ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+      const origin = { x: 0, y: 150 };
+      const baseX = origin.x + baseLength;
+      const topY = origin.y - height;
+
+      // Triangle: fixed point on left (origin), height on right
+      ctx2.beginPath();
+      ctx2.moveTo(origin.x, origin.y);        // bottom-left (fixed)
+      ctx2.lineTo(baseX, origin.y);           // bottom-right (base)
+      ctx2.lineTo(baseX, topY);               // top-right (movable height)
+      ctx2.closePath();
+
+      ctx2.fillStyle = '#cce5ff';
+      ctx2.fill();
+      ctx2.strokeStyle = '#333';
+      ctx2.stroke();
+
+      // Angle calculation
+      // const angleRad = Math.atan(height / baseLength);
+      // const angleDeg = (angleRad * 180) / Math.PI;
+      grade_pp = (height / baseLength) * 100;
+
+      label.textContent = grade_pp.toFixed(1);
+      input.value = grade_pp.toFixed(1);
+      return grade_pp
+    }
+
+    let dragging = false;
+
+    canvas2.addEventListener('mousedown', (e) => {
+      dragging = true;
+      handleDrag(e);
+    });
+    canvas2.addEventListener('mousemove', (e) => {
+      if (dragging) handleDrag(e);
+    });
+    canvas2.addEventListener('mouseup', () => dragging = false);
+    canvas2.addEventListener('mouseleave', () => dragging = false);
+
+    function handleDrag(e) {
+      const rect = canvas2.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const originY = 150;
+      let delta = originY - y;
+
+      // Clamp height
+      height = Math.max(0, Math.min(maxHeight, delta));
+      grade = drawTriangle();
+      update_gauges(crankrpm);
+
+    }
+
+    $(document).ready(function() {
+        grade = drawTriangle();
+        update_gauges(crankrpm);
+    });
+
+  </script>
+
+  <script>
+    function plot_losses(){
+      return {
+        type: "sankey",
+        orientation: "h",
+        node: {
+          label: ["Power - Your Legs :-)",
+                  "Drivetrain Loss",
+                  "Rolling Resistence",
+                  "Gradient",
+                  "Drag"],
+          align: "right",
+        },
+
+        link: {
+          source: [0, 0, 0, 0],
+          target: [1, 2, 3, 4],
+          value:  [
+    power_legs-power_wheel,
+    rolling * velocity / 3.6,
+    gravity * velocity / 3.6,
+    drag * velocity / 3.6
+    ],
+        },
+      };
+    }
+
+    function render_losses(){
+      Plotly.newPlot('lossesDiv', [plot_losses()],
+        {height: 200, autosize: true, margin: { t: 0, b: 10, l: 0, r: 0 }}
+      );
+    }
+
+    $(document).ready(function() {
+        render_losses();
+    });
+    
+  </script>
+
+  <script>
+    const data = [
+      ["700 x 18C", "18-622", 2070],
+      ["700 x 19C", "19-622", 2080],
+      ["700 x 20C", "20-622", 2086],
+      ["700 x 23C", "23-622", 2096],
+      ["700 x 25C", "25-622", 2109],
+      ["700 x 28C", "28-622", 2127],
+      ["700 x 30C", "30-622", 2140],
+      ["700 x 32C", "32-622", 2152],
+      ["700 x 35C", "35-622", 2171],
+      ["700 x 38C", "38-622", 2190],
+      ["700 x 40C", "40-622", 2203],
+      ["700 x 44C", "44-622", 2230],
+      ["700 x 45C", "45-622", 2234],
+      ["700 x 47C", "47-622", 2247],
+      ["700 x 50C", "50-622", 2265],
+      ['29" x 2.1"', "54-622", 2286],
+      ['29" x 2.2"', "56-622", 2302],
+      ['29" x 2.25"', "57-622", 2310],
+      ['29" x 2.3"', "58-622", 2326],
+      ['29" x 2.35"', "60-622", 2326],
+      ['29" x 2.4"', "61-622", 2333],
+      ['29" x 2.5"', "64-622", 2350],
+      ['29" x 2.6"', "66-622", 2366]
+    ];
+
+    function updateWheelSize(index) {
+      const [imperial, etrto, mm] = data[index];
+      $('#wheelSizeLabel').text(`${imperial} (${etrto})`);
+      $('#wheelValue').text(mm);
+      w_circumference = mm;
+      update_gears_plot();
+    }
+
+    $(document).ready(function () {
+      const $slider = $('#wheelSizeSlider');
+
+      // Init
+      updateWheelSize($slider.val());
+
+      $slider.on('input', function () {
+        updateWheelSize($(this).val());
+      });
+    });
+  </script>
+
+
+  <script>
+    // Very Experimental!
+    var t_sustainable = 60;
+
+
+    function omni_power_duration(t, _FTP){
+
+      // https://pmc.ncbi.nlm.nih.gov/articles/PMC8783871/
+      // https://pmc.ncbi.nlm.nih.gov/articles/PMC8783871/table/Tab1/
+
+      // Assumes CP = FTP (which is not true!)
+      const CP = _FTP * 1.05 // Guesstimate
+      const Wprime = 12000; // https://www.highnorth.co.uk/critical-power-calculator
+      const Pmax = CP * 2.5; // Guesstimate
+      const CPTTF = 1800
+      const A = 20;
+      Pta = (Wprime/t) * (1 - Math.exp(-t*(Pmax - CP) / Wprime)) + CP;
+      Ptb = (Wprime/t) * (1 - Math.exp(-t*(Pmax - CP) / Wprime)) + (CP - (A  * Math.log(t/CPTTF)));
+      return Ptb;
+    };
+
+    function wrap(t) {
+      return omni_power_duration(t, ftp);
+    };
+
+    function bisection (func, y) {
+      // https://stackoverflow.com/questions/33367226/javascript-implementation-of-newton-vs-bisection
+        const eps = 0.1;
+        let xLo = 1;
+        let xHi = 3600*24;
+        let xMid, fMid;
+        let fHi = func(xLo);   // fb
+        let fLo = func(xHi);   // fa
+
+        let iter = 0;
+        while (xHi - xLo > eps) {
+
+            ++iter;
+            xMid = (xLo+xHi)/2;
+            fMid = func(xMid);  // fc
+
+            if (Math.abs(fMid - y) < eps)
+                return [xMid, iter];
+
+            else if (fMid < y) { // fa*fc < 0 --> [a,c]
+                xHi = xMid;
+                fHi = fMid;
+            } else {  // fc*fb < 0 --> [c,b]
+                xLo = xMid;
+                fLo = fMid;
+            }
+        }
+        return [(xLo+xHi)/2, iter];
+    };
+
+  function humanize(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    if(hours>7) return 'Many hours...'
+    const remainingMinutes = seconds % 3600;
+    const minutes = Math.floor(remainingMinutes / 60);
+    const remainingSeconds = Math.floor(remainingMinutes % 60);
+
+    rendered = '';
+    if(hours) rendered += hours + ' h ';
+    if(minutes){
+      rendered += minutes + ' min ';
+      if(minutes > 1) return rendered
+    }
+    if (remainingSeconds) 
+        rendered += remainingSeconds + ' sec';
+    return rendered.trim();
+  }
+  </script>
+
+</body>
+</html>
