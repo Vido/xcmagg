@@ -41,6 +41,7 @@ class Persistence:
                 SELECT * FROM read_json_auto(?);
             """
 
+        print('jsonlfile:', jsonlfile)
         return self.CONN.execute(query, (str(jsonlfile),))
 
     def _vacuum(self):

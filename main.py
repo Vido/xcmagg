@@ -56,7 +56,8 @@ def load_v2():
         agg.append(schema_event)
 
     jsonlfile = SilverLayer().store_jsonl(agg)
-    SilverLayer.store_db(jsonlfile)
+    if agg:
+        SilverLayer.store_db(jsonlfile)
 
 def publish():
     from gold import GoldLayer
