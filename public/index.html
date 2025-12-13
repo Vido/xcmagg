@@ -49,7 +49,8 @@
 			<ul class="nav-list">
 				<li><a href="index.html">Calendário</a></li>
 				<li><a href="gearftp.html">Calculadora FTP</a></li>
-				<li><a href="https://forms.gle/oo9s7hdqg29Wznkz7">Newsletter</a></li>
+				<li><a href="https://forms.gle/oo9s7hdqg29Wznkz7" 
+					rel="nofollow noopener">Newsletter</a></li>
 			</ul>
 		</nav>
 
@@ -85,6 +86,7 @@
 		<footer role="contentinfo" class="footer">
 			<div class="footer-content">
 				<p>&copy; 2025 RaceFeed. Todos os direitos reservados.</p>
+				<p>Os links de eventos incluem <code>utm_source</code> para identificar acessos originados no RaceFeed.</p>
 			</div>
 		</footer>
 	</body>
@@ -106,7 +108,7 @@
 									row.innerHTML = `
 										<td data-label="Data">${item.start_date}</td>
 										<td data-label="UF/Cidade">${item.uf}/${item.city}</td>
-										<td data-label="Título"><a href="${item.url}" target="_blank">${item.title}</a></td>
+										<td data-label="Evento"><a href="${item.url}" target="_blank" rel="noopener">${item.title}</a></td>
 									`;
 									body.appendChild(row);
 								});

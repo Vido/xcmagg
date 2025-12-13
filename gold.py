@@ -17,8 +17,8 @@ class GoldLayer:
                     SELECT
                         title,
                         CASE
-                        WHEN POSITION('?' IN url) > 0 THEN url || '&utm_source=xcmagg'
-                        ELSE url || '?utm_source=xcmagg'
+                        WHEN POSITION('?' IN url) > 0 THEN url || '&utm_source=racefeed'
+                        ELSE url || '?utm_source=racefeed'
                         END AS url,
                         STRFTIME(
                             STRPTIME(date_range->>'start_date', '%Y-%m-%d'),
