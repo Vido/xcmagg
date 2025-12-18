@@ -14,6 +14,7 @@ crawlers = [
     Peloto(),
     ActiveSports(),
     CorridaPronta(),
+    GpsControlCrono(),
     # TourDoPeixe(), # Uses ticketsports as provider
     TicketBr(),
     FPCiclismo(),

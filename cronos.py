@@ -81,6 +81,16 @@ class CorridaPronta(Crawler, Extractor):
         return events_acc
 
 
+class Corridao(Crawler, Extractor):
+    URL = 'https://www.corridao.com.br/'
+    REPO = Path('corridao.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Corrida de Rua', 'MG', 'RJ'],
+    }
+
+
 class ActiveSports(Crawler, Extractor):
     URL = 'https://www.activesports.com.br/'
     REPO = Path('activesports.com.br')
@@ -114,6 +124,14 @@ class ActiveSports(Crawler, Extractor):
 
         return events_acc
 
+class InscricaoExtreme(Crawler, Extractor):
+    URL = 'https://www.inscricoesxtreme.com.br/'
+    PATH = Path('inscricoesxtreme.com.br')
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Corrida de Rua', 'SP'],
+    }
+
 
 class GLPromo:
     URL = 'https://www.glpromo.com.br/eventos-esportivos-tipo/bike/4'
@@ -124,32 +142,69 @@ class GLPromo:
     }
 
 
-class GpsControlCrono():
+class GpsControlCrono(Crawler, Extractor):
     URL = 'https://www.gpscontrolcrono.com.br/'
     REPO = Path('gpscontrolcrono.com.br')
     TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'Tags': ['Desafio do Ventos', 'MG', 'ES'],
+        'DDD': '35',
+    }
 
     def title(self, soup) -> str:
-        return soup.find('div', class_='title').text.strip()
-    
-    def date(self, soup) -> str:
-        return d.find('div', class_='hours').text.strip()
+        # Title is the <font size="4"> inside the second <tr>
+        title_font = soup.find('font', size='4')
+        return title_font.get_text(strip=True)
+
+    def _info_line(self, soup) -> str:
+        for p in soup.find_all('p', align='center'):
+            text = p.get_text(strip=True)
+            if text:
+                return text
+        return ''
 
     def local(self, soup) -> str:
-        return soup.find('div', class_='local').text.strip()
-    
+        text = self._info_line(soup)
+        # "Extrema - MG - 08/02/2026"
+        parts = [p.strip() for p in text.split('-')]
+        return ' - '.join(parts[:2]) if len(parts) >= 2 else ''
+
+    def date(self, soup) -> str:
+        text = self._info_line(soup)
+        parts = [p.strip() for p in text.split('-')]
+        return parts[-1] if len(parts) >= 3 else ''
+
     def url(self, soup) -> str:
-        return soup.find('a').get('href')
+        # First link inside <tr class="efeito">
+        tr = soup.find('tr', class_='efeito')
+        a = tr.find('a')
+        return f"{self.URL}{a['href']}"
 
     def trigger(self):
-        html = self.get_html(self.URL, suffix='home.html')
-        fp, soup = BeautifulSoup(html.read_text(), "lxml")
 
-        events_acc = []
-        div = soup.find_all('div', 'slider__footer')
-        for d in div:
-            datetime_str = d.find('div', class_='hours').text.strip()
-            events_acc.append(self.parse(d), fp)
+        def parse(buffer, fp):
+            from bs4 import BeautifulSoup
+            return self.parse(BeautifulSoup(buffer, 'lxml'), fp)
+
+        fp, soup = self.get_html(self.URL, suffix='home.html')
+        events_acc, buffer = [], ''
+
+        rows = soup.find('table').find_all('tr', recursive=False)
+        for tr in rows:
+            # reset buffer / new event
+            if 'efeito' in tr.get('class', []) and buffer:
+                event = parse(buffer, fp)
+                events_acc.append(event)
+                buffer = ''
+            buffer += str(tr)
+
+        # Leftover in the buffer
+        if buffer:
+            event = parse(buffer, fp)
+            events_acc.append(event)
+
+        return events_acc
 
 
 class SeuEsporteApp(Crawler, Extractor):
