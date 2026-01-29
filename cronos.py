@@ -329,7 +329,10 @@ class TicketBr(Crawler, Extractor):
         return soup.find('h5').text.strip()
     
     def date(self, soup) -> str:
-        return soup.find('h4').text.strip()
+        try:
+            return soup.find('h4').text.strip()
+        except AttributeError:
+            return soup.find('h5').text.strip()
         
     def local(self, soup) -> str:
         local = soup.find('div', class_='cidade').text.strip()

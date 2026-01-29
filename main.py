@@ -15,9 +15,9 @@ crawlers = [
     ActiveSports(),
     CorridaPronta(),
     GpsControlCrono(),
-    # TourDoPeixe(), # Uses ticketsports as provider
+    # TourDoPeixe(), # Morreu. Usava TicketSport
     TicketBr(),
-    FPCiclismo(),
+    # FPCiclismo(), # 503
     SeuEsporteApp(),
     TicketSportsAPI(),
     InscricoesBike(),
