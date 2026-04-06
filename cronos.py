@@ -249,20 +249,48 @@ class Peloto(Crawler, Extractor):
 
     def title(self, soup) -> str:
         div = soup.find('div', class_='row red darken-4 white-text center')
-        return div.find('h4').text.strip()
-    
+        if div:
+            return div.find('h4').text.strip()
+        # new LP-style page: use og:title meta tag
+        meta = soup.find('meta', property='og:title')
+        if meta:
+            return meta.get('content', '').strip()
+        return soup.find('title').text.strip()
+
     def date(self, soup) -> str:
         div = soup.find('div', class_='row red darken-4 white-text center')
-        return div.find_all('h5')[1].text.strip()
+        if div:
+            return div.find_all('h5')[1].text.strip()
+        # new LP-style page: og:description is "CITY - DD/MM/YYYY"
+        meta = soup.find('meta', property='og:description')
+        if meta:
+            content = meta.get('content', '')
+            parts = content.split(' - ')
+            return parts[-1].strip()
+        raise ValueError("Cannot extract date from page")
 
     def local(self, soup) -> str:
         local = soup.find('div', class_='col s12 m8 l8 white-text')
-        return local.find('div', class_='card').find('h5').text.strip()
-   
+        if local:
+            return local.find('div', class_='card').find('h5').text.strip()
+        # new LP-style page: og:description is "CITY - DD/MM/YYYY"
+        meta = soup.find('meta', property='og:description')
+        if meta:
+            content = meta.get('content', '')
+            parts = content.split(' - ')
+            return parts[0].strip()
+        raise ValueError("Cannot extract local from page")
+
     def url(self, soup) -> str:
-        #class_ = 'btn-large waves-effect waves-light blue white-text pulse col s12' 
-        href = soup.find('a', class_='btn-large').get('href')
-        return urljoin(self.URL, href)
+        href_tag = soup.find('a', class_='btn-large')
+        if href_tag:
+            href = href_tag.get('href')
+            return urljoin(self.URL, href)
+        # new LP-style page: use og:url
+        meta = soup.find('meta', property='og:url')
+        if meta:
+            return meta.get('content', '').strip()
+        raise ValueError("Cannot extract url from page")
 
     def trigger(self):
         fp, soup = self.get_html(self.URL, suffix='home.html')

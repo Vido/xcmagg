@@ -1,11 +1,13 @@
 import re
 import json
+import time
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin
 from collections import OrderedDict
 
 from bs4 import BeautifulSoup
+from curl_cffi import requests as cf_requests
 
 from bronze import Crawler, Extractor
 
@@ -155,6 +157,18 @@ class TicketSports(Crawler, Extractor):
 class TicketSportsAPI(Crawler, Extractor):
     URL = 'https://www.ticketsports.com.br/'
     REPO = Path('api.ticketsports.com.br')
+
+    @staticmethod
+    def _call(method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        time.sleep(crawl_delay)
+        session = cf_requests.Session(impersonate='chrome120')
+        kwargs = {}
+        if params:
+            kwargs['params'] = params
+        if payload:
+            kwargs['data'] = json.dumps(payload)
+        return getattr(session, method_f.__name__)(endpoint, **kwargs)
+
     META = {
         'Category': 'Agregador',
         'DDD': '11',
@@ -205,6 +219,66 @@ class TicketSportsAPI(Crawler, Extractor):
             events_acc += [self.parse(row, fp) for row in data]
             ids_set |= {obj['IdEvento']:'' for obj in data if 'IdEvento' in obj}
             page += 1
+
+        return events_acc
+
+
+class TicketSportsAPI2(Crawler, Extractor):
+    URL = 'https://www.ticketsports.com.br/'
+    REPO = Path('api.ticketsports.com.br')
+
+    @staticmethod
+    def _call(method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        time.sleep(crawl_delay)
+        session = cf_requests.Session(impersonate='chrome120')
+        kwargs = {'params': params} if params else {}
+        return session.get(endpoint, **kwargs)
+
+    META = {
+        'Category': 'Agregador',
+        'DDD': '11',
+    }
+
+    def title(self, data) -> str:
+        return data['title']
+
+    def date(self, data) -> str:
+        return data['date']
+
+    def local(self, data) -> str:
+        return data['address']
+
+    def url(self, data) -> str:
+        return data['uri']
+
+    QUICK_FILTERS = ['mountain-bike', 'ciclismo', 'triathlon']
+
+    def trigger(self):
+        QUANTITY = 200
+        events_acc = []
+        seen = set()
+        api = urljoin(self.URL, 'api/events/list')
+
+        for qf in self.QUICK_FILTERS:
+            page = 1
+            while True:
+                params = {
+                    'quantity': QUANTITY,
+                    'atlheteId': 0,
+                    'quickFilter': qf,
+                    'country': 'BR',
+                    'page': page,
+                }
+                fp, data = self.get_json(api, suffix=f'events-{qf}-{page}.json', params=params)
+                if not data:
+                    break
+                for row in data:
+                    if row['eventId'] not in seen:
+                        seen.add(row['eventId'])
+                        events_acc.append(self.parse(row, fp))
+                if len(data) < QUANTITY:
+                    break
+                page += 1
 
         return events_acc
 

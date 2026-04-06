@@ -12,14 +12,14 @@ flatten = chain.from_iterable
 crawlers = [
     TIOnline(),
     Peloto(),
-    ActiveSports(),
+    #ActiveSports(),
     CorridaPronta(),
     GpsControlCrono(),
     # TourDoPeixe(), # Morreu. Usava TicketSport
     TicketBr(),
     # FPCiclismo(), # 503
     SeuEsporteApp(),
-    TicketSportsAPI(),
+    TicketSportsAPI2(),
     InscricoesBike(),
     Nuflow(),
 ]

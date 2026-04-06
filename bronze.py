@@ -123,7 +123,7 @@ class Crawler(ABC, RawLayer):
                 return last
 
         print(f'Requesting {url}')
-        response = Crawler._call(method_f, url, **kwargs)
+        response = self._call(method_f, url, **kwargs)
         response.raise_for_status()
 
         today = date.today().isoformat()
@@ -147,11 +147,14 @@ class Crawler(ABC, RawLayer):
                 raw_data += page.extract_table()
         return fn, raw_data
 
-    def get_json(self, url, suffix='eventos.json', payload=None) -> Tuple[Path, List]:
+    def get_json(self, url, suffix='eventos.json', payload=None, params=None) -> Tuple[Path, List]:
         method_f = requests.post if payload else requests.get
-        fn = self.download(url, suffix, method_f=method_f, params=payload)
+        fn = self.download(url, suffix, method_f=method_f, params=params if params is not None else payload)
         text = fn.read_text(encoding='utf-8')
-        data = json.loads(text)
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Cached file {fn} is not valid JSON (got HTML?). Delete it and retry.\n  {e}") from None
         return fn, data
 
     @abstractmethod

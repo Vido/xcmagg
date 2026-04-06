@@ -27,8 +27,8 @@ class DateRange:
 
     def to_dict(self):
         d = asdict(self)
-        d['start_date'] = self.start_date.strftime("%d-%m-%Y") if self.start_date else ''
-        d['end_date'] = self.end_date.strftime("%d-%m-%Y") if self.end_date else ''
+        d['start_date'] = self.start_date.strftime("%Y-%m-%d") if self.start_date else None
+        d['end_date'] = self.end_date.strftime("%Y-%m-%d") if self.end_date else None
         return d
 
 @dataclass
