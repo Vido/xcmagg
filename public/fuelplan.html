@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cycling Fuel Plan Calculator - RaceFeed</title>
+  <meta name="description" content="Interactive cycling nutrition calculator. Plan your water, carbohydrates, and sodium intake for any race or ride." />
+  <meta name="keywords" content="cycling nutrition, fuel plan, carbohydrates, hydration, sodium, race nutrition, cycling calculator" />
+  <meta name="author" content="Lucas Vido" />
+
+  <link rel="canonical" href="https://racefeed.com.br/fuelplan.html" />
+  <link rel="icon" href="/favicon.ico" />
+
+  <meta property="og:title" content="Cycling Fuel Plan Calculator" />
+  <meta property="og:description" content="Calculate exactly how much water, carbs, and sodium you need for your next ride or race." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://racefeed.com.br/fuelplan.html" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Cycling Fuel Plan Calculator" />
+  <meta name="twitter:description" content="Calculate exactly how much water, carbs, and sodium you need for your next ride or race." />
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-K196Y4ZCFK');
+  </script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    .raw-value {
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .raw-unit {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+    .plan-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .plan-list li {
+      padding: 6px 0;
+      font-size: 1.05rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .plan-list li:last-child {
+      border-bottom: none;
+    }
+    .plan-item-qty {
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .stops-big {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .slider-label-desc {
+      font-size: 0.8rem;
+      color: #6c757d;
+      display: block;
+      margin-top: 2px;
+    }
+    .carbs-label {
+      font-weight: 600;
+      color: #0d6efd;
+    }
+  </style>
+</head>
+
+<body>
+  <nav role="navigation" class="navbar">
+    <a href="https://racefeed.com.br/" class="logo">RaceFeed</a>
+    <ul class="nav-list">
+      <li><a href="index.html">Calendário</a></li>
+      <li><a href="gearftp.html">FTP Calculator</a></li>
+      <li><a href="fuelplan.html">Fuel Plan</a></li>
+      <li><a href="https://forms.gle/oo9s7hdqg29Wznkz7">Newsletter</a></li>
+    </ul>
+  </nav>
+
+  <main role="main" class="content">
+  <div class="container py-4">
+
+    <!-- Parameters Card -->
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="fw-semibold">🎯 Ride Parameters</span>
+        <button id="shareBtn" class="btn btn-sm btn-outline-secondary" onclick="share()">🔗 Share</button>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+
+          <!-- Left column -->
+          <div class="col-md-6 d-flex flex-column gap-4">
+
+            <div>
+              <label class="form-label">
+                🍌 Carbs/h: <strong><span id="carbsValue">60</span> g/h</strong>
+                — <span class="carbs-label" id="carbsLabel">Standard — Race fueling</span>
+              </label>
+              <input type="range" class="form-range" id="carbsSlider" min="20" max="120" step="10" value="60">
+              <span class="slider-label-desc" id="carbsHint">Suitable for most athletes in races over 2h</span>
+            </div>
+
+            <div>
+              <label class="form-label">
+                🏋️ Body weight: <strong><span id="weightValue">70</span> kg</strong>
+              </label>
+              <input type="range" class="form-range" id="weightSlider" min="40" max="200" step="1" value="70">
+            </div>
+
+            <div>
+              <label class="form-label">
+                🧂 Sweat saltiness: <strong><span id="saltinessValue">900</span> mg/L</strong>
+                — <span id="saltinessLabel">Average — Most athletes</span>
+              </label>
+              <input type="range" class="form-range" id="saltinessSlider" min="300" max="1600" step="100" value="900">
+              <span class="slider-label-desc" id="saltinessHint">Look for white marks on skin or kit after a ride — that's a sign of salty sweat.</span>
+            </div>
+
+          </div>
+
+          <!-- Right column -->
+          <div class="col-md-6 d-flex flex-column gap-4">
+
+            <div>
+              <label class="form-label">
+                🌡️ Temperature: <strong><span id="tempValue">25</span>°C</strong>
+                — <span id="tempLabel">Warm</span>
+              </label>
+              <input type="range" class="form-range" id="tempSlider" min="0" max="40" step="1" value="25">
+            </div>
+
+            <div>
+              <label class="form-label">
+                ⏱️ Duration (Moving Time): <strong><span id="durationValue">3</span>h</strong>
+              </label>
+              <input type="range" class="form-range" id="durationSlider" min="1" max="16" step="0.5" value="3">
+              <div id="durationWarning" class="alert alert-warning py-1 px-2 mt-2 small mb-0" style="display:none">
+                ⚠️ <strong>Note:</strong> What your gut tolerates in 2–3h is completely different from what it tolerates in 4–6h+. Train your nutrition strategy well before race day.
+              </div>
+            </div>
+
+            <div class="mt-auto">
+              <p class="text-muted small mb-0" id="summaryText"></p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Requirements Card -->
+    <div class="card mb-4"> 
+      <div class="card-header fw-semibold">📊 Requirements (beta)</div>
+      <div class="card-body">
+        <div class="row text-center g-3">
+          <div class="col-4">
+            <div class="raw-value text-primary" id="waterOut">—</div>
+            <div class="raw-unit">L of water</div>
+            <div class="text-muted" style="font-size:.8rem" id="sweatOut"></div>
+          </div>
+          <div class="col-4">
+            <div class="raw-value text-success" id="carbsOut">—</div>
+            <div class="raw-unit">g of carbs</div>
+            <div class="text-muted" style="font-size:.8rem" id="carbsRateOut"></div>
+          </div>
+          <div class="col-4">
+            <div class="raw-value" style="color:#c87000;" id="sodiumOut">—</div>
+            <div class="raw-unit">mg sodium</div>
+            <div class="text-muted" style="font-size:.8rem">estimated via sweat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-8 mb-3 mb-md-0">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <span class="fw-semibold">🍽️ Nutrition Plan</span>
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-primary" id="btnPeba"    onclick="setMode('peba')">🐢 Peba</button>
+              <button type="button" class="btn btn-outline-primary" id="btnGalatico" onclick="setMode('galatico')">👽 Galático</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <ul class="plan-list" id="planList"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">🚰 Water Stops</div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label mb-1">
+                Bike water capacity: <strong><span id="capacityValue">1.50</span> L</strong>
+              </label>
+              <input type="range" class="form-range mb-1" id="capacitySlider" min="250" max="5000" step="250" value="1500">
+              <span class="slider-label-desc" id="capacityLabel">2 large bottles</span>
+            </div>
+            <div id="stopsBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </main>
+
+  <footer role="contentinfo" class="footer">
+    <div class="footer-content">
+      <p>&copy; 2025 RaceFeed. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ── Lookup tables ────────────────────────────────────────────────
+
+    const CARBS_LABELS = {
+      20:  { label: 'Minimal',  hint: 'Easy spin or rides under 1 hour' },
+      30:  { label: 'Light',    hint: 'Recovery ride, low effort' },
+      40:  { label: 'Moderate', hint: 'Typical training ride' },
+      50:  { label: 'Medium',   hint: 'Endurance pace, 2–3h' },
+      60:  { label: 'Standard', hint: 'Suitable for most athletes in races over 2h' },
+      70:  { label: 'High',     hint: 'Long race or Gran Fondo' },
+      80:  { label: 'Aggressive', hint: 'Hard race, high sustained effort' },
+      90:  { label: 'Pro Level', hint: 'High intensity, well-trained gut required' },
+      100: { label: 'Elite',    hint: 'Multi-source fueling (glucose + fructose 2:1)' },
+      110: { label: 'Max Gut',  hint: 'Trained gut required — test in training first' },
+      120: { label: 'Experimental', hint: 'Top athletes only — gut training essential' },
+    };
+
+    const TEMP_LABELS = {
+      10: 'Cold', 15: 'Cool', 20: 'Mild', 22: 'Mild',
+      25: 'Warm', 28: 'Warm', 30: 'Hot', 35: 'Very hot', 40: 'Extreme heat',
+    };
+    function tempLabel(t) {
+      if (t <= 12) return 'Cold';
+      if (t <= 18) return 'Cool';
+      if (t <= 23) return 'Mild';
+      if (t <= 28) return 'Warm';
+      if (t <= 33) return 'Hot';
+      if (t <= 38) return 'Very hot';
+      return 'Extreme heat';
+    }
+
+    const CAPACITY_LABELS = {
+      500:  '1 standard bottle',
+      750:  '1 large bottle',
+      1000: '2 standard bottles',
+      1250: '2 standard + 1 small',
+      1500: '2 large bottles',
+      1750: '2 large + 1 small',
+      2000: '3 standard bottles',
+      2250: '3 standard + 1 small',
+      2500: '3 large bottles',
+      2750: 'Hydration pack (2.75 L)',
+      3000: 'Hydration pack (3 L)',
+      3250: 'Hydration pack (3.25 L)',
+      3500: 'Hydration pack (3.5 L)',
+      3750: 'Hydration pack (3.75 L)',
+      4000: 'Hydration pack (4 L)',
+      4250: 'Hydration pack (4.25 L)',
+      4500: 'Hydration pack (4.5 L)',
+      4750: 'Hydration pack (4.75 L)',
+      5000: 'Hydration pack (5 L)',
+    };
+
+    // Sweat sodium concentration — slider range 300–1600 mg/L
+    // Sources:
+    //   Precision Hydration categories: ~500 (low) / ~1000 (moderate) / ~1500 (high/salty)
+    //   https://www.precisionhydration.com/performance-advice/hydration/how-to-estimate-sweat-salt-loss/
+    //   PMC5371639: range 230–2300 mg/L, most athletes 500–1300 mg/L, avg ~900–950 mg/L
+    //   https://pmc.ncbi.nlm.nih.gov/articles/PMC5371639/
+    function saltinessLabel(v) {
+      if (v <= 500)  return 'Low — Light sweater';
+      if (v <= 700)  return 'Below average';
+      if (v <= 1000) return 'Average — Most athletes';
+      if (v <= 1400) return 'Above average';
+      return 'High — Salty sweater';
+    }
+
+    // ── Formulas ─────────────────────────────────────────────────────
+
+    // Sweat rate model based on:
+    // - PMC8226773: endurance athletes avg 0.64 L/h (<10°C), 0.69 L/h (10–20°C), 1.08 L/h (>20°C)
+    //   https://pmc.ncbi.nlm.nih.gov/articles/PMC8226773/
+    // - PMC5371639: sweat sodium 230–2300 mg/L, most athletes 500–1300 mg/L, avg ~950 mg/L
+    //   https://pmc.ncbi.nlm.nih.gov/articles/PMC5371639/
+    function calcSweatRate(carbsPerHour, temp, weight) {
+      const intensity   = (carbsPerHour - 20) / 10;  // 0–10
+      // Cold barely reduces sweat rate; heat above 20°C drives the main increase
+      const temp_factor = temp < 20
+        ? (temp - 20) * 0.003   // cold: small reduction (~-0.03 L/h at 0°C)
+        : (temp - 20) * 0.025;  // hot:  strong increase (~+0.5 L/h at 40°C)
+      let rate = (0.55 + intensity * 0.08 + temp_factor) * (weight / 70);
+      return Math.min(2.5, Math.max(0.1, rate));
+    }
+
+    function calculate() {
+      const duration = parseFloat(document.getElementById('durationSlider').value);
+      const carbsph  = parseInt(document.getElementById('carbsSlider').value);
+      const weight   = parseFloat(document.getElementById('weightSlider').value);
+      const temp     = parseFloat(document.getElementById('tempSlider').value);
+      const capacity   = parseInt(document.getElementById('capacitySlider').value);
+      const saltiness  = parseInt(document.getElementById('saltinessSlider').value);
+
+      const sweat    = calcSweatRate(carbsph, temp, weight);
+      const water    = sweat * duration;
+      const sodium   = sweat * saltiness * duration;
+      const carbs    = carbsph * duration;
+
+      return { duration, carbsph, weight, temp, capacity, saltiness, sweat, water, sodium, carbs };
+    }
+
+    // ── Food database ────────────────────────────────────────────────
+
+    const FOODS = {
+      gel:      { label: 'carbo gel',               carbs: 22, sodium:  55, water:   0 },
+      gatorade: { label: 'Gatorade (500 ml)',       carbs: 29, sodium: 253, water: 500 },
+      banana:   { label: 'banana',                  carbs: 22, sodium:  15, water:  75 },
+      pacoca:   { label: 'Paçoquinha',              carbs: 10, sodium:  37, water:   0 },
+      saltcap:  { label: 'salt capsule (300 mg)',   carbs:  0, sodium: 300, water:   0 },
+    };
+
+    // ── Nutrition Plan ───────────────────────────────────────────────
+
+    let planMode = 'peba';
+
+    function setMode(mode) {
+      planMode = mode;
+      document.getElementById('btnPeba').className    = mode === 'peba'    ? 'btn btn-sm btn-primary'         : 'btn btn-sm btn-outline-primary';
+      document.getElementById('btnGalatico').className = mode === 'galatico' ? 'btn btn-sm btn-primary'        : 'btn btn-sm btn-outline-primary';
+      update();
+    }
+
+    function buildPlan(water_L, carbs_g, sodium_mg, duration_h) {
+      if (duration_h <= 1)
+        return [{ text: 'Water only — no carbs or sodium needed for rides under 1 hour.' }];
+      return planMode === 'galatico'
+        ? buildPlanGalatico(water_L, carbs_g, sodium_mg)
+        : buildPlanPeba(water_L, carbs_g, sodium_mg);
+    }
+
+    // 🐢 Peba — real foods + Gatorade
+    function buildPlanPeba(water_L, carbs_g, sodium_mg) {
+      let rem_carbs  = carbs_g;
+      let rem_sodium = sodium_mg;
+      let rem_water  = water_L;
+
+      // 1. Gatorades cover ~60% of water
+      const gatorades = Math.max(0, Math.round((water_L * 1000 * 0.6) / FOODS.gatorade.water));
+      rem_carbs  -= gatorades * FOODS.gatorade.carbs;
+      rem_sodium -= gatorades * FOODS.gatorade.sodium;
+      rem_water  -= gatorades * (FOODS.gatorade.water / 1000);
+
+      // 2. Bananas for ~40% of remaining carbs
+      const bananas = Math.max(0, Math.round((Math.max(0, rem_carbs) * 0.4) / FOODS.banana.carbs));
+      rem_carbs  -= bananas * FOODS.banana.carbs;
+      rem_sodium -= bananas * FOODS.banana.sodium;
+      rem_water  -= bananas * (FOODS.banana.water / 1000);
+
+      // 3. Paçoquinha for remaining carbs
+      const pacocas = Math.max(0, Math.ceil(Math.max(0, rem_carbs) / FOODS.pacoca.carbs));
+      rem_sodium -= pacocas * FOODS.pacoca.sodium;
+
+      // 4. Salt for remaining sodium
+      const rem_sod_clamped = Math.max(0, rem_sodium);
+      const salt_g = (rem_sod_clamped / 1000).toFixed(1);
+
+      // 5. Plain water
+      const plain_w = Math.max(0, rem_water);
+
+      const items = [];
+      if (gatorades > 0)
+        items.push({ qty: gatorades, unit: FOODS.gatorade.label + (gatorades > 1 ? 's' : ''), details: nutriDetails(gatorades, FOODS.gatorade) });
+      if (bananas > 0)
+        items.push({ qty: bananas,   unit: FOODS.banana.label + (bananas > 1 ? 's' : ''),     details: nutriDetails(bananas, FOODS.banana) });
+      if (pacocas > 0)
+        items.push({ qty: pacocas,   unit: FOODS.pacoca.label + (pacocas > 1 ? 's' : ''),     details: nutriDetails(pacocas, FOODS.pacoca) });
+      if (parseFloat(salt_g) > 0)
+        items.push({ qty: salt_g + ' g', unit: 'of salt', details: `${Math.round(rem_sod_clamped)} mg sodium` });
+      if (plain_w >= 0.1)
+        items.push({ qty: plain_w.toFixed(1) + ' L', unit: 'of plain water', details: `${(plain_w * 1000).toFixed(0)} ml hydration` });
+      items.push({ note: 'Space it out every 20–30 min for best absorption.' });
+      return items;
+    }
+
+    // 🚀 Galático — gels + salt capsules only, max performance
+    function buildPlanGalatico(water_L, carbs_g, sodium_mg) {
+      let rem_carbs  = carbs_g;
+      let rem_sodium = sodium_mg;
+      let rem_water  = water_L;
+
+      // 1. Gels for all carbs
+      const gels = Math.max(0, Math.ceil(rem_carbs / FOODS.gel.carbs));
+      rem_sodium -= gels * FOODS.gel.sodium;
+
+      // 2. Salt capsules for remaining sodium
+      const rem_sod_clamped = Math.max(0, rem_sodium);
+      const saltcaps = Math.max(0, Math.ceil(rem_sod_clamped / FOODS.saltcap.sodium));
+
+      // 3. All water is plain water
+      const plain_w = Math.max(0, rem_water);
+
+      const items = [];
+      if (gels > 0)
+        items.push({ qty: gels, unit: FOODS.gel.label + (gels > 1 ? 's' : ''), details: nutriDetails(gels, FOODS.gel) });
+      if (saltcaps > 0)
+        items.push({ qty: saltcaps, unit: FOODS.saltcap.label + (saltcaps > 1 ? 's' : ''), details: `${saltcaps * FOODS.saltcap.sodium} mg sodium` });
+      if (plain_w >= 0.1)
+        items.push({ qty: plain_w.toFixed(1) + ' L', unit: 'of plain water', details: `${(plain_w * 1000).toFixed(0)} ml hydration` });
+      items.push({ note: 'Take a gel every 20–30 min. Wash down each capsule with water.' });
+      return items;
+    }
+
+    function nutriDetails(qty, food) {
+      const parts = [];
+      if (food.carbs  > 0) parts.push(`${food.carbs  * qty} g carbs`);
+      if (food.water  > 0) parts.push(`${(food.water  * qty / 1000).toFixed(1)} L water`);
+      if (food.sodium > 0) parts.push(`${food.sodium * qty} mg sodium`);
+      return parts.join(' · ');
+    }
+
+    // ── Water Stops ──────────────────────────────────────────────────
+
+    function buildStops(water_L, capacity_ml, duration_h) {
+      const cap = capacity_ml / 1000;
+      const stops = Math.ceil(water_L / cap) - 1; // start full, finish line excluded
+      if (stops <= 0) return null;
+      const interval_min = Math.round((duration_h / (stops + 1)) * 60);
+      return { stops, interval_min };
+    }
+
+    // ── Render ───────────────────────────────────────────────────────
+
+    function update() {
+      const r = calculate();
+
+      // Slider labels
+      document.getElementById('durationValue').textContent = r.duration;
+      document.getElementById('durationWarning').style.display = r.duration >= 4 ? '' : 'none';
+      document.getElementById('carbsValue').textContent    = r.carbsph;
+      document.getElementById('weightValue').textContent   = r.weight;
+      document.getElementById('tempValue').textContent     = r.temp;
+      document.getElementById('capacityValue').textContent  = (r.capacity / 1000).toFixed(2);
+      document.getElementById('saltinessValue').textContent = r.saltiness;
+
+      const cl = CARBS_LABELS[r.carbsph];
+      document.getElementById('carbsLabel').textContent    = cl.label;
+      document.getElementById('carbsHint').textContent     = cl.hint;
+      document.getElementById('tempLabel').textContent     = tempLabel(r.temp);
+      document.getElementById('capacityLabel').textContent = CAPACITY_LABELS[r.capacity] || (r.capacity / 1000).toFixed(1) + ' L';
+      document.getElementById('saltinessLabel').textContent = saltinessLabel(r.saltiness);
+
+      document.getElementById('summaryText').textContent =
+        `${r.duration}h ride · ${r.weight} kg · ${r.temp}°C · ${r.carbsph} g carbs/h · ${r.saltiness} mg/L sodium`;
+
+      // Raw data
+      document.getElementById('waterOut').textContent  = r.water.toFixed(1) + ' L';
+      document.getElementById('carbsOut').textContent  = Math.round(r.carbs) + ' g';
+      document.getElementById('sodiumOut').textContent = Math.round(r.sodium) + ' mg';
+      document.getElementById('sweatOut').textContent  = `sweat rate ~${r.sweat.toFixed(2)} L/h`;
+      document.getElementById('carbsRateOut').textContent = `${r.carbsph} g/h`;
+
+      // Nutrition plan
+      const plan  = buildPlan(r.water, r.carbs, r.sodium, r.duration);
+      const list  = document.getElementById('planList');
+      list.innerHTML = plan.map(item => {
+        if (item.note) {
+          return `<li class="text-muted fst-italic">${item.note}</li>`;
+        }
+        if (item.text) {
+          return `<li>${item.text}</li>`;
+        }
+        return `<li>
+          <span class="plan-item-qty">${item.qty}</span> ${item.unit}
+          ${item.details ? `<br><small class="text-muted">${item.details}</small>` : ''}
+        </li>`;
+      }).join('');
+
+      // Water stops
+      const stops = buildStops(r.water, r.capacity, r.duration);
+      const stopsBody = document.getElementById('stopsBody');
+      if (!stops) {
+        stopsBody.innerHTML = `
+          <p class="mb-1 text-muted small">Total need: <strong>${r.water.toFixed(1)} L</strong></p>
+          <p class="mb-0 text-success fw-semibold">✅ No stops needed — your bike covers the full ride.</p>`;
+      } else {
+        stopsBody.innerHTML = `
+          <p class="mb-2 text-muted small">Total need: <strong>${r.water.toFixed(1)} L</strong></p>
+          <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="stops-big text-primary" style="min-width:2.5rem;text-align:center">${stops.stops}</div>
+            <div style="min-width:0">
+              <div class="fw-bold">water stop${stops.stops > 1 ? 's' : ''}</div>
+              <div class="text-muted small" style="white-space:nowrap">every ~${stops.interval_min} min</div>
+            </div>
+          </div>
+          <p class="mb-0 text-muted small">Finish line not counted — food &amp; water there.</p>`;
+      }
+    }
+
+    // ── Share ────────────────────────────────────────────────────────
+
+    function share() {
+      const r = calculate();
+      const p = new URLSearchParams({
+        duration: r.duration, carbs: r.carbsph, weight: r.weight,
+        temp: r.temp, capacity: r.capacity, saltiness: r.saltiness,
+        mode: planMode
+      });
+      const url = location.origin + location.pathname + '?' + p.toString();
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('shareBtn');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = '🔗 Share', 1500);
+      });
+    }
+
+    // ── Event listeners ──────────────────────────────────────────────
+
+    ['durationSlider', 'carbsSlider', 'weightSlider', 'tempSlider', 'capacitySlider', 'saltinessSlider']
+      .forEach(id => document.getElementById(id).addEventListener('input', update));
+
+    // ── Restore from URL params ──────────────────────────────────────
+
+    const PARAM_MAP = {
+      duration: 'durationSlider', carbs: 'carbsSlider', weight: 'weightSlider',
+      temp: 'tempSlider', capacity: 'capacitySlider', saltiness: 'saltinessSlider'
+    };
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(PARAM_MAP).forEach(([key, id]) => {
+      if (params.has(key)) document.getElementById(id).value = params.get(key);
+    });
+    if (params.has('mode')) setMode(params.get('mode')); // setMode calls update()
+    else update();
+  </script>
+</body>
+</html>
