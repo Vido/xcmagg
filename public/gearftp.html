@@ -82,10 +82,6 @@
       text-align: center;
     }
 
-    #wheelSizeSlider {
-      width: 45%;
-    }
-
     #cadence-handle,
     #ftp-handle {
       width: 2em;
@@ -108,8 +104,8 @@
   </nav>
   <main role="main" class="content">
   <div class="container py-4">
-      <div class="card">
-      <div class="card-header">⚙️ Gearing</div>
+      <div class="card mb-4">
+      <div class="card-header fw-semibold">⚙️ Gearing</div>
 
       <div class="card-body">
       <div class="row">
@@ -117,27 +113,18 @@
         <div class="gear-widget"><canvas id="gearCanvas" width="750" height="290"></canvas></div>
       </div><!-- col7 -->
       <div class="col-md-5 col-12 text-center">
-        <div class="slider-row">
-          <label>
-            Cassette Cog
-            <input type="range" id="cassetteSlider" min="10" max="52" value="51" />
-            <span id="cassetteValue">51</span>t
-          </label>
+        <div class="mb-3">
+          <label for="cassetteSlider" class="form-label">Cassette Cog: <strong><span id="cassetteValue">51</span>t</strong></label>
+          <input type="range" class="form-range" id="cassetteSlider" min="10" max="52" value="51">
         </div>
-        <div class="slider-row">
-          <label>
-            Crank Chainring
-            <input type="range" id="cranksetSlider" min="22" max="64" value="32" />
-            <span id="cranksetValue">32</span>t
-          </label>
+        <div class="mb-3">
+          <label for="cranksetSlider" class="form-label">Crank Chainring: <strong><span id="cranksetValue">32</span>t</strong></label>
+          <input type="range" class="form-range" id="cranksetSlider" min="22" max="64" value="32">
         </div>
-
-        <div class="slider-row">
-          <label for="wheelSizeSlider">Wheel/Tire Size:
-          <input type="range" id="wheelSizeSlider" min="0" max="22" step="1" value="17" />
-          <span id="wheelValue">2328</span>mm
-          </label>
-          <div id="wheelSizeLabel">29" x 2.25" (57-622)</div>
+        <div class="mb-3">
+          <label for="wheelSizeSlider" class="form-label">Wheel/Tire Size: <strong><span id="wheelValue">2328</span> mm</strong></label>
+          <input type="range" class="form-range" id="wheelSizeSlider" min="0" max="22" step="1" value="17">
+          <div id="wheelSizeLabel" class="text-muted small text-center mt-1">29" x 2.25" (57-622)</div>
         </div>
         
 
@@ -155,11 +142,11 @@
     </div> <!-- card-body -->
     </div> <!-- card -->
 
-    <div class="row">
+    <div class="row g-3">
       <!-- Column 1: Bike Info -->
       <div class="col-md-4 mb-3 text-center">
         <div class="card">
-          <div class="card-header">🚴 System Mass: <span id="totalMassValue">84.0</span> kg</div>
+          <div class="card-header fw-semibold">🚴 System Mass: <span id="totalMassValue">84.0</span> kg</div>
           <div class="card-body">
           <div class="mb-4">
             <label for="bikeWeightSlider" class="form-label">
@@ -182,8 +169,8 @@
           </div> <!-- card-body -->
         </div> <!--card -->
 
-        <div class="card">
-          <div class="card-header">Resistances</div>
+        <div class="card mt-3">
+          <div class="card-header fw-semibold">⚡ Resistances</div>
           <div class="card-body"><div id='lossesDiv'></div></div> <!-- card-body -->
         </div> <!-- card -->
 
@@ -192,23 +179,23 @@
       <!-- Column 2: Terrain Info -->
       <div class="col-md-4 mb-3 text-center">
         <div class="card">
-          <div class="card-header">🏔️ Terrain Info</div>
+          <div class="card-header fw-semibold">🏔️ Terrain Info</div>
           <div class="card-body">
                 <div class="widget-container">
                   <canvas id="triangleCanvas" width="280" height="155"></canvas>
                   <input type="number" id="gradeInput" hidden value="10" />
                 </div>
-          <label>Gradient: <spam id="gradeLabel">10</spam>%</label>
+          <label>Gradient: <span id="gradeLabel">10</span>%</label>
           </div> <!-- Card Body -->
         </div>
 
-        <div class="card">
-          <div class="card-header">Parameters</div>
+        <div class="card mt-3">
+          <div class="card-header fw-semibold">⚙️ Parameters</div>
           <div class="card-body">
 
             <div class="mb-4">
             <label for="rollingResistenceSlider" class="form-label">
-                🛞 Rolling Resist.: CCR = <span id="rollingResistenceValue">0.007</span> (BRR <spam id="brrValue">23.3</spam> W)
+                🛞 Rolling Resist.: CCR = <span id="rollingResistenceValue">0.007</span> (BRR <span id="brrValue">23.3</span> W)
               </label>
               <input type="range" class="form-range" min="0.0015" max="0.015" value="0.007" step=0.0001 id="rollingResistenceSlider">
             </div>
@@ -233,7 +220,7 @@
       <!-- Column 3: Rider Ouput -->
       <div class="col-md-4 mb-3 text-center">
         <div class="card">
-          <div class="card-header">🚀 Rider Output: <span id="wpkValue">3.0</span> W/kg</div>
+          <div class="card-header fw-semibold">🚀 Rider Output: <span id="wpkValue">3.0</span> W/kg</div>
           <div class="card-body">
             <div id='cadenceDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
             <div id="cadence-slider">
@@ -247,8 +234,8 @@
         </div>
 
         <!-- Omni Power Duration Model -->
-        <div class="card">
-        <div class="card-header">Omni Power Duration Model (Beta)</div>
+        <div class="card mt-3">
+        <div class="card-header fw-semibold">⏱️ Omni Power Duration <span class="badge bg-secondary fw-normal" style="font-size:0.65rem">Beta</span></div>
         <div class="card-body">
           <label>Sustainable for: <span id="sustainableValue">N/A</span></label>
         </div>
@@ -489,9 +476,9 @@ function update_gauges(cadence) {
       update_power();
       render_losses();
 
-      Plotly.newPlot("speedDiv", [speed_bullet(velocity)], layout1);
-      Plotly.newPlot("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
-      Plotly.newPlot("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
+      Plotly.react("speedDiv", [speed_bullet(velocity)], layout1);
+      Plotly.react("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
+      Plotly.react("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
 
       t_sustainable = bisection(wrap, power_legs)[0];
       $('#sustainableValue').text(humanize(t_sustainable));
@@ -682,6 +669,17 @@ $(function () {
     canvas2.addEventListener('mouseup', () => dragging = false);
     canvas2.addEventListener('mouseleave', () => dragging = false);
 
+    canvas2.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      dragging = true;
+      handleDrag(e.touches[0]);
+    }, { passive: false });
+    canvas2.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (dragging) handleDrag(e.touches[0]);
+    }, { passive: false });
+    canvas2.addEventListener('touchend', () => dragging = false);
+
     function handleDrag(e) {
       const rect = canvas2.getBoundingClientRect();
       const y = e.clientY - rect.top;
@@ -730,7 +728,7 @@ $(function () {
     }
 
     function render_losses(){
-      Plotly.newPlot('lossesDiv', [plot_losses()],
+      Plotly.react('lossesDiv', [plot_losses()],
         {height: 200, autosize: true, margin: { t: 0, b: 10, l: 0, r: 0 }}
       );
     }
