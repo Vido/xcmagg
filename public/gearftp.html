@@ -3,26 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gear vs FTP - Cycling Calculator</title>
-  <meta name="description" content="Interactive calculator to visualize Gear Ratios vs FTP Power Zones. Ideal for mountain bikers, road cyclists, and triathletes." />
-  <meta name="keywords" content="cycling calculator, gear ratio, FTP zones, climbing grade, cadence, bike setup, mountain biking, road cycling" />
+  <title>Free Gear Ratio & FTP Cycling Calculator | RaceFeed</title>
+  <meta name="description" content="Interactive cycling calculator: visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain grade. For mountain bikers, road cyclists, and triathletes." />
+  <meta name="keywords" content="cycling calculator, gear ratio, FTP zones, climbing grade, cadence, crank length, gain ratio, bike setup, mountain biking, road cycling" />
   <meta name="author" content="Lucas Vido" />
-  
+
   <link rel="canonical" href="https://racefeed.com.br/gearftp.html" />
   <link rel="icon" href="/favicon.ico" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="Gear vs FTP - Cycling Calculator" />
-  <meta property="og:description" content="Visualize how your cadence, gearing, and power zones interact. Built for cyclists and triathletes." />
+  <meta property="og:title" content="Free Gear Ratio & FTP Cycling Calculator | RaceFeed" />
+  <meta property="og:description" content="Interactive cycling calculator: visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain grade." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://gearftp.lvido.tech/" />
-  <!-- <meta property="og:image" content="https://yourdomain.com/preview.png" /> -->
+  <meta property="og:url" content="https://racefeed.com.br/gearftp.html" />
+  <meta property="og:image" content="https://racefeed.com.br/og-gearftp.png" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Gear Ratio vs FTP Zone Calculator" />
-  <meta name="twitter:description" content="Interactive calculator for cyclists to explore gearing and power output." />
-  <!-- <meta name="twitter:image" content="https://example.com/images/preview.png"> -->
+  <meta name="twitter:title" content="Free Gear Ratio & FTP Cycling Calculator | RaceFeed" />
+  <meta name="twitter:description" content="Interactive cycling calculator: visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain grade." />
+  <meta name="twitter:image" content="https://racefeed.com.br/og-gearftp.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Gear Ratio & FTP Cycling Calculator",
+    "url": "https://racefeed.com.br/gearftp.html",
+    "description": "Interactive cycling calculator to visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain grade.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": { "@type": "Person", "name": "Lucas Vido" }
+  }
+  </script>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
@@ -113,60 +128,96 @@
   </nav>
   <main role="main" class="content">
   <div class="container py-4">
-      <div class="card mb-4">
-      <div class="card-header fw-semibold">⚙️ Gearing</div>
 
-      <div class="card-body">
+    <!-- Top row: Transmission + Wheels & Tires -->
+    <div class="row g-3 mb-4">
 
-        <!-- Row 1: Canvas + Speed gauge -->
-        <div class="row g-3 mb-3 align-items-center">
-          <div class="col-md-8">
-            <div class="gear-widget">
-              <canvas id="gearCanvas" width="750" height="220" style="max-width:100%;height:auto"></canvas>
+      <!-- Transmission card -->
+      <div class="col-md-8">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">⚙️ Transmission: <span class="ratio-display">0.64</span> ratio</span>
+            <button id="shareLinkBtn" class="btn btn-sm btn-outline-secondary">🔗 Share</button>
+          </div>
+          <div class="card-body">
+
+            <!-- Canvas -->
+            <div class="mb-3">
+              <div class="gear-widget">
+                <canvas id="gearCanvas" width="750" height="220" style="max-width:100%;height:auto"></canvas>
+              </div>
             </div>
-          </div>
-          <div class="col-md-4">
+
+            <!-- Output stats -->
+            <div class="row g-2 text-center mb-3">
+              <div class="col">
+                <div class="text-muted small">Ratio</div>
+                <div class="fw-bold fs-4"><span class="ratio-display">0.64</span></div>
+              </div>
+              <div class="col">
+                <div class="text-muted small">Gain Ratio</div>
+                <div class="fw-bold fs-4"><span id="gainRatioValue">—</span></div>
+              </div>
+              <div class="col">
+                <div class="text-muted small">Gear Inches</div>
+                <div class="fw-bold fs-4"><span id="gearInchesValue">18.3</span></div>
+                <div class="text-muted small">in</div>
+              </div>
+              <div class="col">
+                <div class="text-muted small">Development</div>
+                <div class="fw-bold fs-4"><span id="developmentValue">1.45</span></div>
+                <div class="text-muted small">m/rev</div>
+              </div>
+              <div class="col">
+                <div class="text-muted small">Foot Speed</div>
+                <div class="fw-bold fs-4"><span id="footSpeedValue">—</span></div>
+                <div class="text-muted small">cm/s</div>
+              </div>
+            </div>
+
+            <!-- Cassette + Crankset + Crank Length sliders -->
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="cassetteSlider" class="form-label">Cassette Cog: <strong><span id="cassetteValue">51</span>t</strong></label>
+                <input type="range" class="form-range" id="cassetteSlider" min="10" max="52" value="51">
+              </div>
+              <div class="col-md-4">
+                <label for="cranksetSlider" class="form-label">Crank Chainring: <strong><span id="cranksetValue">32</span>t</strong></label>
+                <input type="range" class="form-range" id="cranksetSlider" min="22" max="64" value="32">
+              </div>
+              <div class="col-md-4">
+                <label for="crankLengthSlider" class="form-label">Crank Length: <strong><span id="crankLengthValue">170.0</span> mm</strong></label>
+                <input type="range" class="form-range" id="crankLengthSlider" min="1500" max="1800" step="25" value="1700">
+              </div>
+            </div>
+
+          </div> <!-- card-body -->
+        </div> <!-- card -->
+      </div> <!-- col-md-8 -->
+
+      <!-- Wheels & Tires card -->
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">🚲 Wheels &amp; Tires</div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="wheelSizeSlider" class="form-label">Wheel/Tire: <strong><span id="wheelValue">2328</span> mm</strong></label>
+              <input type="range" class="form-range" id="wheelSizeSlider" min="0" max="22" step="1" value="17">
+              <span class="text-muted small" id="wheelSizeLabel">29" x 2.25" (57-622)</span>
+            </div>
+            <div class="mb-0">
+              <label for="rollingResistenceSlider" class="form-label">
+                🛞 Rolling Resist.: <strong>Crr = <span id="rollingResistenceValue">0.007</span></strong> (BRR <span id="brrValue">23.3</span> W)
+              </label>
+              <input type="range" class="form-range" min="0.0015" max="0.015" value="0.007" step=0.0001 id="rollingResistenceSlider">
+              <span class="slider-label-desc" id="rollingHint"></span>
+            </div>
             <div id='speedDiv'></div>
-          </div>
-        </div>
+          </div> <!-- card-body -->
+        </div> <!-- card -->
+      </div> <!-- col-md-4 -->
 
-        <!-- Row 2: Output stats -->
-        <div class="row g-2 text-center mb-3">
-          <div class="col-4">
-            <div class="text-muted small">Ratio</div>
-            <div class="fw-bold fs-4"><span id="ratioValue">0.64</span></div>
-          </div>
-          <div class="col-4">
-            <div class="text-muted small">Gear Inches</div>
-            <div class="fw-bold fs-4"><span id="gearInchesValue">18.3</span></div>
-            <div class="text-muted small">in</div>
-          </div>
-          <div class="col-4">
-            <div class="text-muted small">Development</div>
-            <div class="fw-bold fs-4"><span id="developmentValue">1.45</span></div>
-            <div class="text-muted small">m/rev</div>
-          </div>
-        </div>
-
-        <!-- Row 3: Inputs -->
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label for="cassetteSlider" class="form-label">Cassette Cog: <strong><span id="cassetteValue">51</span>t</strong></label>
-            <input type="range" class="form-range" id="cassetteSlider" min="10" max="52" value="51">
-          </div>
-          <div class="col-md-4">
-            <label for="cranksetSlider" class="form-label">Crank Chainring: <strong><span id="cranksetValue">32</span>t</strong></label>
-            <input type="range" class="form-range" id="cranksetSlider" min="22" max="64" value="32">
-          </div>
-          <div class="col-md-4">
-            <label for="wheelSizeSlider" class="form-label">Wheel/Tire: <strong><span id="wheelValue">2328</span> mm</strong></label>
-            <input type="range" class="form-range" id="wheelSizeSlider" min="0" max="22" step="1" value="17">
-            <span class="text-muted small" id="wheelSizeLabel">29" x 2.25" (57-622)</span>
-          </div>
-        </div>
-
-    </div> <!-- card-body -->
-    </div> <!-- card -->
+    </div> <!-- top row -->
 
     <div class="row g-3">
       <!-- Column 1: Bike Info -->
@@ -196,8 +247,23 @@
         </div> <!--card -->
 
         <div class="card mt-3">
-          <div class="card-header fw-semibold">⚡ Resistances</div>
-          <div class="card-body"><div id='lossesDiv'></div></div> <!-- card-body -->
+          <div class="card-header fw-semibold">⚙️ Parameters</div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="cdaSlider" class="form-label">
+                🏎️ CdA: <strong><span id="cdaValue">0.4</span> m²</strong>
+              </label>
+              <input type="range" class="form-range" min="0.18" max="0.5" step=0.01 value="0.4" id="cdaSlider">
+              <span class="slider-label-desc" id="cdaHint"></span>
+            </div>
+            <div class="mb-0">
+              <label for="drivetrainLossSlider" class="form-label">
+                ⛓️ Drivetrain Loss: <strong><span id="drivetrainLossValue">3</span> %</strong>
+              </label>
+              <input type="range" class="form-range" min="2" max="5" value="3" step=0.5 id="drivetrainLossSlider">
+              <span class="slider-label-desc" id="drivetrainLossHint"></span>
+            </div>
+          </div> <!-- card-body -->
         </div> <!-- card -->
 
       </div><!-- col -->
@@ -216,33 +282,9 @@
         </div>
 
         <div class="card mt-3">
-          <div class="card-header fw-semibold">⚙️ Parameters</div>
-          <div class="card-body">
-
-            <div class="mb-3">
-              <label for="rollingResistenceSlider" class="form-label">
-                🛞 Rolling Resist.: <strong>Crr = <span id="rollingResistenceValue">0.007</span></strong> (BRR <span id="brrValue">23.3</span> W)
-              </label>
-              <input type="range" class="form-range" min="0.0015" max="0.015" value="0.007" step=0.0001 id="rollingResistenceSlider">
-              <span class="slider-label-desc" id="rollingHint"></span>
-            </div>
-
-            <div class="mb-3">
-              <label for="cdaSlider" class="form-label">
-                🏎️ CdA: <strong><span id="cdaValue">0.4</span> m²</strong>
-              </label>
-              <input type="range" class="form-range" min="0.18" max="0.5" step=0.01 value="0.4" id="cdaSlider">
-              <span class="slider-label-desc" id="cdaHint"></span>
-            </div>
-
-            <div class="mb-0">
-              <label for="drivetrainLossSlider" class="form-label">
-                ⛓️ Drivetrain Loss: <strong><span id="drivetrainLossValue">3</span> %</strong>
-              </label>
-              <input type="range" class="form-range" min="2" max="5" value="3" step=0.5 id="drivetrainLossSlider">
-            </div>
-          </div> <!-- Card Body -->
-        </div>
+          <div class="card-header fw-semibold">⚡ Resistances</div>
+          <div class="card-body"><div id='lossesDiv'></div></div> <!-- card-body -->
+        </div> <!-- card -->
       </div>
 
       <!-- Column 3: Rider Ouput -->
@@ -330,13 +372,24 @@
       $('#drivetrainLossSlider').on('input', function () {
         dt_loss = $(this).val();
         $('#drivetrainLossValue').text(dt_loss);
+        $('#drivetrainLossHint').text(lookupHint(parseFloat(dt_loss), DT_LOSS_THRESHOLDS));
         update_gauges(crankrpm);
       });
-      // Initialize hints
-      $('#rollingHint').text(lookupHint(parseFloat($('#rollingResistenceSlider').val()), ROLLING_THRESHOLDS));
-      $('#cdaHint').text(lookupHint(parseFloat($('#cdaSlider').val()), CDA_THRESHOLDS));
+
+      $('#crankLengthSlider').on('input', function () {
+        crank_length_mm = parseInt($(this).val()) / 10;
+        $('#crankLengthValue').text(crank_length_mm.toFixed(1));
+        drawGears(parseInt(cassetteSlider.value), parseInt(cranksetSlider.value), w_circumference, crank_length_mm);
+        update_gauges(crankrpm);
+      });
       update_mass();
     });
+
+    function initHints() {
+      $('#rollingHint').text(lookupHint(parseFloat($('#rollingResistenceSlider').val()), ROLLING_THRESHOLDS));
+      $('#cdaHint').text(lookupHint(parseFloat($('#cdaSlider').val()), CDA_THRESHOLDS));
+      $('#drivetrainLossHint').text(lookupHint(parseFloat($('#drivetrainLossSlider').val()), DT_LOSS_THRESHOLDS));
+    }
 
     function lookupHint(value, thresholds) {
       return (thresholds.find(([limit]) => value < limit) ?? thresholds.at(-1))[1];
@@ -355,6 +408,12 @@
       [0.35, 'Road — hoods, comfortable'],
       [0.43, 'Upright road / gravel'],
       [Infinity, 'Upright MTB / touring'],
+    ];
+
+    const DT_LOSS_THRESHOLDS = [
+      [3, 'Typical 2× setup'],
+      [3.5, 'Typical 1× MTB setup'],
+      [Infinity, 'Dirty or worn drivetrain'],
     ];
 
     function update_mass() {
@@ -383,6 +442,7 @@
     let w_circumference = 2320;
     let crankrpm = 70;
     let ratio = 0.6;
+    let crank_length_mm = 170;
 
     let gearinches = 18.3;
     let development = 1.464;
@@ -454,13 +514,22 @@
       };
     }
 
-    function speed_bullet(x) {
+    function speed_bullet(x, maxSpeed) {
       return {
         title: { text: "Speed (Km/h)" },
         type: "indicator",
         mode: "gauge+number",
         value: x,
-        gauge: { axis: { visible: true, range: [0, 60] } },
+        gauge: {
+          axis: { visible: true, range: [0, maxSpeed] },
+          steps: [
+            { range: [0, 3],        color: 'red' },
+            { range: [3, 4.5],      color: 'orange' },
+            { range: [43, maxSpeed],  color: 'lightblue' },
+            { range: [43, 80],  color: 'lightgreen' },
+            { range: [80, maxSpeed],  color: 'yellow' },
+          ],
+        },
         domain: { x: [.1, .9], y: [0, .75] },
       };
     }
@@ -533,9 +602,16 @@ function update_gauges(cadence) {
       update_power();
       render_losses();
 
-      Plotly.react("speedDiv", [speed_bullet(velocity)], layout1);
+      const maxSpeed = 10 + (100 - 10) * (-grade + 30) / 60;
+      Plotly.react("speedDiv", [speed_bullet(velocity, maxSpeed)], layout1);
       Plotly.react("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
       Plotly.react("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
+
+      const crank_m = crank_length_mm / 1000;
+      const gain_ratio = development / (2 * Math.PI * crank_m);
+      const foot_speed = (cadence / 60) * 2 * Math.PI * crank_m * 100;
+      $('#gainRatioValue').text(gain_ratio.toFixed(2));
+      $('#footSpeedValue').text(foot_speed.toFixed(1));
 
       if (power_legs === 0) {
         $('#sustainableValue').text('Coasting 🏄');
@@ -602,7 +678,7 @@ $(function () {
 
     const crankDistanceMm = 425;
 
-    function drawGears(cassetteT, cranksetT, wheelCircumference) {
+    function drawGears(cassetteT, cranksetT, wheelCircumference, crankLengthMm) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const centerY = 110;
@@ -626,6 +702,19 @@ $(function () {
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.lineWidth = 1;
+
+      // Draw crank arm circle (pedal path) around crankset
+      if (crankLengthMm) {
+        const crankCircleRadius = crankLengthMm * pxPerMm;
+        ctx.beginPath();
+        ctx.arc(cranksetCenter.x, cranksetCenter.y, crankCircleRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = '#4a90d9';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.lineWidth = 1;
+      }
 
       // Draw cassette gear
       ctx.beginPath();
@@ -656,10 +745,10 @@ $(function () {
       cranksetValue.textContent = cranksetT;
       ratio = cranksetT/cassetteT
 
-      drawGears(cassetteT, cranksetT, w_circumference);
+      drawGears(cassetteT, cranksetT, w_circumference, crank_length_mm);
       update_gauges(crankrpm);
 
-      $('#ratioValue').text(ratio.toFixed(2));
+      $('.ratio-display').text(ratio.toFixed(2));
       $('#gearInchesValue').text(gearinches.toFixed(1));
       $('#developmentValue').text(development.toFixed(2));
       
@@ -964,6 +1053,92 @@ $(function () {
         rendered += remainingSeconds + ' sec';
     return rendered.trim();
   }
+  </script>
+
+  <script>
+    function buildShareURL() {
+      const params = new URLSearchParams({
+        cas: document.getElementById('cassetteSlider').value,
+        cra: document.getElementById('cranksetSlider').value,
+        crkl: document.getElementById('crankLengthSlider').value,
+        whl: document.getElementById('wheelSizeSlider').value,
+        bkw: document.getElementById('bikeWeightSlider').value,
+        rdw: document.getElementById('riderWeightSlider').value,
+        pay: document.getElementById('payloadWeightSlider').value,
+        grd: document.getElementById('gradeInput').value,
+        crr: document.getElementById('rollingResistenceSlider').value,
+        cda: document.getElementById('cdaSlider').value,
+        dtl: document.getElementById('drivetrainLossSlider').value,
+        cad: $('#cadence-slider').slider('value'),
+        ftp: $('#ftp-slider').slider('value'),
+      });
+      return `${location.origin}${location.pathname}?${params.toString()}`;
+    }
+
+    document.getElementById('shareLinkBtn').addEventListener('click', function () {
+      const btn = this;
+      navigator.clipboard.writeText(buildShareURL()).then(function () {
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = '🔗 Share', 1500);
+      });
+    });
+
+    function loadStateFromURL() {
+      const p = new URLSearchParams(location.search);
+      if (!p.has('cas')) {
+        initHints();
+        return;
+      }
+
+      // Set all range slider DOM values first (so computed values read correctly)
+      const rangeMap = {
+        cassetteSlider: 'cas', cranksetSlider: 'cra', crankLengthSlider: 'crkl',
+        bikeWeightSlider: 'bkw', riderWeightSlider: 'rdw', payloadWeightSlider: 'pay',
+        rollingResistenceSlider: 'crr', cdaSlider: 'cda', drivetrainLossSlider: 'dtl',
+      };
+      for (const [id, key] of Object.entries(rangeMap)) {
+        if (p.has(key)) document.getElementById(id).value = p.get(key);
+      }
+
+      // Wheel size — updates w_circumference via updateWheelSize
+      if (p.has('whl')) {
+        document.getElementById('wheelSizeSlider').value = p.get('whl');
+        updateWheelSize(parseInt(p.get('whl')));
+      }
+
+      // Grade — canvas-driven; update hidden input + height variable
+      if (p.has('grd')) {
+        const grdVal = parseFloat(p.get('grd'));
+        document.getElementById('gradeInput').value = grdVal;
+        height = (grdVal / maxGrade) * maxHeight;
+      }
+
+      // jQuery UI sliders
+      if (p.has('cad')) {
+        crankrpm = parseInt(p.get('cad'));
+        $('#cadence-handle').text(crankrpm);
+        $('#cadence-slider').slider('value', crankrpm);
+      }
+      if (p.has('ftp')) {
+        ftp = parseInt(p.get('ftp'));
+        $('#ftp-handle').text(ftp);
+        $('#ftp-slider').slider('value', ftp);
+      }
+
+      // Fire input events on range sliders to update display labels and global vars
+      ['bikeWeightSlider', 'riderWeightSlider', 'payloadWeightSlider',
+       'rollingResistenceSlider', 'cdaSlider', 'drivetrainLossSlider',
+       'crankLengthSlider', 'cassetteSlider', 'cranksetSlider'].forEach(id => {
+        document.getElementById(id).dispatchEvent(new Event('input'));
+      });
+
+      // Final render pass with all state in place
+      grade = drawTriangle();
+      update_gauges(crankrpm);
+      $('#wpkValue').text(Number(ftp / rider_mass).toFixed(1));
+    }
+
+    $(document).ready(loadStateFromURL);
   </script>
 
 </body>
