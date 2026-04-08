@@ -72,6 +72,8 @@
 
     #triangleCanvas {
       touch-action: none;
+      cursor: ns-resize;
+      max-width: 100%;
     }
   </style>
 
@@ -80,6 +82,13 @@
     #wheelSizeLabel {
       font-weight: bold;
       text-align: center;
+    }
+
+    .slider-label-desc {
+      font-size: 0.8rem;
+      color: #6c757d;
+      display: block;
+      margin-top: 2px;
     }
 
     #cadence-handle,
@@ -108,63 +117,80 @@
       <div class="card-header fw-semibold">⚙️ Gearing</div>
 
       <div class="card-body">
-      <div class="row">
-      <div class="col-md-7 d-none d-md-block text-center">
-        <div class="gear-widget"><canvas id="gearCanvas" width="750" height="290"></canvas></div>
-      </div><!-- col7 -->
-      <div class="col-md-5 col-12 text-center">
-        <div class="mb-3">
-          <label for="cassetteSlider" class="form-label">Cassette Cog: <strong><span id="cassetteValue">51</span>t</strong></label>
-          <input type="range" class="form-range" id="cassetteSlider" min="10" max="52" value="51">
-        </div>
-        <div class="mb-3">
-          <label for="cranksetSlider" class="form-label">Crank Chainring: <strong><span id="cranksetValue">32</span>t</strong></label>
-          <input type="range" class="form-range" id="cranksetSlider" min="22" max="64" value="32">
-        </div>
-        <div class="mb-3">
-          <label for="wheelSizeSlider" class="form-label">Wheel/Tire Size: <strong><span id="wheelValue">2328</span> mm</strong></label>
-          <input type="range" class="form-range" id="wheelSizeSlider" min="0" max="22" step="1" value="17">
-          <div id="wheelSizeLabel" class="text-muted small text-center mt-1">29" x 2.25" (57-622)</div>
-        </div>
-        
 
-        <img class="center" alt="Sheldon Brown's Spoke" src="https://www.sheldonbrown.com/images/spokeflop.gif" width="100%" height="12">
+        <!-- Row 1: Canvas + Speed gauge -->
+        <div class="row g-3 mb-3 align-items-center">
+          <div class="col-md-8">
+            <div class="gear-widget">
+              <canvas id="gearCanvas" width="750" height="220" style="max-width:100%;height:auto"></canvas>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div id='speedDiv'></div>
+          </div>
+        </div>
 
-        <div class="slider-row">
-          <p>Ratio: <b><span id="ratioValue">0.64</span></label></b>&nbsp;</p>
-          <p>- Gear Inches: <b><span id="gearInchesValue">18.3</span> in</label></b>&nbsp;</p>
-          <p>- Development: <b><span id="developmentValue">1.45</span> m</label></b></p>
-        </div> <!-- slider -->
-        <div id='speedDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+        <!-- Row 2: Output stats -->
+        <div class="row g-2 text-center mb-3">
+          <div class="col-4">
+            <div class="text-muted small">Ratio</div>
+            <div class="fw-bold fs-4"><span id="ratioValue">0.64</span></div>
+          </div>
+          <div class="col-4">
+            <div class="text-muted small">Gear Inches</div>
+            <div class="fw-bold fs-4"><span id="gearInchesValue">18.3</span></div>
+            <div class="text-muted small">in</div>
+          </div>
+          <div class="col-4">
+            <div class="text-muted small">Development</div>
+            <div class="fw-bold fs-4"><span id="developmentValue">1.45</span></div>
+            <div class="text-muted small">m/rev</div>
+          </div>
+        </div>
 
-      </div>  <!-- col4 -->
-      </div>  <!-- row -->
+        <!-- Row 3: Inputs -->
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="cassetteSlider" class="form-label">Cassette Cog: <strong><span id="cassetteValue">51</span>t</strong></label>
+            <input type="range" class="form-range" id="cassetteSlider" min="10" max="52" value="51">
+          </div>
+          <div class="col-md-4">
+            <label for="cranksetSlider" class="form-label">Crank Chainring: <strong><span id="cranksetValue">32</span>t</strong></label>
+            <input type="range" class="form-range" id="cranksetSlider" min="22" max="64" value="32">
+          </div>
+          <div class="col-md-4">
+            <label for="wheelSizeSlider" class="form-label">Wheel/Tire: <strong><span id="wheelValue">2328</span> mm</strong></label>
+            <input type="range" class="form-range" id="wheelSizeSlider" min="0" max="22" step="1" value="17">
+            <span class="text-muted small" id="wheelSizeLabel">29" x 2.25" (57-622)</span>
+          </div>
+        </div>
+
     </div> <!-- card-body -->
     </div> <!-- card -->
 
     <div class="row g-3">
       <!-- Column 1: Bike Info -->
-      <div class="col-md-4 mb-3 text-center">
+      <div class="col-md-4 mb-3">
         <div class="card">
           <div class="card-header fw-semibold">🚴 System Mass: <span id="totalMassValue">84.0</span> kg</div>
           <div class="card-body">
-          <div class="mb-4">
+          <div class="mb-3">
             <label for="bikeWeightSlider" class="form-label">
-              🚲 Bike Weight: <span id="bikeWeightValue">12</span> kg
+              🚲 Bike Weight: <strong><span id="bikeWeightValue">12</span> kg</strong>
             </label>
             <input type="range" class="form-range" min="4" max="20" value="12" step=0.1 id="bikeWeightSlider">
           </div>
-          <div class="mb-4">
+          <div class="mb-3">
             <label for="riderWeightSlider" class="form-label">
-              🏃 Rider Weight: <span id="riderWeightValue">70</span> kg
+              🏃 Rider Weight: <strong><span id="riderWeightValue">70</span> kg</strong>
             </label>
             <input type="range" class="form-range" min="40" max="120" value="70" step=0.5 id="riderWeightSlider">
           </div>
-          <div class="mb-4">
+          <div class="mb-0">
             <label for="payloadWeightSlider" class="form-label">
-              🎒 Payload: <span id="payloadWeightValue">1</span> kg
+              🎒 Payload: <strong><span id="payloadWeightValue">1</span> kg</strong>
             </label>
-            <input type="range" class="form-range" min="0" max="50" value="1" id="payloadWeightSlider">
+            <input type="range" class="form-range" min="0" max="50" value="1" step="0.5" id="payloadWeightSlider">
           </div>
           </div> <!-- card-body -->
         </div> <!--card -->
@@ -179,13 +205,13 @@
       <!-- Column 2: Terrain Info -->
       <div class="col-md-4 mb-3 text-center">
         <div class="card">
-          <div class="card-header fw-semibold">🏔️ Terrain Info</div>
+          <div class="card-header fw-semibold">🏔️ Terrain Gradient: <span id="gradeLabel">+10.0</span> %</div>
           <div class="card-body">
                 <div class="widget-container">
                   <canvas id="triangleCanvas" width="280" height="155"></canvas>
                   <input type="number" id="gradeInput" hidden value="10" />
                 </div>
-          <label>Gradient: <span id="gradeLabel">10</span>%</label>
+          <div class="text-muted small mt-2">↕ drag to set grade</div>
           </div> <!-- Card Body -->
         </div>
 
@@ -193,23 +219,25 @@
           <div class="card-header fw-semibold">⚙️ Parameters</div>
           <div class="card-body">
 
-            <div class="mb-4">
-            <label for="rollingResistenceSlider" class="form-label">
-                🛞 Rolling Resist.: CCR = <span id="rollingResistenceValue">0.007</span> (BRR <span id="brrValue">23.3</span> W)
+            <div class="mb-3">
+              <label for="rollingResistenceSlider" class="form-label">
+                🛞 Rolling Resist.: <strong>Crr = <span id="rollingResistenceValue">0.007</span></strong> (BRR <span id="brrValue">23.3</span> W)
               </label>
               <input type="range" class="form-range" min="0.0015" max="0.015" value="0.007" step=0.0001 id="rollingResistenceSlider">
+              <span class="slider-label-desc" id="rollingHint"></span>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
               <label for="cdaSlider" class="form-label">
-                🏎️ CdA: <span id="cdaValue">0.4</span> m²
+                🏎️ CdA: <strong><span id="cdaValue">0.4</span> m²</strong>
               </label>
               <input type="range" class="form-range" min="0.18" max="0.5" step=0.01 value="0.4" id="cdaSlider">
+              <span class="slider-label-desc" id="cdaHint"></span>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-0">
               <label for="drivetrainLossSlider" class="form-label">
-                ⛓️ Drivetrain Loss: <span id="drivetrainLossValue">3</span> %
+                ⛓️ Drivetrain Loss: <strong><span id="drivetrainLossValue">3</span> %</strong>
               </label>
               <input type="range" class="form-range" min="2" max="5" value="3" step=0.5 id="drivetrainLossSlider">
             </div>
@@ -288,12 +316,14 @@
         $('#rollingResistenceValue').text(ccr);
         const brr = Number(ccr * brr_w).toFixed(1);
         $('#brrValue').text(brr);
+        $('#rollingHint').text(lookupHint(parseFloat(ccr), ROLLING_THRESHOLDS));
         update_gauges(crankrpm);
       });
 
       $('#cdaSlider').on('input', function () {
         cda = $(this).val();
         $('#cdaValue').text(cda);
+        $('#cdaHint').text(lookupHint(parseFloat(cda), CDA_THRESHOLDS));
         update_gauges(crankrpm);
       });
 
@@ -302,8 +332,30 @@
         $('#drivetrainLossValue').text(dt_loss);
         update_gauges(crankrpm);
       });
+      // Initialize hints
+      $('#rollingHint').text(lookupHint(parseFloat($('#rollingResistenceSlider').val()), ROLLING_THRESHOLDS));
+      $('#cdaHint').text(lookupHint(parseFloat($('#cdaSlider').val()), CDA_THRESHOLDS));
       update_mass();
     });
+
+    function lookupHint(value, thresholds) {
+      return (thresholds.find(([limit]) => value < limit) ?? thresholds.at(-1))[1];
+    }
+
+    const ROLLING_THRESHOLDS = [
+      [0.003, 'Velodrome / track surface'],
+      [0.006, 'Road — clincher or tubeless'],
+      [0.009, 'Gravel / light off-road'],
+      [0.012, 'Hardpack MTB trail'],
+      [Infinity, 'Loose / soft MTB terrain'],
+    ];
+    const CDA_THRESHOLDS = [
+      [0.22, 'TT / full aero tuck'],
+      [0.28, 'Road — drops, aggressive'],
+      [0.35, 'Road — hoods, comfortable'],
+      [0.43, 'Upright road / gravel'],
+      [Infinity, 'Upright MTB / touring'],
+    ];
 
     function update_mass() {
       total_mass = Number($('#bikeWeightSlider').val()) +
@@ -368,11 +420,20 @@
 
     let power_wheel = 200;
     let power_legs = 210;
+    let power_brakes = 0;
+    let power_gradient = 0;
+    let rolling_w = 0;
+    let drag_w = 0;
     let grade = 10;
 
-    function update_power(){
-      power_wheel = p_wheel(grade, total_mass, ccr, cda, velocity);
-      power_legs = p_legs(power_wheel, dt_loss);
+    function update_power() {
+      const raw_p_wheel = p_wheel(grade, total_mass, ccr, cda, velocity);
+      power_gradient = gravity * (velocity / 3.6);
+      power_brakes   = Math.max(0, -raw_p_wheel);
+      power_wheel    = Math.max(0, raw_p_wheel);
+      power_legs     = power_wheel > 0 ? p_legs(power_wheel, dt_loss) : 0;
+      rolling_w      = Math.max(0, rolling * velocity / 3.6);
+      drag_w         = Math.max(0, drag    * velocity / 3.6);
     }
   </script>
 
@@ -395,16 +456,12 @@
 
     function speed_bullet(x) {
       return {
-        type: "indicator",
-        value: x,
         title: { text: "Speed (Km/h)" },
-        mode: "number+delta+gauge",
-        delta: { reference: 5 },
-        gauge: {
-          shape: "bullet",
-          axis: {visible: true, type:"log", range: [0, 60]}
-        },
-        domain: { x: [.30, 1], y: [0, 1] }
+        type: "indicator",
+        mode: "gauge+number",
+        value: x,
+        gauge: { axis: { visible: true, range: [0, 60] } },
+        domain: { x: [.1, .9], y: [0, .75] },
       };
     }
 
@@ -449,8 +506,8 @@
 
     const layout1 = {
       autosize: true,
-      height: 50,
-      margin: { t: 0, b: 0, l: 0, r: 0 },
+      height: 200,
+      margin: { t: 20, b: 10, l: 0, r: 0 },
       grid: { rows: 1, columns: 1, pattern: "independent" }
     };
 
@@ -480,8 +537,12 @@ function update_gauges(cadence) {
       Plotly.react("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
       Plotly.react("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
 
-      t_sustainable = bisection(wrap, power_legs)[0];
-      $('#sustainableValue').text(humanize(t_sustainable));
+      if (power_legs === 0) {
+        $('#sustainableValue').text('Coasting 🏄');
+      } else {
+        t_sustainable = bisection(wrap, power_legs)[0];
+        $('#sustainableValue').text(humanize(t_sustainable));
+      }
 }
 
 $(function () {
@@ -544,7 +605,7 @@ $(function () {
     function drawGears(cassetteT, cranksetT, wheelCircumference) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const centerY = 150;
+      const centerY = 110;
 
       // Cassette center on the left
       const cassetteCenter = { x: 150, y: centerY };
@@ -622,16 +683,17 @@ $(function () {
 
     const baseLength = 250;
     const maxGrade = 30;
-    const maxHeight = maxGrade * baseLength / 100; 
+    const originY  = Math.floor(canvas2.height / 2);  // center — equal space for up/downhill
+    const maxHeight = originY - 5;
 
-    // Initialize height from 10% grade
+    // Initialize height from default grade (maps grade% → canvas pixels)
     const defaultPercent = parseFloat(input.value);
-    let height = (defaultPercent / 100) * baseLength;
+    let height = (defaultPercent / maxGrade) * maxHeight;
 
     function drawTriangle() {
       ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 
-      const origin = { x: 0, y: 150 };
+      const origin = { x: 0, y: originY };
       const baseX = origin.x + baseLength;
       const topY = origin.y - height;
 
@@ -642,17 +704,25 @@ $(function () {
       ctx2.lineTo(baseX, topY);               // top-right (movable height)
       ctx2.closePath();
 
-      ctx2.fillStyle = '#cce5ff';
+      ctx2.fillStyle = height >= 0 ? '#cce5ff' : '#fde8d8';
       ctx2.fill();
       ctx2.strokeStyle = '#333';
+      ctx2.lineWidth = 1;
       ctx2.stroke();
 
-      // Angle calculation
-      // const angleRad = Math.atan(height / baseLength);
-      // const angleDeg = (angleRad * 180) / Math.PI;
-      grade_pp = (height / baseLength) * 100;
+      // Draw drag handle at apex
+      ctx2.beginPath();
+      ctx2.arc(baseX, topY, 6, 0, Math.PI * 2);
+      ctx2.fillStyle = '#0d6efd';
+      ctx2.fill();
+      ctx2.strokeStyle = '#fff';
+      ctx2.lineWidth = 2;
+      ctx2.stroke();
+      ctx2.lineWidth = 1;
 
-      label.textContent = grade_pp.toFixed(1);
+      let grade_pp = (height / maxHeight) * maxGrade;
+
+      label.textContent = (grade_pp >= 0 ? '+' : '') + grade_pp.toFixed(1);
       input.value = grade_pp.toFixed(1);
       return grade_pp
     }
@@ -683,14 +753,12 @@ $(function () {
     function handleDrag(e) {
       const rect = canvas2.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      const originY = 150;
       let delta = originY - y;
 
-      // Clamp height
-      height = Math.max(0, Math.min(maxHeight, delta));
+      height = Math.max(-maxHeight, Math.min(maxHeight, delta));
+      if (Math.abs(height) < 3) height = 0;  // snap to zero
       grade = drawTriangle();
       update_gauges(crankrpm);
-
     }
 
     $(document).ready(function() {
@@ -701,28 +769,65 @@ $(function () {
   </script>
 
   <script>
-    function plot_losses(){
-      return {
-        type: "sankey",
-        orientation: "h",
-        node: {
-          label: ["Power - Your Legs :-)",
-                  "Drivetrain Loss",
-                  "Rolling Resistence",
-                  "Gradient",
-                  "Drag"],
-          align: "right",
-        },
+    const SANKEY_COLORS = {
+      "Your Legs :-)":  "#0d6efd",  // blue
+      "Gravity":        "#dc3545",  // red
+      "Drivetrain Loss":"#fd7e14",  // orange
+      "Hysteresis":     "#6f42c1",  // purple
+      "Drag":           "#0dcaf0",  // cyan
+      "Gradient":       "#dc3545",  // red
+      "Brakes":         "#ffc107",  // yellow
+    };
+    function sankeyNode(labels) {
+      return { label: labels, color: labels.map(l => SANKEY_COLORS[l]), align: "right" };
+    }
 
+    function plot_losses() {
+      const gradient_w = Math.abs(power_gradient);
+
+      // MODE A: Steep descent — gravity overcomes everything, rider brakes
+      if (power_legs === 0 && power_brakes > 0) {
+        return {
+          type: "sankey", orientation: "h",
+          node: sankeyNode(["Gravity", "Hysteresis", "Drag", "Brakes"]),
+          link: {
+            source: [0, 0, 0],
+            target: [1, 2, 3],
+            value:  [rolling_w, drag_w, power_brakes],
+          },
+        };
+      }
+
+      // MODE B: Gentle descent — gravity assists, rider still pedals
+      if (power_gradient < 0 && power_legs > 0) {
+        const dt_loss_w  = power_legs - power_wheel;
+        const total_sink = rolling_w + drag_w;
+        const r_rolling  = total_sink > 0 ? rolling_w / total_sink : 0.5;
+        return {
+          type: "sankey", orientation: "h",
+          node: sankeyNode(["Your Legs :-)", "Gravity", "Drivetrain Loss", "Hysteresis", "Drag"]),
+          link: {
+            source: [0, 0, 0, 1, 1],
+            target: [2, 3, 4, 3, 4],
+            value: [
+              dt_loss_w,
+              power_wheel * r_rolling,
+              power_wheel * (1 - r_rolling),
+              gradient_w  * r_rolling,
+              gradient_w  * (1 - r_rolling),
+            ],
+          },
+        };
+      }
+
+      // MODE C: Climbing / flat
+      return {
+        type: "sankey", orientation: "h",
+        node: sankeyNode(["Your Legs :-)", "Drivetrain Loss", "Hysteresis", "Gradient", "Drag"]),
         link: {
           source: [0, 0, 0, 0],
           target: [1, 2, 3, 4],
-          value:  [
-    power_legs-power_wheel,
-    rolling * velocity / 3.6,
-    gravity * velocity / 3.6,
-    drag * velocity / 3.6
-    ],
+          value:  [power_legs - power_wheel, rolling_w, gradient_w, drag_w],
         },
       };
     }
