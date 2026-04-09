@@ -46,7 +46,8 @@
 	<body>
 		<nav role="navigation" class="navbar">
 			<a href="https://racefeed.com.br/" class="logo">RaceFeed</a>
-			<ul class="nav-list">
+			<button id="nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
+			<ul class="nav-list" id="nav-list">
 				<li><a href="index.html">Calendário</a></li>
 				<li><a href="gearftp.html">Calculadora FTP</a></li>
 				<li><a href="fuelplan.html">Fuel Plan</a></li>
@@ -59,6 +60,13 @@
 			<div class="row table-setup">
 			<h1 class="pt-2 text-center">Calendário de eventos e provas:</h1>
 			<p class="lead mb-1">Use a ordenação e filtros para selecionar os eventos.</p>
+
+				<div class="filter-row">
+					<label for="ufFilter">Estado:</label>
+					<select id="ufFilter">
+						<option value="">Todos</option>
+					</select>
+				</div>
 
 				<table id="calendar" class="table table-striped">
 					<thead>
@@ -115,13 +123,38 @@
 
 						const calendar = new DataTable('#calendar', {
 								columnDefs: [
-									{ type: 'date-eu', targets: 0 }
+									{ type: 'date-eu', targets: 0, responsivePriority: 2 },
+									{ responsivePriority: 3, targets: 1 },
+									{ responsivePriority: 1, targets: 2 },
 								],
 								order: [[0, 'asc']],
 								responsive: true,
 								scrollX: false,
 						});
+
+						// Populate UF dropdown from data
+						const ufs = [...new Set(jsonArray.map(item => item.uf).filter(Boolean))].sort();
+						const ufSelect = document.getElementById('ufFilter');
+						ufs.forEach(uf => {
+							const opt = document.createElement('option');
+							opt.value = uf;
+							opt.textContent = uf;
+							ufSelect.appendChild(opt);
+						});
+
+						// Wire UF filter to DataTables column search
+						ufSelect.addEventListener('change', function() {
+							calendar.column(1).search(this.value ? '^' + this.value + '/' : '', true, false).draw();
+						});
 					})
 			.catch(error => console.error('Erro:', error));
+
+		// Hamburger nav toggle
+		document.getElementById('nav-toggle').addEventListener('click', function() {
+			const navList = document.getElementById('nav-list');
+			const expanded = this.getAttribute('aria-expanded') === 'true';
+			navList.classList.toggle('open');
+			this.setAttribute('aria-expanded', String(!expanded));
+		});
 	</script>
 </html>

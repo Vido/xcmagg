@@ -51,6 +51,35 @@ nav.navbar {
 	word-break: break-word;
 }
 
+#nav-toggle {
+	display: none;
+	background: none;
+	border: none;
+	color: white;
+	font-size: 22px;
+	cursor: pointer;
+	padding: 4px 10px;
+	line-height: 1;
+}
+
+.filter-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.filter-row label {
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.filter-row select {
+	padding: 4px 8px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
 div#contato div.banner-contato{
 	background-image: url('contato.png');
 	background-repeat: no-repeat;
@@ -86,12 +115,25 @@ footer.footer {
 	}
 
 	nav.navbar {
-		flex-direction: column;
+		justify-content: space-between;
 		height: auto;
-		padding: 10px 0;
+		padding: 8px 16px;
 	}
 
-	.logo {
-		margin-bottom: 10px;
+	#nav-toggle {
+		display: block;
+	}
+
+	.nav-list {
+		display: none;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		padding: 8px 0 4px;
+	}
+
+	.nav-list.open {
+		display: flex;
 	}
 }

@@ -160,9 +160,10 @@
 <body>
   <nav role="navigation" class="navbar">
     <a href="https://racefeed.com.br/" class="logo">RaceFeed</a>
-    <ul class="nav-list">
-      <li><a href="index.html">Calendário</a></li>
-      <li><a href="gearftp.html">FTP Calculator</a></li>
+    <button id="nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
+    <ul class="nav-list" id="nav-list">
+      <li><a href="index.html">Calendar</a></li>
+      <li><a href="gearftp.html">Gear vs FTP</a></li>
       <li><a href="fuelplan.html">Fuel Plan</a></li>
       <li><a href="https://forms.gle/oo9s7hdqg29Wznkz7">Newsletter</a></li>
     </ul>
@@ -937,6 +938,15 @@
     if (params.has('mode') && ['peba','bruto','galatico'].includes(params.get('mode')))
       setMode(params.get('mode')); // setMode calls update()
     else update();
+  </script>
+
+  <script>
+    document.getElementById('nav-toggle').addEventListener('click', function() {
+      const navList = document.getElementById('nav-list');
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!expanded));
+      navList.classList.toggle('open');
+    });
   </script>
 </body>
 </html>
