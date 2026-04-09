@@ -249,7 +249,7 @@ class TicketSportsAPI2(Crawler, Extractor):
         return data['address']
 
     def url(self, data) -> str:
-        return data['uri']
+        return data['uri'].lower()
 
     QUICK_FILTERS = ['mountain-bike', 'ciclismo', 'triathlon']
 
