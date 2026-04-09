@@ -354,7 +354,9 @@ class TicketBr(Crawler, Extractor):
         'DDD': '16',
     }
     def title(self, soup) -> str:
-        return soup.find('h5').text.strip()
+        raw = soup.find('h5').text.strip()
+        # Strip "Evento: DD/MM/YYYY " artifact from TicketBR HTML
+        return re.sub(r'^Evento:\s*(?:\d{2}/\d{2}/\d{4}\s*-?\s*)?', '', raw).strip()
     
     def date(self, soup) -> str:
         try:

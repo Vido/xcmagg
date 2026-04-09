@@ -27,7 +27,10 @@ class Persistence:
 
         query = f"""
             MERGE INTO {table} AS t
-            USING read_json_auto(?) AS s
+            USING (
+                SELECT * FROM read_json_auto(?)
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY url ORDER BY crawled_at DESC) = 1
+            ) AS s
             ON t.url = s.url
             WHEN MATCHED THEN
                 UPDATE SET *
@@ -59,17 +62,27 @@ class Persistence:
     # Dedup
     def load_new_events(self):
         rows = self.CONN.execute("""
-        SELECT r.*
+        SELECT * FROM (
+            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.url ORDER BY r.crawled_at DESC) AS rn
             FROM raw_events r
-            LEFT JOIN schema_events s
-            ON r.url = s.url
-            WHERE s.url IS NULL;
+            LEFT JOIN schema_events s ON r.url = s.url
+            WHERE s.url IS NULL
+        ) WHERE rn = 1;
         """).fetchall()
         cols = [c[0] for c in self.CONN.description]
         data = [dict(zip(cols, row)) for row in rows]
+        for d in data:
+            d.pop('rn', None)
         return data
 
     def store_schema_events(self, jsonlfile: Path):
         return self._store_data('schema_events', jsonlfile)
+
+    def load_geo(self):
+        geo_file = str(self.BASE / 'geo' / 'municipios_ibge.json')
+        self.CONN.execute(f"""
+            CREATE OR REPLACE TABLE geo AS
+            SELECT * FROM read_json_auto('{geo_file}')
+        """)
 
 

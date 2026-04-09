@@ -1,4 +1,5 @@
 import os
+import json
 import time
 from pathlib import Path
 from itertools import chain
@@ -37,6 +38,7 @@ class Location:
     address: Optional[str] = None
     city: Optional[str] = None
     uf: Optional[str] = None
+    ddd: Optional[str] = None
     confidence: Optional[str] = None
 
     def __post_init__(self):
@@ -102,6 +104,21 @@ class SilverLayer:
 
 class Parser:
 
+    def __init__(self):
+        self._location_cache = self._load_location_cache()
+
+    def _load_location_cache(self) -> dict:
+        try:
+            from db import Persistence
+            rows = Persistence().CONN.execute("""
+                SELECT location->>'location_raw', location
+                FROM schema_events
+                WHERE location->>'confidence' IN ('medium', 'high')
+            """).fetchall()
+            return {row[0]: json.loads(row[1]) for row in rows if row[0]}
+        except Exception:
+            return {}
+
     def title(self, raw_event) -> str:
         return raw_event.title
 
@@ -120,19 +137,32 @@ class Parser:
 
     def location(self, raw_event) -> Location:
         # TODO: Review
-        from agents import normalize_location
+        from agents import normalize_location, search_event_location
+
+        if raw_event.local in self._location_cache:
+            return Location(**self._location_cache[raw_event.local])
+
         llm_input = raw_event.local
         llm_parsed = normalize_location(raw_event.local)
 
         if llm_parsed.get('confidence', 'low') == 'low':
             llm_input = f'Evento: {raw_event.title} Local: {raw_event.local}'
-            llm_parsed = normalize_location(f'Evento: {raw_event.title} Local: {raw_event.local}')
+            llm_parsed = normalize_location(llm_input)
+
+        if llm_parsed.get('confidence', 'low') == 'low':
+            search_result = search_event_location(raw_event.title)
+            llm_input = f'Evento: {raw_event.title} Local: {raw_event.local} Pesquisa: {search_result}'
+            llm_parsed = normalize_location(llm_input)
 
         if llm_parsed.get('confidence', 'low') == 'low':
             print(llm_input)
             print(llm_parsed)
 
         llm_parsed['location_raw'] = llm_input
+
+        if llm_parsed.get('confidence') in ('medium', 'high'):
+            self._location_cache[raw_event.local] = llm_parsed
+
         return Location(**llm_parsed)
 
     def processed_at(self) -> datetime:

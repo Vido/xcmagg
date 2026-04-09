@@ -74,7 +74,7 @@ def normalize_location(location_raw: str):
                     "If the text refers to a local business, venue, public facility, or landmark (for example, a gym, school, park, stadium, etc...), treat it as an address and identify the corresponding city. "
                     "If it looks like an event name (e.g., a race or competition), do not treat it as an address and leave all fields null. "
                     "When a city name is identified, always infer its corresponding UF (Brazilian state) using your knowledge of Brazil. "
-                    "Do not leave UF empty if you know which state the city belongs to."
+                    "Do not leave UF empty if you know which city/state it belongs to."
 					"If you are not completely certain about the city–UF pair, set confidence to 'low'"
                     "Normalize text to title case if it is all-caps. If it's a mix of upper and lower case: Keep as is."
                     "Return null fields for anything that cannot be confidently determined."
@@ -92,6 +92,20 @@ def normalize_location(location_raw: str):
 
     tool_call = message.tool_calls[0]
     return json.loads(tool_call.function.arguments)
+
+
+def search_event_location(event_title: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-search-preview",
+        messages=[{
+            "role": "user",
+            "content": (
+                f"Em qual cidade e estado brasileiro ocorre o evento esportivo '{event_title}'? "
+                "Informe cidade, UF e, se possível, o local exato. Responda de forma concisa."
+            )
+        }]
+    )
+    return response.choices[0].message.content or ""
 
 
 def normalize_daterange(date_raw: str):

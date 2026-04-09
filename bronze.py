@@ -136,7 +136,7 @@ class Crawler(ABC, RawLayer):
             suffix: str ='home.html',
             encoding: str | None = 'utf-8') -> Tuple[Path, BeautifulSoup]:
         fn = self.download(url, suffix)
-        html = fn.read_text(encoding=encoding)
+        html = fn.read_text(encoding=encoding, errors='ignore')
         return fn, BeautifulSoup(html, "lxml")
 
     def get_pdf(self, url, suffix='doc.pdf') -> Tuple[Path, List]:

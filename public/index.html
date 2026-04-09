@@ -50,7 +50,7 @@
 			<ul class="nav-list" id="nav-list">
 				<li><a href="index.html">Calendário</a></li>
 				<li><a href="gearftp.html">Calculadora FTP</a></li>
-				<li><a href="fuelplan.html">Fuel Plan</a></li>
+				<li><a href="fuelplan.html">Plano Nutrição</a></li>
 				<li><a href="https://forms.gle/oo9s7hdqg29Wznkz7"
 					rel="nofollow noopener">Newsletter</a></li>
 			</ul>
@@ -66,6 +66,7 @@
 					<select id="ufFilter">
 						<option value="">Todos</option>
 					</select>
+					<button id="nearMeBtn" class="btn btn-outline-success btn-sm">📍 Perto de mim</button>
 				</div>
 
 				<table id="calendar" class="table table-striped">
@@ -113,6 +114,8 @@
 
 						jsonArray.forEach(item => {
 									const row = document.createElement('tr');
+									if (item.latitude != null) row.dataset.lat = item.latitude;
+									if (item.longitude != null) row.dataset.lon = item.longitude;
 									row.innerHTML = `
 										<td data-label="Data">${item.start_date}</td>
 										<td data-label="UF/Cidade">${item.uf}/${item.city}</td>
@@ -145,6 +148,65 @@
 						// Wire UF filter to DataTables column search
 						ufSelect.addEventListener('change', function() {
 							calendar.column(1).search(this.value ? '^' + this.value + '/' : '', true, false).draw();
+						});
+
+						// Near me filter
+						let userLat = null, userLon = null, nearMeActive = false;
+						const RADIUS_KM = 300;
+
+						function haversine(lat1, lon1, lat2, lon2) {
+							const R = 6371;
+							const dLat = (lat2 - lat1) * Math.PI / 180;
+							const dLon = (lon2 - lon1) * Math.PI / 180;
+							const a = Math.sin(dLat/2)**2 +
+								Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+								Math.sin(dLon/2)**2;
+							return R * 2 * Math.asin(Math.sqrt(a));
+						}
+
+						$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+							if (!nearMeActive) return true;
+							const tr = calendar.row(dataIndex).node();
+							const lat = parseFloat(tr?.dataset?.lat);
+							const lon = parseFloat(tr?.dataset?.lon);
+							if (isNaN(lat) || isNaN(lon)) return false;
+							return haversine(userLat, userLon, lat, lon) <= RADIUS_KM;
+						});
+
+						const nearMeBtn = document.getElementById('nearMeBtn');
+						nearMeBtn.addEventListener('click', function() {
+							if (nearMeActive) {
+								nearMeActive = false;
+								nearMeBtn.textContent = '📍 Perto de mim';
+								nearMeBtn.classList.replace('btn-success', 'btn-outline-success');
+								calendar.draw();
+								return;
+							}
+							if (userLat !== null) {
+								nearMeActive = true;
+								nearMeBtn.textContent = `📍 ≤ ${RADIUS_KM}km (limpar)`;
+								nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
+								calendar.draw();
+								return;
+							}
+							nearMeBtn.textContent = '📍 Buscando...';
+							nearMeBtn.disabled = true;
+							navigator.geolocation.getCurrentPosition(
+								pos => {
+									userLat = pos.coords.latitude;
+									userLon = pos.coords.longitude;
+									nearMeActive = true;
+									nearMeBtn.textContent = `📍 ≤ ${RADIUS_KM}km (limpar)`;
+									nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
+									nearMeBtn.disabled = false;
+									calendar.draw();
+								},
+								() => {
+									nearMeBtn.textContent = '📍 Perto de mim';
+									nearMeBtn.disabled = false;
+									alert('Não foi possível obter sua localização.');
+								}
+							);
 						});
 					})
 			.catch(error => console.error('Erro:', error));

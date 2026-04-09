@@ -15,18 +15,24 @@ class GoldLayer:
             f"""
                 COPY (
                     SELECT
-                        title,
+                        e.title,
                         CASE
-                        WHEN POSITION('?' IN url) > 0 THEN url || '&utm_source=racefeed'
-                        ELSE url || '?utm_source=racefeed'
+                        WHEN POSITION('?' IN e.url) > 0 THEN e.url || '&utm_source=racefeed'
+                        ELSE e.url || '?utm_source=racefeed'
                         END AS url,
                         STRFTIME(
-                            STRPTIME(date_range->>'start_date', '%Y-%m-%d'),
+                            STRPTIME(e.date_range->>'start_date', '%Y-%m-%d'),
                             '%d-%m-%Y') AS start_date,
-                        location->>'city' AS city,
-                        location->>'uf' AS uf
-                FROM schema_events
-                WHERE TRY_CAST(date_range->>'start_date' AS DATE) > CURRENT_DATE
+                        e.location->>'city' AS city,
+                        e.location->>'uf' AS uf,
+                        g.ddd::VARCHAR AS ddd,
+                        g.latitude,
+                        g.longitude
+                    FROM schema_events e
+                    LEFT JOIN geo g
+                        ON LOWER(TRIM(e.location->>'city')) = LOWER(TRIM(g.nome))
+                        AND UPPER(TRIM(e.location->>'uf')) = UPPER(TRIM(g.uf))
+                    WHERE TRY_CAST(e.date_range->>'start_date' AS DATE) > CURRENT_DATE
                 ) TO '{ output_file }' (FORMAT JSON, ARRAY false);
             """
         )
