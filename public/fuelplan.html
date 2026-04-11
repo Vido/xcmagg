@@ -59,6 +59,10 @@
       font-size: 1rem;
       color: #6c757d;
     }
+    @media (max-width: 768px) {
+      .raw-value { font-size: 1.8rem; }
+      .raw-unit { font-size: .85rem; }
+    }
     .plan-list {
       list-style: none;
       padding: 0;
@@ -71,6 +75,12 @@
     }
     .plan-list li:last-child {
       border-bottom: none;
+    }
+    .plan-list li:has(+ .plan-totals-row) {
+      border-bottom: none;
+    }
+    .plan-totals-row + li {
+      padding-top: 14px;
     }
     .plan-item-qty {
       font-weight: 700;
@@ -101,15 +111,44 @@
       border-bottom: none !important;
     }
     .plan-totals-row {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #212529;
-      background: #f8f9fa;
+      background: whitesmoke;
       margin: 6px -12px -8px;
-      padding: 8px 12px !important;
-      border-top: 2px solid #dee2e6 !important;
+      padding: 10px 12px !important;
+      border-top: 2px solid lightgray !important;
       border-bottom: none !important;
       border-radius: 0 0 6px 6px;
+    }
+    .totals-heading {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: gray;
+      margin-bottom: 8px;
+    }
+    .totals-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .totals-chip {
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border: 1px solid lightgray;
+      border-radius: 6px;
+      padding: 6px 10px;
+      min-width: 72px;
+    }
+    .totals-chip-value {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .totals-chip-label {
+      font-size: 0.7rem;
+      color: gray;
     }
     .plan-alt-divider {
       font-size: 0.75rem;
@@ -265,28 +304,28 @@
     <!-- Requirements Card -->
     <div class="card mb-4"> 
       <div class="card-header d-flex align-items-center justify-content-between">
-        <span class="fw-semibold">📊 On the bike Requirements <span class="badge bg-secondary fw-normal" style="font-size:0.65rem">Beta</span></span>
+        <span class="fw-semibold">📊 Requirements <span class="badge bg-secondary fw-normal" style="font-size:0.65rem">Beta</span></span>
 
         <button id="shareBtn2" class="btn btn-sm btn-outline-secondary" onclick="share()">🔗 Share</button>
       </div>
       <div class="card-body p-0">
         <div class="row g-0 text-center align-items-stretch">
-          <div class="col-3 d-flex flex-column align-items-center py-3 px-2">
+          <div class="col-6 col-md-3 d-flex flex-column align-items-center py-3 px-2">
             <div class="raw-value text-success" id="carbsOut">—</div>
             <div class="raw-unit">g of carbs</div>
             <div class="text-muted mt-auto pt-1" style="font-size:.75rem" id="carbsRateOut"></div>
           </div>
-          <div class="col-3 d-flex flex-column align-items-center py-3 px-2">
+          <div class="col-6 col-md-3 d-flex flex-column align-items-center py-3 px-2">
             <div class="raw-value" style="color:#c87000;" id="sodiumOut">—</div>
             <div class="raw-unit">sodium lost (Na)</div>
             <div class="text-muted mt-auto pt-1" style="font-size:.75rem" id="sodiumRateOut"></div>
           </div>
-          <div class="col-3 d-flex flex-column align-items-center py-3 px-2">
+          <div class="col-6 col-md-3 d-flex flex-column align-items-center py-3 px-2">
             <div class="raw-value" style="color:#7a3fa0;" id="potassiumOut">—</div>
             <div class="raw-unit">potassium lost (K)</div>
             <div class="text-muted mt-auto pt-1" style="font-size:.75rem" id="potassiumCoverageOut">via sweat — mainly from food</div>
           </div>
-          <div class="col-3 d-flex flex-column align-items-center py-3 px-2">
+          <div class="col-6 col-md-3 d-flex flex-column align-items-center py-3 px-2">
             <div class="raw-value text-primary" id="waterOut">—</div>
             <div class="raw-unit">L of water</div>
             <div class="text-muted mt-auto pt-1" style="font-size:.75rem" id="sweatOut"></div>
@@ -813,12 +852,12 @@
         if (item.text)    return `<li>${item.text}</li>`;
         if (item.totals) {
           const t = item.totals;
-          const parts = [];
-          if (t.carbs     > 0) parts.push(`${Math.round(t.carbs)} g carbs (${Math.round(t.carbs * 4)} kcal)`);
-          if (t.water_ml  > 0) parts.push(`${(t.water_ml / 1000).toFixed(1)} L water`);
-          if (t.sodium    > 0) parts.push(`${Math.round(t.sodium)} mg Na`);
-          if (t.potassium > 0) parts.push(`${Math.round(t.potassium)} mg K`);
-          return `<li class="plan-totals-row">Σ ${parts.join(' · ')}</li>`;
+          const chips = [];
+          if (t.carbs     > 0) chips.push(`<div class="totals-chip"><span class="totals-chip-value text-success">${Math.round(t.carbs)} g</span><span class="totals-chip-label">carbs · ${Math.round(t.carbs * 4)} kcal</span></div>`);
+          if (t.water_ml  > 0) chips.push(`<div class="totals-chip"><span class="totals-chip-value text-primary">${(t.water_ml / 1000).toFixed(1)} L</span><span class="totals-chip-label">water</span></div>`);
+          if (t.sodium    > 0) chips.push(`<div class="totals-chip"><span class="totals-chip-value" style="color:#c87000">${Math.round(t.sodium)} mg</span><span class="totals-chip-label">sodium</span></div>`);
+          if (t.potassium > 0) chips.push(`<div class="totals-chip"><span class="totals-chip-value" style="color:#7a3fa0">${Math.round(t.potassium)} mg</span><span class="totals-chip-label">potassium</span></div>`);
+          return `<li class="plan-totals-row"><span class="totals-heading">Total</span><div class="totals-grid">${chips.join('')}</div></li>`;
         }
         return `<li>
           <span class="plan-item-qty">${item.qty}</span> ${item.unit}

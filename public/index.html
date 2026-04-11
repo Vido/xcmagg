@@ -39,9 +39,7 @@
 		</script>
 
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"/>
-		<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css"/>
 		<link rel="stylesheet" href="style.css"/>
-
 	</head>
 	<body>
 		<nav role="navigation" class="navbar">
@@ -57,30 +55,27 @@
 		</nav>
 
 		<main role="main" class="content">
-			<div class="row table-setup">
 			<h1 class="pt-2 text-center">Calendário de eventos e provas:</h1>
-			<p class="lead mb-1">Use a ordenação e filtros para selecionar os eventos.</p>
-
-				<div class="filter-row">
-					<label for="ufFilter">Estado:</label>
-					<select id="ufFilter">
-						<option value="">Todos</option>
-					</select>
-					<button id="nearMeBtn" class="btn btn-outline-success btn-sm">📍 Perto de mim</button>
-				</div>
-
-				<table id="calendar" class="table table-striped">
-					<thead>
-						<tr>
-							<th>Data</th>
-							<th>UF/Cidade</th>
-							<th>Link do Evento</th>
-						</tr>
-					</thead>
-					<tbody>	
-					</tbody>
-				</table>
+			<p class="lead mb-1">Ative a localização para obter as distâncias</p>
+			<div class="filter-bar">
+				<button id="nearMeBtn" class="btn btn-outline-success btn-sm">📍 Perto de mim</button>
+				<input type="search" id="searchInput" class="search-input" placeholder="Buscar evento ou cidade...">
+				<select id="sortSelect" class="form-select form-select-sm" style="width:auto">
+					<option value="date">Data</option>
+					<option value="distance">Distância</option>
+				</select>
 			</div>
+
+			<div class="event-count-bar">
+				<span id="event-count"></span>
+			</div>
+
+			<div id="event-list"></div>
+
+			<div class="text-center mt-3 mb-4">
+				<button id="load-more-btn" class="btn btn-outline-secondary" style="display:none">Carregar mais</button>
+			</div>
+
 			<div class="row justify-content-center">
 			    <div class="col-lg-8 text-center">
 					<h2 class="mt-5 mb-3 fw-bold text-success">Inscreva-se para receber Atualizações!</h2>
@@ -98,125 +93,190 @@
 				<p>&copy; 2025 RaceFeed. Todos os direitos reservados. <br/> Os links de eventos incluem <code>utm_source</code> para identificar acessos originados no RaceFeed.</p>
 			</div>
 		</footer>
+
+		<script>
+			const MONTHS_PT = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+			const PAGE_SIZE = 20;
+			const RADIUS_KM = 250;
+
+			let allEvents = [];
+			let filtered = [];
+			let displayed = 0;
+			let searchQuery = '';
+			let nearMeActive = false;
+			let userLat = null, userLon = null;
+
+			function parseEuDate(str) {
+				const [d, m, y] = str.split('-').map(Number);
+				return new Date(y, m - 1, d);
+			}
+
+			function calcDistances() {
+				if (userLat === null) return;
+				allEvents.forEach(e => {
+					e.distance = (e.latitude != null && e.longitude != null)
+						? haversine(userLat, userLon, e.latitude, e.longitude)
+						: null;
+				});
+			}
+
+			function haversine(lat1, lon1, lat2, lon2) {
+				const R = 6371;
+				const dLat = (lat2 - lat1) * Math.PI / 180;
+				const dLon = (lon2 - lon1) * Math.PI / 180;
+				const a = Math.sin(dLat/2)**2 +
+					Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+					Math.sin(dLon/2)**2;
+				return R * 2 * Math.asin(Math.sqrt(a));
+			}
+
+			function applyFilters() {
+				const q = searchQuery.toLowerCase();
+				filtered = allEvents.filter(item => {
+					if (q && !(item.title || '').toLowerCase().includes(q) &&
+						!(item.city || '').toLowerCase().includes(q) &&
+						!(item.uf || '').toLowerCase().includes(q)) return false;
+					if (nearMeActive && userLat !== null) {
+						if (item.latitude == null || item.longitude == null) return false;
+						if (item.distance > RADIUS_KM) return false;
+					}
+					return true;
+				});
+				const sort = document.getElementById('sortSelect').value;
+				if (sort === 'distance') {
+					filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+				} else {
+					filtered.sort((a, b) => parseEuDate(a.start_date) - parseEuDate(b.start_date));
+				}
+				displayed = 0;
+				document.getElementById('event-list').innerHTML = '';
+				updateCounter();
+				renderBatch();
+			}
+
+			function updateCounter() {
+				const el = document.getElementById('event-count');
+				el.textContent = filtered.length + ' evento' + (filtered.length !== 1 ? 's' : '');
+			}
+
+			function renderBatch() {
+				const container = document.getElementById('event-list');
+				const batch = filtered.slice(displayed, displayed + PAGE_SIZE);
+
+				if (displayed === 0 && batch.length === 0) {
+					const empty = document.createElement('p');
+					empty.className = 'text-center text-muted py-4';
+					empty.textContent = 'Nenhum evento encontrado.';
+					container.appendChild(empty);
+					document.getElementById('load-more-btn').style.display = 'none';
+					return;
+				}
+
+				batch.forEach(item => {
+					const [d, m, y] = item.start_date.split('-').map(Number);
+
+					const card = document.createElement('div');
+					card.className = 'event-card';
+
+					const badge = document.createElement('div');
+					badge.className = 'event-date-badge';
+					badge.innerHTML =
+						'<span class="event-date-day">' + d + '</span>' +
+						'<span class="event-date-month">' + MONTHS_PT[m - 1] + '</span>' +
+						'<span class="event-date-year">' + y + '</span>';
+
+					const body = document.createElement('div');
+					body.className = 'event-body';
+
+					const link = document.createElement('a');
+					link.href = item.url;
+					link.className = 'event-title';
+					link.target = '_blank';
+					link.rel = 'noopener';
+					link.textContent = item.title;
+
+					const loc = document.createElement('div');
+					loc.className = 'event-location';
+					let locText = (item.uf || '') + ' · ' + (item.city || '');
+					if (nearMeActive && item.distance != null) {
+						locText += ' · ~' + Math.round(item.distance) + ' km';
+					}
+					loc.textContent = locText;
+
+					body.appendChild(link);
+					body.appendChild(loc);
+					card.appendChild(badge);
+					card.appendChild(body);
+					container.appendChild(card);
+				});
+
+				displayed += batch.length;
+				document.getElementById('load-more-btn').style.display =
+					displayed >= filtered.length ? 'none' : 'block';
+			}
+
+			// Fetch and initialize
+			fetch('data.jsonl')
+				.then(r => r.text())
+				.then(text => {
+					allEvents = text.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+					applyFilters();
+				})
+				.catch(err => console.error('Erro:', err));
+
+			document.getElementById('searchInput').addEventListener('input', function() {
+				searchQuery = this.value.trim();
+				applyFilters();
+			});
+
+			document.getElementById('load-more-btn').addEventListener('click', renderBatch);
+			document.getElementById('sortSelect').addEventListener('change', applyFilters);
+
+			// Near me
+			const nearMeBtn = document.getElementById('nearMeBtn');
+			nearMeBtn.addEventListener('click', function() {
+				if (nearMeActive) {
+					nearMeActive = false;
+					nearMeBtn.textContent = '📍 Perto de mim';
+					nearMeBtn.classList.replace('btn-success', 'btn-outline-success');
+					applyFilters();
+					return;
+				}
+				if (userLat !== null) {
+					nearMeActive = true;
+					nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
+					nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
+					applyFilters();
+					return;
+				}
+				nearMeBtn.textContent = '📍 Buscando...';
+				nearMeBtn.disabled = true;
+				navigator.geolocation.getCurrentPosition(
+					pos => {
+						userLat = pos.coords.latitude;
+						userLon = pos.coords.longitude;
+						calcDistances();
+						nearMeActive = true;
+						nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
+						nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
+						nearMeBtn.disabled = false;
+						applyFilters();
+					},
+					() => {
+						nearMeBtn.textContent = '📍 Perto de mim';
+						nearMeBtn.disabled = false;
+						alert('Não foi possível obter sua localização.');
+					}
+				);
+			});
+
+			// Hamburger nav
+			document.getElementById('nav-toggle').addEventListener('click', function() {
+				const navList = document.getElementById('nav-list');
+				const expanded = this.getAttribute('aria-expanded') === 'true';
+				navList.classList.toggle('open');
+				this.setAttribute('aria-expanded', String(!expanded));
+			});
+		</script>
 	</body>
-
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
-	<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
-	<script src="https://cdn.datatables.net/plug-ins/1.13.7/sorting/date-eu.js"></script>
-	<script>
-		const body = document.querySelector('#calendar tbody');
-		fetch('https://racefeed.com.br/data.jsonl')
-			.then(response => response.text())
-			.then(text => {
-						const lines = text.trim().split('\n').filter(Boolean);
-						const jsonArray = lines.map(line => JSON.parse(line));
-
-						jsonArray.forEach(item => {
-									const row = document.createElement('tr');
-									if (item.latitude != null) row.dataset.lat = item.latitude;
-									if (item.longitude != null) row.dataset.lon = item.longitude;
-									row.innerHTML = `
-										<td data-label="Data">${item.start_date}</td>
-										<td data-label="UF/Cidade">${item.uf}/${item.city}</td>
-										<td data-label="Evento"><a href="${item.url}" target="_blank" rel="noopener">${item.title}</a></td>
-									`;
-									body.appendChild(row);
-								});
-
-						const calendar = new DataTable('#calendar', {
-								columnDefs: [
-									{ type: 'date-eu', targets: 0, responsivePriority: 2 },
-									{ responsivePriority: 3, targets: 1 },
-									{ responsivePriority: 1, targets: 2 },
-								],
-								order: [[0, 'asc']],
-								responsive: true,
-								scrollX: false,
-						});
-
-						// Populate UF dropdown from data
-						const ufs = [...new Set(jsonArray.map(item => item.uf).filter(Boolean))].sort();
-						const ufSelect = document.getElementById('ufFilter');
-						ufs.forEach(uf => {
-							const opt = document.createElement('option');
-							opt.value = uf;
-							opt.textContent = uf;
-							ufSelect.appendChild(opt);
-						});
-
-						// Wire UF filter to DataTables column search
-						ufSelect.addEventListener('change', function() {
-							calendar.column(1).search(this.value ? '^' + this.value + '/' : '', true, false).draw();
-						});
-
-						// Near me filter
-						let userLat = null, userLon = null, nearMeActive = false;
-						const RADIUS_KM = 300;
-
-						function haversine(lat1, lon1, lat2, lon2) {
-							const R = 6371;
-							const dLat = (lat2 - lat1) * Math.PI / 180;
-							const dLon = (lon2 - lon1) * Math.PI / 180;
-							const a = Math.sin(dLat/2)**2 +
-								Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
-								Math.sin(dLon/2)**2;
-							return R * 2 * Math.asin(Math.sqrt(a));
-						}
-
-						$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-							if (!nearMeActive) return true;
-							const tr = calendar.row(dataIndex).node();
-							const lat = parseFloat(tr?.dataset?.lat);
-							const lon = parseFloat(tr?.dataset?.lon);
-							if (isNaN(lat) || isNaN(lon)) return false;
-							return haversine(userLat, userLon, lat, lon) <= RADIUS_KM;
-						});
-
-						const nearMeBtn = document.getElementById('nearMeBtn');
-						nearMeBtn.addEventListener('click', function() {
-							if (nearMeActive) {
-								nearMeActive = false;
-								nearMeBtn.textContent = '📍 Perto de mim';
-								nearMeBtn.classList.replace('btn-success', 'btn-outline-success');
-								calendar.draw();
-								return;
-							}
-							if (userLat !== null) {
-								nearMeActive = true;
-								nearMeBtn.textContent = `📍 ≤ ${RADIUS_KM}km (limpar)`;
-								nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
-								calendar.draw();
-								return;
-							}
-							nearMeBtn.textContent = '📍 Buscando...';
-							nearMeBtn.disabled = true;
-							navigator.geolocation.getCurrentPosition(
-								pos => {
-									userLat = pos.coords.latitude;
-									userLon = pos.coords.longitude;
-									nearMeActive = true;
-									nearMeBtn.textContent = `📍 ≤ ${RADIUS_KM}km (limpar)`;
-									nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
-									nearMeBtn.disabled = false;
-									calendar.draw();
-								},
-								() => {
-									nearMeBtn.textContent = '📍 Perto de mim';
-									nearMeBtn.disabled = false;
-									alert('Não foi possível obter sua localização.');
-								}
-							);
-						});
-					})
-			.catch(error => console.error('Erro:', error));
-
-		// Hamburger nav toggle
-		document.getElementById('nav-toggle').addEventListener('click', function() {
-			const navList = document.getElementById('nav-list');
-			const expanded = this.getAttribute('aria-expanded') === 'true';
-			navList.classList.toggle('open');
-			this.setAttribute('aria-expanded', String(!expanded));
-		});
-	</script>
 </html>
