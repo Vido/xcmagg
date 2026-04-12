@@ -63,7 +63,7 @@ def load_v2():
     agg = []
     raw_events = BronzeLayer.load_new_events()
     for obj in raw_events:
-        if obj.get('sport', '') not in RELEVANT_SPORTS:
+        if obj['sport'] not in RELEVANT_SPORTS:
             continue
         schema_event = parser.process(obj)
         agg.append(schema_event)

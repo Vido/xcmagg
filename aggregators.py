@@ -253,12 +253,6 @@ class TicketSportsAPI2(Crawler, Extractor):
 
     QUICK_FILTERS = ['mountain-bike', 'ciclismo', 'triathlon']
 
-    SPORT_MAP = {
-        'mountain-bike': 'Mountain bike',
-        'ciclismo': 'Ciclismo',
-        'triathlon': 'Triathlon',
-    }
-
     def trigger(self):
         QUANTITY = 200
         events_acc = []
@@ -281,9 +275,7 @@ class TicketSportsAPI2(Crawler, Extractor):
                 for row in data:
                     if row['eventId'] not in seen:
                         seen.add(row['eventId'])
-                        event = self.parse(row, fp)
-                        event.sport = self.SPORT_MAP.get(qf, qf)
-                        events_acc.append(event)
+                        events_acc.append(self.parse(row, fp))
                 if len(data) < QUANTITY:
                     break
                 page += 1

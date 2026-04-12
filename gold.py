@@ -27,7 +27,8 @@ class GoldLayer:
                         e.location->>'uf' AS uf,
                         g.ddd::VARCHAR AS ddd,
                         g.latitude,
-                        g.longitude
+                        g.longitude,
+                        e.sport
                     FROM schema_events e
                     LEFT JOIN geo g
                         ON LOWER(TRIM(e.location->>'city')) = LOWER(TRIM(g.nome))

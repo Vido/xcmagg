@@ -58,6 +58,7 @@ class SchemaEvent:
     location: Location
     processed_at: datetime
     crawled_at: datetime
+    sport: str = ''
     #bronze_file: Optional[Path] = None
 
     def __post_init__(self):
@@ -181,6 +182,7 @@ class Parser:
             source=self.source(raw_event),
             crawled_at=raw_event.crawled_at,
             processed_at=datetime.now(),
+            sport=raw_event.sport,
         )
 
         return event

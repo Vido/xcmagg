@@ -60,6 +60,9 @@
 			<div class="filter-bar">
 				<button id="nearMeBtn" class="btn btn-outline-success btn-sm">📍 Perto de mim</button>
 				<input type="search" id="searchInput" class="search-input" placeholder="Buscar evento ou cidade...">
+				<select id="sportSelect" class="form-select form-select-sm" style="width:auto">
+					<option value="">Todas as modalidades</option>
+				</select>
 				<select id="sortSelect" class="form-select form-select-sm" style="width:auto">
 					<option value="date">Data</option>
 					<option value="distance">Distância</option>
@@ -103,6 +106,7 @@
 			let filtered = [];
 			let displayed = 0;
 			let searchQuery = '';
+			let sportFilter = '';
 			let nearMeActive = false;
 			let userLat = null, userLon = null;
 
@@ -136,6 +140,7 @@
 					if (q && !(item.title || '').toLowerCase().includes(q) &&
 						!(item.city || '').toLowerCase().includes(q) &&
 						!(item.uf || '').toLowerCase().includes(q)) return false;
+					if (sportFilter && item.sport !== sportFilter) return false;
 					if (nearMeActive && userLat !== null) {
 						if (item.latitude == null || item.longitude == null) return false;
 						if (item.distance > RADIUS_KM) return false;
@@ -203,6 +208,12 @@
 					}
 					loc.textContent = locText;
 
+					if (item.sport) {
+						const sportTag = document.createElement('span');
+						sportTag.className = 'event-sport';
+						sportTag.textContent = item.sport;
+						loc.appendChild(sportTag);
+					}
 					body.appendChild(link);
 					body.appendChild(loc);
 					card.appendChild(badge);
@@ -220,6 +231,14 @@
 				.then(r => r.text())
 				.then(text => {
 					allEvents = text.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+					const sports = [...new Set(allEvents.map(e => e.sport))].filter(Boolean).sort();
+					const sel = document.getElementById('sportSelect');
+					sports.forEach(s => {
+						const opt = document.createElement('option');
+						opt.value = s;
+						opt.textContent = s;
+						sel.appendChild(opt);
+					});
 					applyFilters();
 				})
 				.catch(err => console.error('Erro:', err));
@@ -231,6 +250,10 @@
 
 			document.getElementById('load-more-btn').addEventListener('click', renderBatch);
 			document.getElementById('sortSelect').addEventListener('change', applyFilters);
+			document.getElementById('sportSelect').addEventListener('change', function() {
+				sportFilter = this.value;
+				applyFilters();
+			});
 
 			// Near me
 			const nearMeBtn = document.getElementById('nearMeBtn');
