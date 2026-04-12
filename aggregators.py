@@ -253,6 +253,12 @@ class TicketSportsAPI2(Crawler, Extractor):
 
     QUICK_FILTERS = ['mountain-bike', 'ciclismo', 'triathlon']
 
+    SPORT_MAP = {
+        'mountain-bike': 'Mountain bike',
+        'ciclismo': 'Ciclismo',
+        'triathlon': 'Triathlon',
+    }
+
     def trigger(self):
         QUANTITY = 200
         events_acc = []
@@ -275,7 +281,9 @@ class TicketSportsAPI2(Crawler, Extractor):
                 for row in data:
                     if row['eventId'] not in seen:
                         seen.add(row['eventId'])
-                        events_acc.append(self.parse(row, fp))
+                        event = self.parse(row, fp)
+                        event.sport = self.SPORT_MAP.get(qf, qf)
+                        events_acc.append(event)
                 if len(data) < QUANTITY:
                     break
                 page += 1
@@ -364,5 +372,75 @@ class InscricoesBike(Crawler, Extractor):
         return events_acc
 
 
+class Atletis(Crawler, Extractor):
+    URL = 'https://www.atletis.com.br/'
+    REPO = Path('atletis.com.br')
+    META = {
+        'Category': 'Agregador',
+    }
 
+    def title(self, soup) -> str:
+        return soup['data-name'].strip()
 
+    def date(self, soup) -> str:
+        return soup['data-date'].strip()
+
+    def local(self, soup) -> str:
+        infos = soup.find('div', class_='event-card').find_all('div', class_='event-card-info')
+        if len(infos) >= 2:
+            return infos[1].get_text(strip=True)
+        return ''
+
+    def url(self, soup) -> str:
+        return soup['data-url']
+
+    def sport(self, soup) -> str:
+        script = soup.find('script', type='application/ld+json')
+        if not script:
+            return ''
+        _sport = json.loads(script.string).get('sport', '')
+        return _sport
+
+    @staticmethod
+    def _parse_date(raw: str):
+        import locale
+        from datetime import datetime
+        locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+        try:
+            return datetime.strptime(raw.strip(), "%d %B %Y").date()
+        except ValueError:
+            return None
+
+    def trigger(self):
+        from datetime import date as date_t
+        events = []
+        page = 1
+        while True:
+            endpoint = (
+                urljoin(self.URL, 'eventos') if page == 1
+                else urljoin(self.URL, f'eventos/{page}')
+            )
+            fp, soup = self.get_html(endpoint, suffix=f'eventos-p{page}.html')
+            event_divs = soup.find_all('div', attrs={'data-event': True})
+            if not event_divs:
+                break
+
+            future_divs = [
+                div for div in event_divs
+                if (d := self._parse_date(div['data-date'])) and d >= date_t.today()
+            ]
+            if not future_divs:
+                break
+
+            for div in future_divs:
+                event_url = div['data-url']
+                slug = event_url.rstrip('/').split('/')[-1]
+                fp2, detail = self.get_html(event_url, suffix=f'{slug}.html')
+                event = self.parse(div, fp)
+                event.sport = self.sport(detail)
+                events.append(event)
+
+            if not soup.find('a', class_='pagination-next'):
+                break
+            page += 1
+        return events

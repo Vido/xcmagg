@@ -26,6 +26,8 @@ class RawEvent:
     source: str
     crawled_at: datetime
     raw_file: Path
+    sport: str = ''
+    sport: str = ''
 
     def __post_init__(self):
         self.validate()
@@ -223,6 +225,9 @@ class Extractor(ABC):
     def url(self, soup) -> str:
         raise NotImplementedError
 
+    def sport(self, soup) -> str:
+        return ''
+
     def source(self) -> str:
         return self.URL
 
@@ -243,6 +248,7 @@ class Extractor(ABC):
                 source=self.source(),
                 crawled_at=self.crawled_at(filepath),
                 raw_file=self.raw_file(filepath),
+                sport=self.sport(soup),
             )
         except Exception as e:
             print(f"Error parsing race from {self.source()}: {e}")

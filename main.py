@@ -22,6 +22,7 @@ crawlers = [
     TicketSportsAPI2(),
     InscricoesBike(),
     Nuflow(),
+    Atletis(),
 ]
 
 def extract():
@@ -46,6 +47,15 @@ def load():
     # Upgrade to Silver
     parser.aggregate_jsonl(agg)
 
+RELEVANT_SPORTS = {
+    '',                   # crawlers that don't set sport pass through unchanged
+    'Ciclismo',
+    'Mountain bike',
+    'Triathlon',
+    'Corrida Trail',
+    'Corrida de Montanha',
+}
+
 def load_v2():
     parser = Parser()
 
@@ -53,6 +63,8 @@ def load_v2():
     agg = []
     raw_events = BronzeLayer.load_new_events()
     for obj in raw_events:
+        if obj.get('sport', '') not in RELEVANT_SPORTS:
+            continue
         schema_event = parser.process(obj)
         agg.append(schema_event)
 

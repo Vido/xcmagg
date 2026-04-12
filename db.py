@@ -51,6 +51,9 @@ class Persistence:
         self.CONN.execute("VACUUM")
 
     def store_raw_events(self, jsonlfile: Path):
+        self.CONN.execute(
+            "ALTER TABLE raw_events ADD COLUMN IF NOT EXISTS sport VARCHAR DEFAULT ''"
+        )
         return self._store_data('raw_events', jsonlfile)
 
     def load_all_events(self):
