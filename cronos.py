@@ -367,7 +367,13 @@ class TicketBr(Crawler, Extractor):
     def local(self, soup) -> str:
         local = soup.find('div', class_='cidade').text.strip()
         return local.replace('Cidade: ', '')
-    
+
+    def sport(self, soup) -> str:
+        tag = soup.find('div', class_='modalidade')
+        if not tag:
+            return ''
+        return tag.get_text(strip=True).replace('Modalidade:', '').strip()
+
     def url(self, soup) -> str:
         pk = soup.find('div', class_='inscricao').find('a')
         if not pk:
