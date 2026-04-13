@@ -1,8 +1,9 @@
 import re
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 from urllib.parse import urlparse, urljoin
 
+from curl_cffi import requests as cf_requests
 from bronze import Crawler, Extractor
 
 
@@ -46,6 +47,17 @@ class CorridaPronta(Crawler, Extractor):
         'Tags': ['FBR Esportes',]
     }
 
+
+    def _call(self, method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        import time
+        time.sleep(crawl_delay)
+        cf_method = cf_requests.post if method_f.__name__ == 'post' else cf_requests.get
+        kwargs = {'impersonate': 'chrome'}
+        if params:
+            kwargs['params'] = params
+        if payload:
+            kwargs['data'] = payload
+        return cf_method(endpoint, **kwargs)
 
     def title(self, soup) -> str:
         p = soup.find('p')

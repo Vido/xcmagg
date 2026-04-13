@@ -13,7 +13,7 @@ crawlers = [
     TIOnline(),
     Peloto(),
     ActiveSports(),
-    CorridaPronta(),
+    #CorridaPronta(),
     GpsControlCrono(),
     # TourDoPeixe(), # Morreu. Usava TicketSport
     TicketBr(),

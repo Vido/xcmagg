@@ -132,32 +132,38 @@ class Parser:
     def date_range(self, raw_event) -> DateRange:
         from agents import normalize_daterange
         llm_parsed = normalize_daterange(f'{raw_event.date} {raw_event.title}')
-        #print(llm_parsed)
-        llm_parsed['date_raw'] = raw_event.date # TODO: Review
-        return DateRange(**llm_parsed)
+        return DateRange(
+            multi_day=llm_parsed.multi_day,
+            start_date=llm_parsed.start_date,
+            end_date=llm_parsed.end_date,
+            date_raw=raw_event.date,
+        )
 
     def location(self, raw_event) -> Location:
-        # TODO: Review
         from agents import normalize_location, search_event_location
 
         if raw_event.local in self._location_cache:
             return Location(**self._location_cache[raw_event.local])
 
-        llm_input = raw_event.local
-        llm_parsed = normalize_location(raw_event.local)
+        # Level 1: nano — cheap, fast
+        llm_input = f'Evento: {raw_event.title} Local: {raw_event.local}'
+        llm_parsed = normalize_location(llm_input)
 
-        if llm_parsed.get('confidence', 'low') == 'low':
-            llm_input = f'Evento: {raw_event.title} Local: {raw_event.local}'
-            llm_parsed = normalize_location(llm_input)
+        # Level 2: mini — smarter, still no search
+        if not llm_parsed.get('city'):
+            llm_parsed = normalize_location(llm_input, model="gpt-5.1-mini")
 
-        if llm_parsed.get('confidence', 'low') == 'low':
+        # Level 3: search — last resort
+        if not llm_parsed.get('city'):
             search_result = search_event_location(raw_event.title)
-            llm_input = f'Evento: {raw_event.title} Local: {raw_event.local} Pesquisa: {search_result}'
-            llm_parsed = normalize_location(llm_input)
+            llm_input = f'{llm_input} Pesquisa: {search_result}'
+            print(f'[L3 input]  {llm_input}')
+            llm_parsed = normalize_location(llm_input, model="gpt-5.1-mini")
+            print(f'[L3 output] {llm_parsed}')
 
-        if llm_parsed.get('confidence', 'low') == 'low':
-            print(llm_input)
-            print(llm_parsed)
+        if not llm_parsed.get('city'):
+            print(f'[L3 failed] {llm_input}')
+            print(f'[L3 failed] {llm_parsed}')
 
         llm_parsed['location_raw'] = llm_input
 
@@ -169,11 +175,23 @@ class Parser:
     def sport(self, raw_event) -> str:
         if raw_event.sport:
             return raw_event.sport
-        from agents import classify_sport, classify_sport_search
+        from agents import classify_sport, search_classify_sport
+
+        # Level 1: nano
         result = classify_sport(raw_event.title, raw_event.url)
         if result.sport and result.confidence != 'low':
             return result.sport.value
-        return classify_sport_search(raw_event.title, raw_event.url)
+
+        # Level 2: mini
+        result = classify_sport(raw_event.title, raw_event.url, model="gpt-5.1-mini")
+        if result.sport and result.confidence != 'low':
+            return result.sport.value
+
+        # Level 3: search — last resort
+        print(f'[L3 sport input]  {raw_event.title} — {raw_event.url}')
+        result = search_classify_sport(raw_event.title, raw_event.url)
+        print(f'[L3 sport output] {result}')
+        return result.sport.value if result.sport else ''
 
     def processed_at(self) -> datetime:
         return datetime.now()

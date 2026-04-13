@@ -44,30 +44,10 @@ parse_location_tool = {
     },
 }
 
-parse_daterange_tools = {
-    "type": "function",
-        "function": {
-            "name": "parse_daterange",
-            "description": (
-                "Parse an unstructured date or datetime string. "
-                "Extract normalized start. Identify if it's multi-day, if so extract also normalized end date. "
-                "All dates should be ISO format (YYYY-MM-DD). The input usualy in the brazilian convention: "
-                "Day First, Month Second."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "multi_day": {"type": ["boolean", "null"], "description": "True if the event spans multiple days"},
-                    "start_date": {"type": ["string", "null"], "description": "Start date in ISO format (YYYY-MM-DD)"},
-                    "end_date": {"type": ["string", "null"], "description": "End date in ISO format (YYYY-MM-DD)"},
-            },
-        },
-    },
-}
 
-def normalize_location(location_raw: str):
+def normalize_location(location_raw: str, model: str = "gpt-5.1-nano"):
     response = client.chat.completions.create(
-        model="gpt-4.1-nano",
+        model=model,
         messages=[
             {
                 "role": "system",
@@ -96,6 +76,7 @@ def normalize_location(location_raw: str):
 
     tool_call = message.tool_calls[0]
     return json.loads(tool_call.function.arguments)
+
 
 
 SPORTS = {
@@ -137,11 +118,11 @@ class _SportClassification(BaseModel):
     confidence: Literal['low', 'medium', 'high'] = 'low'
 
 
-def classify_sport(title: str, url: str) -> _SportClassification:
+def classify_sport(title: str, url: str, model: str = "gpt-5.1-nano") -> _SportClassification:
     resp = client.beta.chat.completions.parse(
-        model="gpt-4.1-nano",
+        model=model,
         temperature=0,
-        max_tokens=20,
+        max_tokens=30,
         messages=[
             {
                 "role": "system",
@@ -160,21 +141,17 @@ def classify_sport(title: str, url: str) -> _SportClassification:
     return resp.choices[0].message.parsed
 
 
-def classify_sport_search(title: str, url: str) -> str:
+def search_classify_sport(title: str, url: str) -> _SportClassification:
+    # Step 1: web search — title and url only
     response = client.chat.completions.create(
         model="gpt-4o-mini-search-preview",
-        messages=[{
-            "role": "user",
-            "content": (
-                f"O evento esportivo '{title}' ({url}) pertence a qual modalidade? "
-                f"Responda com exatamente uma das opções: {', '.join(e.value for e in _CANONICAL_SPORTS)}. "
-                "Se não se encaixar em nenhuma, responda com string vazia."
-            ),
-        }],
+        messages=[{"role": "user", "content": f"{title} {url}"}],
     )
     print(response.usage)
-    raw = (response.choices[0].message.content or '').strip()
-    return SPORTS.get(raw, '')
+    context = response.choices[0].message.content or ""
+
+    # Step 2: structured classification with search context piped in
+    return classify_sport(f"{title} — {url}\n\nContexto: {context}", url="", model="gpt-5.1-mini")
 
 
 def search_event_location(event_title: str) -> str:
@@ -192,8 +169,14 @@ def search_event_location(event_title: str) -> str:
     return response.choices[0].message.content or ""
 
 
+class _DateRange(BaseModel):
+    multi_day: Optional[bool] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+
+
 def normalize_daterange(date_raw: str):
-    response = client.chat.completions.create(
+    resp = client.beta.chat.completions.parse(
         model="gpt-4.1-nano",
         temperature=0,
         messages=[
@@ -203,26 +186,16 @@ def normalize_daterange(date_raw: str):
                     "You are a date parser. Extract the date from natural-language "
                     "or formatted date expressions. Always output ISO 8601 dates (YYYY-MM-DD). "
                     "If the text refers to only one day, set multi_day=false and end_date to null. "
-                    "If the input has no valid date (or missing mouth or year), return null for all fields."
-                    "Ignore time of the day or timezone information."
+                    "If the input has no valid date (or missing month or year), return null for all fields. "
+                    "Ignore time of day or timezone information."
                 ),
             },
             {"role": "user", "content": date_raw},
         ],
-        tools=[parse_daterange_tools],
-        tool_choice={"type": "function", "function": {"name": "parse_daterange"}},
+        response_format=_DateRange,
     )
-
-    print(response.usage)
-    tool_call = response.choices[0].message.tool_calls[0]
-    args = json.loads(tool_call.function.arguments)
-
-    to_date = lambda s: date.fromisoformat(s) if s else None
-    return {
-        'multi_day': args.get('multi_day'),
-        'start_date': to_date(args.get('start_date')),
-        'end_date': to_date(args.get('end_date')),
-    }
+    print(resp.usage)
+    return resp.choices[0].message.parsed
 
 if __name__ == '__main__':
 
