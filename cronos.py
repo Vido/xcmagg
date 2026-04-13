@@ -414,6 +414,97 @@ class TicketBr(Crawler, Extractor):
 
         return events_acc
 
+class Polesportivo(Crawler, Extractor):
+    URL = 'https://polesportivo.com.br/'
+    REPO = Path('polesportivo.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '11',
+    }
+
+    def title(self, soup) -> str:
+        return soup.find('h2', class_='tituloEvento').text.strip()
+
+    def date(self, soup) -> str:
+        h3 = soup.find('h3', class_='mdc-typography--body1')
+        # text is "event\xa0DD/MM/YYYY" — strip the material-icon name
+        text = h3.get_text(strip=True)
+        return re.sub(r'^event\s*', '', text)
+
+    def local(self, soup) -> str:
+        return soup.find('div', class_='cidadeEvento').get_text(strip=True)
+
+    def url(self, soup) -> str:
+        btn = soup.find('button', class_='inscreva')
+        if btn:
+            onclick = btn.get('onclick', '')
+            m = re.search(r"window\.open\('([^']+)'", onclick)
+            if m:
+                return m.group(1)
+        # fallback: event detail page
+        action = soup.find('div', class_='grid-card__primary-action')
+        onclick = action.get('onclick', '')
+        m = re.search(r"window\.open\('([^']+)'", onclick)
+        return urljoin(self.URL, m.group(1)) if m else self.URL
+
+    def trigger(self):
+        endpoint = urljoin(self.URL, 'eventos.php')
+        fp, soup = self.get_html(endpoint, suffix='eventos.html')
+        cells = soup.find_all('div', class_='mdc-layout-grid__cell')
+
+        events_acc = []
+        for cell in cells:
+            events_acc.append(self.parse(cell, fp))
+        return events_acc
+
+
+class Desafiorural(Crawler, Extractor):
+    URL = 'https://www.desafiorural.com/'
+    REPO = Path('desafiorural.com')
+    META = {
+        'Category': 'Organizador',
+        'DDD': '11',
+        'Tags': ['MTB', 'Trail Run'],
+    }
+
+    _REG = re.compile(r'(inscricoes|extremo)\.desafiorural\.com\.br')
+
+    def title(self, item) -> str:
+        soup, _ = item
+        h = soup.find('h1') or soup.find('h2')
+        return h.get_text(strip=True) if h else ''
+
+    def date(self, item) -> str:
+        soup, _ = item
+        m = re.search(r'\d{1,2}/\d{2}/\d{4}', soup.get_text())
+        return m.group(0) if m else ''
+
+    def local(self, item) -> str:
+        soup, _ = item
+        m = re.search(r'[\w\s]+/\s*[A-Z]{2}', soup.get_text())
+        return m.group(0).strip() if m else ''
+
+    def url(self, item) -> str:
+        _, href = item
+        return href
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL, suffix='home.html')
+        events_acc, seen = [], set()
+
+        for a in soup.find_all('a', href=self._REG):
+            href = a['href']
+            if href in seen:
+                continue
+            seen.add(href)
+            suffix = urlparse(href).netloc.split('.')[0] + '.html'
+            _, reg_soup = self.get_html(href, suffix=suffix)
+            events_acc.append(self.parse((reg_soup, href), fp))
+
+        return events_acc
+
+
 class TimerRacing():
     URL = 'https://www.timerracing.com.br/resultados-eventos'
     META = {

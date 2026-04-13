@@ -45,7 +45,7 @@ parse_location_tool = {
 }
 
 
-def normalize_location(location_raw: str, model: str = "gpt-5.1-nano"):
+def normalize_location(location_raw: str, model: str = "gpt-4.1-nano"):
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -118,7 +118,7 @@ class _SportClassification(BaseModel):
     confidence: Literal['low', 'medium', 'high'] = 'low'
 
 
-def classify_sport(title: str, url: str, model: str = "gpt-5.1-nano") -> _SportClassification:
+def classify_sport(title: str, url: str, model: str = "gpt-4.1-nano") -> _SportClassification:
     resp = client.beta.chat.completions.parse(
         model=model,
         temperature=0,
@@ -151,7 +151,7 @@ def search_classify_sport(title: str, url: str) -> _SportClassification:
     context = response.choices[0].message.content or ""
 
     # Step 2: structured classification with search context piped in
-    return classify_sport(f"{title} — {url}\n\nContexto: {context}", url="", model="gpt-5.1-mini")
+    return classify_sport(f"{title} — {url}\n\nContexto: {context}", url="", model="gpt-4.1-mini")
 
 
 def search_event_location(event_title: str) -> str:

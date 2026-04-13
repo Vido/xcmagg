@@ -23,6 +23,8 @@ crawlers = [
     InscricoesBike(),
     Nuflow(),
     Atletis(),
+    Desafiorural(),
+    Polesportivo(),
 ]
 
 def extract():

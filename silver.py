@@ -151,19 +151,19 @@ class Parser:
 
         # Level 2: mini — smarter, still no search
         if not llm_parsed.get('city'):
-            llm_parsed = normalize_location(llm_input, model="gpt-5.1-mini")
+            llm_parsed = normalize_location(llm_input, model="gpt-4.1-mini")
 
         # Level 3: search — last resort
-        if not llm_parsed.get('city'):
-            search_result = search_event_location(raw_event.title)
-            llm_input = f'{llm_input} Pesquisa: {search_result}'
-            print(f'[L3 input]  {llm_input}')
-            llm_parsed = normalize_location(llm_input, model="gpt-5.1-mini")
-            print(f'[L3 output] {llm_parsed}')
+        # if not llm_parsed.get('city'):
+        #     search_result = search_event_location(raw_event.title)
+        #     llm_input = f'{llm_input} Pesquisa: {search_result}'
+        #     print(f'[L3 input]  {llm_input}')
+        #     llm_parsed = normalize_location(llm_input, model="gpt-4.1-mini")
+        #     print(f'[L3 output] {llm_parsed}')
 
         if not llm_parsed.get('city'):
-            print(f'[L3 failed] {llm_input}')
-            print(f'[L3 failed] {llm_parsed}')
+            print(f'[no city] {llm_input}')
+            print(f'[no city] {llm_parsed}')
 
         llm_parsed['location_raw'] = llm_input
 
@@ -183,14 +183,15 @@ class Parser:
             return result.sport.value
 
         # Level 2: mini
-        result = classify_sport(raw_event.title, raw_event.url, model="gpt-5.1-mini")
+        result = classify_sport(raw_event.title, raw_event.url, model="gpt-4.1-mini")
         if result.sport and result.confidence != 'low':
             return result.sport.value
 
         # Level 3: search — last resort
-        print(f'[L3 sport input]  {raw_event.title} — {raw_event.url}')
-        result = search_classify_sport(raw_event.title, raw_event.url)
-        print(f'[L3 sport output] {result}')
+        # print(f'[L3 sport input]  {raw_event.title} — {raw_event.url}')
+        # result = search_classify_sport(raw_event.title, raw_event.url)
+        # print(f'[L3 sport output] {result}')
+        # return result.sport.value if result.sport else ''
         return result.sport.value if result.sport else ''
 
     def processed_at(self) -> datetime:
