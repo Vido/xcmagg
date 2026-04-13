@@ -75,6 +75,22 @@ class Persistence:
             d.pop('rn', None)
         return data
 
+    def load_low_quality_events(self):
+        rows = self.CONN.execute("""
+        SELECT r.* FROM (
+            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.url ORDER BY r.crawled_at DESC) AS rn
+            FROM raw_events r
+            JOIN schema_events s ON r.url = s.url
+            WHERE (s.sport = '' OR s.location.confidence = 'low')
+              AND TRY_CAST(s.date_range->>'start_date' AS DATE) > CURRENT_DATE
+        ) r WHERE rn = 1;
+        """).fetchall()
+        cols = [c[0] for c in self.CONN.description]
+        data = [dict(zip(cols, row)) for row in rows]
+        for d in data:
+            d.pop('rn', None)
+        return data
+
     def store_schema_events(self, jsonlfile: Path):
         return self._store_data('schema_events', jsonlfile)
 

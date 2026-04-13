@@ -166,6 +166,15 @@ class Parser:
 
         return Location(**llm_parsed)
 
+    def sport(self, raw_event) -> str:
+        if raw_event.sport:
+            return raw_event.sport
+        from agents import classify_sport, classify_sport_search
+        result = classify_sport(raw_event.title, raw_event.url)
+        if result.sport and result.confidence != 'low':
+            return result.sport.value
+        return classify_sport_search(raw_event.title, raw_event.url)
+
     def processed_at(self) -> datetime:
         return datetime.now()
 
@@ -182,7 +191,7 @@ class Parser:
             source=self.source(raw_event),
             crawled_at=raw_event.crawled_at,
             processed_at=datetime.now(),
-            sport=raw_event.sport,
+            sport=self.sport(raw_event),
         )
 
         return event

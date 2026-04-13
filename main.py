@@ -47,26 +47,20 @@ def load():
     # Upgrade to Silver
     parser.aggregate_jsonl(agg)
 
-RELEVANT_SPORTS = {
-    '',                   # crawlers that don't set sport pass through unchanged
-    'Ciclismo',
-    'Mountain bike',
-    'Triathlon',
-    'Corrida Trail',
-    'Corrida de Montanha',
-}
+from agents import SPORTS
+RELEVANT_SPORTS = set(SPORTS.values()) | {''}  # '' = crawlers that don't set sport pass through unchanged
 
 def load_v2():
     parser = Parser()
 
-    # Deduplication / Avoid reprocessing
     agg = []
-    raw_events = BronzeLayer.load_new_events()
-    for obj in raw_events:
+    for obj in BronzeLayer.load_new_events():
         if obj['sport'] not in RELEVANT_SPORTS:
             continue
-        schema_event = parser.process(obj)
-        agg.append(schema_event)
+        agg.append(parser.process(obj))
+
+    for obj in BronzeLayer.load_low_quality_events():
+        agg.append(parser.process(obj))
 
     jsonlfile = SilverLayer().store_jsonl(agg)
     if agg:

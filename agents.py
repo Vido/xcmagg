@@ -1,6 +1,9 @@
 import json
 from datetime import date
+from enum import Enum
+from typing import Literal, Optional
 
+from pydantic import BaseModel
 from openai import OpenAI
 from decouple import config
 
@@ -64,7 +67,7 @@ parse_daterange_tools = {
 
 def normalize_location(location_raw: str):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-nano",
         messages=[
             {
                 "role": "system",
@@ -86,6 +89,7 @@ def normalize_location(location_raw: str):
         tool_choice={"type": "function", "function": {"name": "parse_location"}},
     )
 
+    print(response.usage)
     message = response.choices[0].message
     if not getattr(message, "tool_calls"):
         return {'address': None, 'city': None, 'uf': None, 'confidence': 'N/A'}
@@ -94,9 +98,88 @@ def normalize_location(location_raw: str):
     return json.loads(tool_call.function.arguments)
 
 
+SPORTS = {
+    # Ciclismo
+    'Pedal':                'Ciclismo',
+    'Ciclismo':             'Ciclismo',
+    'Ciclismo de Estrada':  'Ciclismo',
+    # Mountain bike
+    'Mountain bike':        'Mountain bike',
+    'Mountain Bike':        'Mountain bike',
+    'MTB':                  'Mountain bike',
+    'XCM':                  'Mountain bike',
+    'XCO':                  'Mountain bike',
+    # Triathlon
+    'Triathlon':            'Triathlon',
+    'Triatlhon':            'Triathlon',
+    'Triatlo':              'Triathlon',
+    'Duathlon':             'Triathlon',
+    'Duatlhon':             'Triathlon',
+    # Natação:
+    'Aquathon':             'Triathlon',
+    'Natação':              'Natação',
+    # Trail running
+    'Trail running':        'Trail running',
+    'Trail Run':            'Trail running',
+    'Corrida Trail':        'Trail running',
+    'Corrida de Montanha':  'Trail running',
+    # Corrida de Rua
+    'Corrida de Rua':       'Corrida de Rua',
+    'Corrida':              'Corrida de Rua',
+    # Cross Duathlon
+    'Cross Duathlon':       'Cross Duathlon',
+}
+
+_CANONICAL_SPORTS = Enum('Sport', {v: v for v in dict.fromkeys(SPORTS.values())})
+
+class _SportClassification(BaseModel):
+    sport: Optional[_CANONICAL_SPORTS] = None
+    confidence: Literal['low', 'medium', 'high'] = 'low'
+
+
+def classify_sport(title: str, url: str) -> _SportClassification:
+    resp = client.beta.chat.completions.parse(
+        model="gpt-4.1-nano",
+        temperature=0,
+        max_tokens=20,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Classifique o evento esportivo na modalidade correta. "
+                    f"Modalidades permitidas: {', '.join(e.value for e in _CANONICAL_SPORTS)}. "
+                    "Se não se encaixar em nenhuma, retorne null. "
+                    "Use confidence='low' se não tiver certeza."
+                ),
+            },
+            {"role": "user", "content": f"{title} — {url}"},
+        ],
+        response_format=_SportClassification,
+    )
+    print(resp.usage)
+    return resp.choices[0].message.parsed
+
+
+def classify_sport_search(title: str, url: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini-search-preview",
+        messages=[{
+            "role": "user",
+            "content": (
+                f"O evento esportivo '{title}' ({url}) pertence a qual modalidade? "
+                f"Responda com exatamente uma das opções: {', '.join(e.value for e in _CANONICAL_SPORTS)}. "
+                "Se não se encaixar em nenhuma, responda com string vazia."
+            ),
+        }],
+    )
+    print(response.usage)
+    raw = (response.choices[0].message.content or '').strip()
+    return SPORTS.get(raw, '')
+
+
 def search_event_location(event_title: str) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o-search-preview",
+        model="gpt-4o-mini-search-preview",
         messages=[{
             "role": "user",
             "content": (
@@ -105,12 +188,13 @@ def search_event_location(event_title: str) -> str:
             )
         }]
     )
+    print(response.usage)
     return response.choices[0].message.content or ""
 
 
 def normalize_daterange(date_raw: str):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-nano",
         temperature=0,
         messages=[
             {
@@ -129,6 +213,7 @@ def normalize_daterange(date_raw: str):
         tool_choice={"type": "function", "function": {"name": "parse_daterange"}},
     )
 
+    print(response.usage)
     tool_call = response.choices[0].message.tool_calls[0]
     args = json.loads(tool_call.function.arguments)
 

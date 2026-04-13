@@ -196,6 +196,11 @@ class BronzeLayer:
 
         return results
 
+    @classmethod
+    def load_low_quality_events(klass):
+        from db import Persistence
+        return Persistence().load_low_quality_events()
+
     @staticmethod
     def collect_all(bronze_events: List[Crawler]) -> List[RawEvent]:
         """ Historical """
