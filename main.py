@@ -17,7 +17,6 @@ crawlers = [
     GpsControlCrono(),
     # TourDoPeixe(), # Morreu. Usava TicketSport
     TicketBr(),
-    # FPCiclismo(), # 503
     SeuEsporteApp(),
     TicketSportsAPI2(),
     InscricoesBike(),
@@ -26,6 +25,9 @@ crawlers = [
     DrMtbRace(),
     DrExtremo(),
     Polesportivo(),
+    # FPCiclismo(), # 503
+    # Fmc(), # No links
+    # FpcParana(), # WIP
 ]
 
 def extract():

@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from pathlib import Path
 from datetime import datetime, date
 from urllib.parse import urlparse, urljoin
@@ -172,7 +173,7 @@ class GpsControlCrono(Crawler, Extractor):
     def _info_line(self, soup) -> str:
         for p in soup.find_all('p', align='center'):
             text = p.get_text(strip=True)
-            if text:
+            if re.match(r'.+ - [A-Z]{2} - \d{2}/\d{2}/\d{4}', text):
                 return text
         return ''
 
@@ -188,33 +189,27 @@ class GpsControlCrono(Crawler, Extractor):
         return parts[-1] if len(parts) >= 3 else ''
 
     def url(self, soup) -> str:
-        # First link inside <tr class="efeito">
-        tr = soup.find('tr', class_='efeito')
-        a = tr.find('a')
-        return f"{self.URL}{a['href']}"
+        a = soup.find('a', href=re.compile(r'inscricao\.php'))
+        if a:
+            href = a['href'].replace('../', '')
+            return urljoin(self.URL, href)
+        return self._current_event_url
 
     def trigger(self):
-
-        def parse(buffer, fp):
-            from bs4 import BeautifulSoup
-            return self.parse(BeautifulSoup(buffer, 'lxml'), fp)
-
         fp, soup = self.get_html(self.URL, suffix='home.html')
-        events_acc, buffer = [], ''
+        seen, hrefs = set(), []
+        for a in soup.find_all('a', href=re.compile(r'evento\d+\.php')):
+            href = a['href']
+            if href not in seen:
+                seen.add(href)
+                hrefs.append(href)
 
-        rows = soup.find('table').find_all('tr', recursive=False)
-        for tr in rows:
-            # reset buffer / new event
-            if 'efeito' in tr.get('class', []) and buffer:
-                event = parse(buffer, fp)
-                events_acc.append(event)
-                buffer = ''
-            buffer += str(tr)
-
-        # Leftover in the buffer
-        if buffer:
-            event = parse(buffer, fp)
-            events_acc.append(event)
+        events_acc = []
+        for href in hrefs:
+            event_id = re.search(r'evento(\d+)', href).group(1)
+            self._current_event_url = urljoin(self.URL, href)
+            efp, event_soup = self.get_html(self._current_event_url, suffix=f'evento{event_id}.html')
+            events_acc.append(self.parse(event_soup, efp))
 
         return events_acc
 
@@ -630,3 +625,93 @@ class FPCiclismo(Crawler, Extractor):
                 events_acc.append(event)
 
         return events_acc
+
+
+class Fmc(Crawler, Extractor):
+    URL = 'https://fmc.org.br/calendario/'
+    REPO = Path('fmc.org.br')
+    META = {
+        'Category': 'Federação',
+        'Tags': ['MTB', 'Estrada', 'Downhill', 'BMX', 'MG'],
+        'DDD': '31',
+    }
+
+    @staticmethod
+    def _slug(text):
+        nfkd = unicodedata.normalize('NFKD', text)
+        ascii_str = nfkd.encode('ascii', 'ignore').decode()
+        return re.sub(r'[^a-z0-9]+', '-', ascii_str.lower()).strip('-')
+
+    @staticmethod
+    def _first_iso_date(text):
+        dates = re.findall(r'\d{2}/\d{2}/\d{4}', text)
+        if not dates:
+            return ''
+        return datetime.strptime(dates[0], '%d/%m/%Y').strftime('%Y-%m-%d')
+
+    def _cells(self, soup):
+        return [td.get_text(strip=True) for td in soup.find_all('td')]
+
+    def title(self, soup) -> str:
+        return self._cells(soup)[4]
+
+    def date(self, soup) -> str:
+        return self._cells(soup)[0]
+
+    def local(self, soup) -> str:
+        return self._cells(soup)[5].replace('/', ' - ')
+
+    def sport(self, soup) -> str:
+        return self._cells(soup)[1]
+
+    def url(self, soup) -> str:
+        cells = self._cells(soup)
+        iso = self._first_iso_date(cells[0])
+        slug = self._slug(cells[4])
+        return f'{self.URL}#{iso}-{slug}'
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL, suffix='calendario.html')
+        table = soup.find('table')
+        rows = table.find_all('tr')
+        events_acc = []
+        for row in rows:
+            cells = [td.get_text(strip=True) for td in row.find_all('td')]
+            if len(cells) != 9 or not cells[4] or cells[4] == 'EVENTO':
+                continue
+            events_acc.append(self.parse(row, fp))
+        return events_acc
+
+
+class FpcParana(Crawler, Extractor):
+    URL = 'https://fpcparana.com.br/eventos/'
+    REPO = Path('fpcparana.com.br')
+    META = {
+        'Category': 'Federação',
+        'Tags': ['MTB', 'Estrada', 'Downhill', 'BMX', 'PR'],
+        'DDD': '41',
+    }
+
+    def title(self, soup) -> str:
+        return soup.find('h3').find('a').get_text(strip=True)
+
+    def date(self, soup) -> str:
+        for span in soup.find_all('span'):
+            if span.find('i', class_=lambda c: c and 'fa-calendar' in c):
+                return span.get_text(strip=True)
+        return ''
+
+    def local(self, soup) -> str:
+        return ''
+
+    def url(self, soup) -> str:
+        return soup.find('h3').find('a')['href']
+
+    def sport(self, soup) -> str:
+        cats = soup.find('div', class_='wd-product-cats')
+        return ', '.join(a.get_text(strip=True) for a in cats.find_all('a'))
+
+    def trigger(self):
+        fp, soup = self.get_html(f'{self.URL}?per_page=100', suffix='eventos.html')
+        cards = soup.find_all('div', class_='product-element-bottom')
+        return [self.parse(card, fp) for card in cards]
