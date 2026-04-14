@@ -14,30 +14,22 @@ parse_location_tool = {
     "type": "function",
     "function": {
         "name": "parse_location",
-        "description": "Extract address, city, and UF (Brazilian state). Use common Brazilian geographic and institutional knowledge (e.g., IBGE city names) to infer missing fields. Always check for the patterns: CITY/UF, CITY - UF, CITY (UF), or CITY, UF.",
         "parameters": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": ["string", "null"],
-                    "description": "Street, facility, or local business address if applicable.",
-                },
-                "city": {
-                    "type": ["string", "null"],
-                    "description": "Brazilian city name, normalized to title case.",
-                },
+                "address": {"type": ["string", "null"]},
+                "city": {"type": ["string", "null"]},
                 "uf": {
                     "type": ["string", "null"],
-                    "enum": [None, "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"],
-                    "description": "Brazilian UF abbreviation or null.",
+                    "enum": [
+                        "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA",
+                        "MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN",
+                        "RS","RO","RR","SC","SP","SE","TO"
+                    ],
                 },
                 "confidence": {
                     "type": "string",
-                    "enum": ["low", "medium", "high"],
-                    "description": ("Confidence level of the location extraction (low, medium, or high). "
-                                    "Use 'high' when all fields are confidently identified, "
-                                    "'medium' when partial uncertainty exists, "
-                                    "and 'low' when the result is mostly inferred or ambiguous."),
+                    "enum": ["low", "high"]
                 },
             },
         },
@@ -48,19 +40,19 @@ parse_location_tool = {
 def normalize_location(location_raw: str, model: str = "gpt-4.1-nano"):
     response = client.chat.completions.create(
         model=model,
+        max_tokens=40,
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a location parser specialized in Brazilian geography. "
-                    "Your task is to extract three fields from the input: address, city, and UF (Brazilian state abbreviation). "
-                    "If the text refers to a local business, venue, public facility, or landmark (for example, a gym, school, park, stadium, etc...), treat it as an address and identify the corresponding city. "
-                    "If it looks like an event name (e.g., a race or competition), do not treat it as an address and leave all fields null. "
-                    "When a city name is identified, always infer its corresponding UF (Brazilian state) using your knowledge of Brazil. "
-                    "Do not leave UF empty if you know which city/state it belongs to."
-					"If you are not completely certain about the city–UF pair, set confidence to 'low'"
-                    "Normalize text to title case if it is all-caps. If it's a mix of upper and lower case: Keep as is."
-                    "Return null fields for anything that cannot be confidently determined."
+                    "Extract address, city, uf.\n"
+                    "Rules:\n"
+                    "- Event name → all null\n"
+                    "- Place/venue → fill address\n"
+                    "- Infer uf from city (Brazil)\n"
+                    "- If unsure city/uf → confidence=low\n"
+                    "- ALL CAPS → Title Case\n"
+                    "- Unknown → null"
                 ),
             },
             {"role": "user", "content": location_raw},
@@ -69,13 +61,12 @@ def normalize_location(location_raw: str, model: str = "gpt-4.1-nano"):
         tool_choice={"type": "function", "function": {"name": "parse_location"}},
     )
 
-    print(response.usage)
     message = response.choices[0].message
     if not getattr(message, "tool_calls"):
-        return {'address': None, 'city': None, 'uf': None, 'confidence': 'N/A'}
+        return {'address': None, 'city': None, 'uf': None, 'confidence': 'low'}
 
-    tool_call = message.tool_calls[0]
-    return json.loads(tool_call.function.arguments)
+    print('normalize_location:', model, response.usage)
+    return json.loads(message.tool_calls[0].function.arguments)
 
 
 
@@ -91,6 +82,8 @@ SPORTS = {
     'XCM':                  'Mountain bike',
     'XCO':                  'Mountain bike',
     # Triathlon
+    'Cross Triathlon':      'Cross Triathlon',
+    'X-Triathlon':          'Cross Triathlon',
     'Triathlon':            'Triathlon',
     'Triatlhon':            'Triathlon',
     'Triatlo':              'Triathlon',
@@ -109,35 +102,38 @@ SPORTS = {
     'Corrida':              'Corrida de Rua',
     # Cross Duathlon
     'Cross Duathlon':       'Cross Duathlon',
+    'X-Duathlon':           'Cross Duathlon',
 }
 
 _CANONICAL_SPORTS = Enum('Sport', {v: v for v in dict.fromkeys(SPORTS.values())})
 
+
 class _SportClassification(BaseModel):
-    sport: Optional[_CANONICAL_SPORTS] = None
-    confidence: Literal['low', 'medium', 'high'] = 'low'
+    sport: Optional[str] = None
+    confidence: Literal['low', 'high'] = 'low'
 
-
-def classify_sport(title: str, url: str, model: str = "gpt-4.1-nano") -> _SportClassification:
+def classify_sport(content: str, model: str = 'gpt-5.4-mini') -> _SportClassification:
+    model = 'gpt-5.4-mini'
     resp = client.beta.chat.completions.parse(
         model=model,
         temperature=0,
-        max_tokens=30,
+        #max_tokens=20,
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "Classifique o evento esportivo na modalidade correta. "
-                    f"Modalidades permitidas: {', '.join(e.value for e in _CANONICAL_SPORTS)}. "
-                    "Se não se encaixar em nenhuma, retorne null. "
-                    "Use confidence='low' se não tiver certeza."
+                    "Classify sport.\n"
+                    f"Classes: {', '.join(e.value for e in _CANONICAL_SPORTS)}\n"
+                    "Unknown → null\n"
+                    "Uncertain → confidence=low"
                 ),
             },
-            {"role": "user", "content": f"{title} — {url}"},
+            {"role": "user", "content": content},
         ],
         response_format=_SportClassification,
     )
-    print(resp.usage)
+
+    print('classify_sport:', model, resp.usage)
     return resp.choices[0].message.parsed
 
 
@@ -165,36 +161,38 @@ def search_event_location(event_title: str) -> str:
             )
         }]
     )
-    print(response.usage)
+    print('search_event_location', model,response.usage)
     return response.choices[0].message.content or ""
 
 
-class _DateRange(BaseModel):
+class DateRange(BaseModel):
     multi_day: Optional[bool] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
 
 
-def normalize_daterange(date_raw: str):
+def normalize_daterange(date_raw: str, model: str = "gpt-4.1-nano"):
     resp = client.beta.chat.completions.parse(
-        model="gpt-4.1-nano",
+        model=model,
         temperature=0,
+        max_tokens=30,
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a date parser. Extract the date from natural-language "
-                    "or formatted date expressions. Always output ISO 8601 dates (YYYY-MM-DD). "
-                    "If the text refers to only one day, set multi_day=false and end_date to null. "
-                    "If the input has no valid date (or missing month or year), return null for all fields. "
-                    "Ignore time of day or timezone information."
+                    "Extract date(s) → YYYY-MM-DD.\n"
+                    "Rules:\n"
+                    "- single day → multi_day=false\n"
+                    "- range → set start_date + end_date\n"
+                    "- missing/invalid → all null\n"
+                    "- ignore time"
                 ),
             },
             {"role": "user", "content": date_raw},
         ],
-        response_format=_DateRange,
+        response_format=DateRange,
     )
-    print(resp.usage)
+    print('normalize_daterange:', model, resp.usage)
     return resp.choices[0].message.parsed
 
 if __name__ == '__main__':

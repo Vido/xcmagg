@@ -146,7 +146,7 @@ class Parser:
             return Location(**self._location_cache[raw_event.local])
 
         # Level 1: nano — cheap, fast
-        llm_input = f'Evento: {raw_event.title} Local: {raw_event.local}'
+        llm_input = f'{raw_event.title} - Local {raw_event.local}'
         llm_parsed = normalize_location(llm_input)
 
         # Level 2: mini — smarter, still no search
@@ -177,22 +177,22 @@ class Parser:
             return raw_event.sport
         from agents import classify_sport, search_classify_sport
 
-        # Level 1: nano
-        result = classify_sport(raw_event.title, raw_event.url)
-        if result.sport and result.confidence != 'low':
-            return result.sport.value
+        ## Level 1: nano
+        #result = classify_sport(raw_event.title)
+        #if result.sport and result.confidence != 'low':
+        #    return result.sport
 
-        # Level 2: mini
-        result = classify_sport(raw_event.title, raw_event.url, model="gpt-4.1-mini")
+        # Level 2: 5.4-mini
+        result = classify_sport(f'{raw_event.title} {raw_event.local}')
         if result.sport and result.confidence != 'low':
-            return result.sport.value
+            return result.sport
 
         # Level 3: search — last resort
         # print(f'[L3 sport input]  {raw_event.title} — {raw_event.url}')
         # result = search_classify_sport(raw_event.title, raw_event.url)
         # print(f'[L3 sport output] {result}')
         # return result.sport.value if result.sport else ''
-        return result.sport.value if result.sport else ''
+        return result.sport if result.sport else ''
 
     def processed_at(self) -> datetime:
         return datetime.now()

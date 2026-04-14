@@ -27,7 +27,6 @@ class RawEvent:
     crawled_at: datetime
     raw_file: Path
     sport: str = ''
-    sport: str = ''
 
     def __post_init__(self):
         self.validate()
