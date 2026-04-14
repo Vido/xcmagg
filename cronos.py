@@ -459,50 +459,67 @@ class Polesportivo(Crawler, Extractor):
         return events_acc
 
 
-class Desafiorural(Crawler, Extractor):
-    URL = 'https://www.desafiorural.com/'
-    REPO = Path('desafiorural.com')
+class _DesafioRuralBase(Crawler, Extractor):
     META = {
         'Category': 'Organizador',
         'DDD': '11',
         'Tags': ['MTB', 'Trail Run'],
     }
+    _CPF  = '652.865.660-65'
+    _NASC = '09/07/1990'
 
-    _REG = re.compile(r'(inscricoes|extremo)\.desafiorural\.com\.br')
+    def _well(self, soup):
+        for div in soup.find_all('div', class_='well'):
+            if div.find('b'):
+                return div
+        return None
 
-    def title(self, item) -> str:
-        soup, _ = item
-        h = soup.find('h1') or soup.find('h2')
-        return h.get_text(strip=True) if h else ''
+    def title(self, soup) -> str:
+        return self._well(soup).find_all('h3')[2].get_text(strip=True)
 
-    def date(self, item) -> str:
-        soup, _ = item
-        m = re.search(r'\d{1,2}/\d{2}/\d{4}', soup.get_text())
-        return m.group(0) if m else ''
+    def date(self, soup) -> str:
+        return self._well(soup).find_all('h3')[1].get_text(strip=True)
 
-    def local(self, item) -> str:
-        soup, _ = item
-        m = re.search(r'[\w\s]+/\s*[A-Z]{2}', soup.get_text())
-        return m.group(0).strip() if m else ''
+    def local(self, soup) -> str:
+        return self._well(soup).find_all('h3')[0].get_text(strip=True)
 
-    def url(self, item) -> str:
-        _, href = item
-        return href
+    def url(self, soup) -> str:
+        a = self._well(soup).find('a', onclick=re.compile(r'Inscrever'))
+        m = re.search(r'Inscrever\((\d+)', a['onclick'])
+        return f'{self.URL}inscricao.php?prova={m.group(1)}' if m else self.URL
 
     def trigger(self):
-        fp, soup = self.get_html(self.URL, suffix='home.html')
-        events_acc, seen = [], set()
+        fp, get_soup = self.get_html(self.URL, suffix='get.html')
 
-        for a in soup.find_all('a', href=self._REG):
-            href = a['href']
-            if href in seen:
-                continue
-            seen.add(href)
-            suffix = urlparse(href).netloc.split('.')[0] + '.html'
-            _, reg_soup = self.get_html(href, suffix=suffix)
-            events_acc.append(self.parse((reg_soup, href), fp))
+        post_fp = self._repo / f'{date.today().isoformat()}-post.html'
+        if not self._is_file_fresh(post_fp):
+            ghash = get_soup.find('input', id='ghash')['value']
+            resp = cf_requests.post(self.URL, data={
+                'ic': '', 'ghash': ghash,
+                'cpf': self._CPF, 'datanascimento': self._NASC, 'sexo': 'Masculino',
+            })
+            post_fp.write_bytes(resp.content)
 
-        return events_acc
+        _, post_soup = self.get_html(self.URL, suffix='post.html')
+        return [self.parse(post_soup, fp)]
+
+
+class DrMtbRace(_DesafioRuralBase):
+    URL = 'https://inscricoes.desafiorural.com.br/'
+    REPO = Path('inscricoes.desafiorural.com.br')
+
+    def title(self, soup) -> str:
+        label = soup.find('label', id='labelcpf')
+        if label:
+            strong = label.find('strong')
+            if strong:
+                return strong.get_text(strip=True)
+        return self._well(soup).find_all('h3')[2].get_text(strip=True)
+
+
+class DrExtremo(_DesafioRuralBase):
+    URL = 'https://extremo.desafiorural.com.br/'
+    REPO = Path('extremo.desafiorural.com.br')
 
 
 class TimerRacing():
