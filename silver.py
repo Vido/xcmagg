@@ -142,16 +142,17 @@ class Parser:
     def location(self, raw_event) -> Location:
         from agents import normalize_location, search_event_location
 
-        if raw_event.local in self._location_cache:
-            return Location(**self._location_cache[raw_event.local])
+        llm_input = f'{raw_event.title} - Local {raw_event.local}'
+
+        if llm_input in self._location_cache:
+            return Location(**self._location_cache[llm_input])
 
         # Level 1: nano — cheap, fast
-        llm_input = f'{raw_event.title} - Local {raw_event.local}'
         llm_parsed = normalize_location(llm_input)
 
         # Level 2: mini — smarter, still no search
-        if not llm_parsed.get('city'):
-            llm_parsed = normalize_location(llm_input, model="gpt-4.1-mini")
+        #if not llm_parsed.get('city'):
+        #    llm_parsed = normalize_location(llm_input)
 
         # Level 3: search — last resort
         # if not llm_parsed.get('city'):
@@ -168,7 +169,7 @@ class Parser:
         llm_parsed['location_raw'] = llm_input
 
         if llm_parsed.get('confidence') in ('medium', 'high'):
-            self._location_cache[raw_event.local] = llm_parsed
+            self._location_cache[llm_input] = llm_parsed
 
         return Location(**llm_parsed)
 

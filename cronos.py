@@ -189,10 +189,6 @@ class GpsControlCrono(Crawler, Extractor):
         return parts[-1] if len(parts) >= 3 else ''
 
     def url(self, soup) -> str:
-        a = soup.find('a', href=re.compile(r'inscricao\.php'))
-        if a:
-            href = a['href'].replace('../', '')
-            return urljoin(self.URL, href)
         return self._current_event_url
 
     def trigger(self):
@@ -481,7 +477,7 @@ class _DesafioRuralBase(Crawler, Extractor):
     def url(self, soup) -> str:
         a = self._well(soup).find('a', onclick=re.compile(r'Inscrever'))
         m = re.search(r'Inscrever\((\d+)', a['onclick'])
-        return f'{self.URL}inscricao.php?prova={m.group(1)}' if m else self.URL
+        return f'{self.URL}?prova={m.group(1)}' if m else self.URL
 
     def trigger(self):
         fp, get_soup = self.get_html(self.URL, suffix='get.html')

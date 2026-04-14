@@ -37,7 +37,7 @@ parse_location_tool = {
 }
 
 
-def normalize_location(location_raw: str, model: str = "gpt-4.1-nano"):
+def normalize_location(location_raw: str, model: str = "gpt-4.1-mini"):
     response = client.chat.completions.create(
         model=model,
         max_tokens=40,
@@ -49,9 +49,10 @@ def normalize_location(location_raw: str, model: str = "gpt-4.1-nano"):
                     "Rules:\n"
                     "- Event name → all null\n"
                     "- Place/venue → fill address\n"
-                    "- Infer uf from city (Brazil)\n"
+                    "- Always infer uf from city (Brazil)\n"
                     "- If unsure city/uf → confidence=low\n"
                     "- ALL CAPS → Title Case\n"
+                    "- all lowercase → Title Case\n"
                     "- Unknown → null"
                 ),
             },
