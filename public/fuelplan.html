@@ -213,9 +213,15 @@
 
     <!-- Parameters Card -->
     <div class="card mb-4">
-      <div class="card-header d-flex align-items-center justify-content-between">
+      <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <span class="fw-semibold">🎯 Ride Parameters</span>
-        <button id="shareBtn" class="btn btn-sm btn-outline-secondary" onclick="share()">🔗 Share</button>
+        <div class="d-flex align-items-center gap-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-primary" id="btnPeba" onclick="setMode('peba')">🐢 Peba</button>
+            <button type="button" class="btn btn-outline-primary" id="btnBruto" onclick="setMode('bruto')">🐴 Bruto</button>
+            <button type="button" class="btn btn-outline-primary" id="btnGalatico" onclick="setMode('galatico')">👽 Galático</button>
+          </div>
+        </div>
       </div>
       <div class="card-body">
         <div class="row g-4">
@@ -228,8 +234,17 @@
                 🍌 Carbs target: <strong><span id="carbsValue">40</span> g/h</strong>
                 — <span class="carbs-label" id="carbsLabel">Moderate</span>
               </label>
-              <input type="range" class="form-range" id="carbsSlider" min="20" max="120" step="10" value="40">
+              <input type="range" class="form-range" id="carbsSlider" min="0" max="120" step="10" value="40">
               <span class="slider-label-desc" id="carbsHint">Suitable for most athletes in races over 2h</span>
+            </div>
+
+            <div id="glycogenRow" style="display:none">
+              <label class="form-label">
+                🔋 Glycogen stores: <strong><span id="glycogenValue">400</span> g</strong>
+                — <span id="glycogenLabel">Moderately loaded</span>
+              </label>
+              <input type="range" class="form-range" id="glycogenSlider" min="200" max="800" step="50" value="400">
+              <span class="slider-label-desc" id="glycogenHint">Pre-ride muscle + liver glycogen</span>
             </div>
 
             <div>
@@ -248,7 +263,7 @@
               <span class="slider-label-desc" id="saltinessHint">Look for white marks on skin or kit after a ride — that's a sign of salty sweat.</span>
             </div>
 
-            <div>
+            <div id="lossRow">
               <label class="form-label">
                 💧 Dehydration tolerance: <strong><span id="lossValue">1.0</span>% BW</strong>
                 — <span id="lossLabel">Optimal</span>
@@ -262,12 +277,29 @@
           <!-- Right column -->
           <div class="col-md-6 d-flex flex-column gap-4">
 
-            <div>
+            <div id="zoneRow">
               <label class="form-label">
                 🔥 Intensity: <strong><span id="zoneValue">Z3 — Tempo</span></strong>
               </label>
               <input type="range" class="form-range" id="zoneSlider" min="1" max="5" step="1" value="3">
               <span class="slider-label-desc" id="zoneHint">Sustained effort, group ride pace</span>
+            </div>
+
+            <div id="ftpRow" style="display:none">
+              <label class="form-label">
+                ⚡ FTP: <strong><span id="ftpValue">250</span> W</strong>
+              </label>
+              <input type="range" class="form-range" id="ftpSlider" min="100" max="500" step="10" value="210">
+              <span class="slider-label-desc" id="ftpHint">Your Functional Threshold Power</span>
+            </div>
+
+            <div id="ftpPctRow" style="display:none">
+              <label class="form-label">
+                🎯 Intensity: <strong><span id="ftpPctValue">75</span>% FTP</strong>
+                — <span id="ftpPctLabel">Z3 — Tempo</span>
+              </label>
+              <input type="range" class="form-range" id="ftpPctSlider" min="50" max="105" step="5" value="75">
+              <span class="slider-label-desc" id="ftpPctHint">Sustained effort, group ride pace</span>
             </div>
 
             <div>
@@ -334,23 +366,31 @@
       </div>
     </div>
 
+    <div id="bonkWarning" class="alert alert-warning py-2 px-3 mb-4 small" style="display:none">
+      ⚠️ <strong>Bonking risk</strong><span id="bonkContext"></span> — glycogen may run out around <strong><span id="bonkTime">—</span></strong>. Increase carb target, or decrease intensity.
+    </div>
+
+    <!-- Carbs Depletion Chart — Galático only -->
+    <div class="card mb-4" id="depletionCard" style="display:none">
+      <div class="card-header fw-semibold">📉 Glycogen Depletion</div>
+      <div class="card-body">
+        <canvas id="depletionChart" height="180"></canvas>
+        <p class="text-muted small mb-0 mt-2" id="depletionNote"></p>
+      </div>
+    </div>
+
     <div class="row mb-4">
-      <div class="col-md-8 mb-3 mb-md-0">
+      <div class="col-md-8 mb-3 mb-md-0" id="planCol">
         <div class="card h-100">
-          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="card-header">
             <span class="fw-semibold">🍽️ Nutrition Plan</span>
-            <div class="btn-group btn-group-sm" role="group">
-              <button type="button" class="btn btn-primary" id="btnPeba"    onclick="setMode('peba')">🐢 Peba</button>
-              <button type="button" class="btn btn-outline-primary" id="btnBruto"    onclick="setMode('bruto')">🐴 Bruto</button>
-              <button type="button" class="btn btn-outline-primary" id="btnGalatico" onclick="setMode('galatico')">👽 Galático</button>
-            </div>
           </div>
           <div class="card-body">
             <ul class="plan-list" id="planList"></ul>
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-4" id="bottlesCol">
         <div class="card h-100">
           <div class="card-header fw-semibold">🚰 Bottles & Hydration</div>
           <div class="card-body">
@@ -384,11 +424,14 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
   <script>
     // ── Lookup tables ────────────────────────────────────────────────
 
     const CARBS_LABELS = {
+       0:  { label: 'None',        hint: 'Hydration only — fasted training or recovery spin under 45 min' },
+      10:  { label: 'Trace',       hint: 'Minimal fueling — short easy effort, body fat covers most needs' },
       20:  { label: 'Minimal',     hint: 'Recovery or very short ride (< 45 min) — pure glucose' },
       30:  { label: 'Light',       hint: 'Easy Z1–Z2, 45–75 min — pure glucose' },
       40:  { label: 'Moderate',    hint: 'Aerobic base — pure glucose, well below SGLT1 limit' },
@@ -457,6 +500,11 @@
     //       https://pubmed.ncbi.nlm.nih.gov/17277604/
     const SWEAT_BASE = [0, 0.70, 0.85, 1.00, 1.15, 1.30]; // L/h, zones 1–5
 
+    // Carb oxidation rate by zone (g/h).
+    //   Romijn et al. (1993) — substrate utilisation at 55/65/75% VO2max.
+    //   J Appl Physiol 75(5):2253–61. https://pubmed.ncbi.nlm.nih.gov/8307099/
+    const CARB_BURN_ZONE = [0, 60, 90, 130, 170, 210]; // zones 1–5
+
     // Sweat potassium concentration: ~160 mg/L (range 120–220 mg/L).
     // Individual variation is smaller than sodium, so a fixed coefficient is reasonable.
     //   PMC5371639 — Baker et al. (2017): sweat K+ concentration data.
@@ -508,6 +556,42 @@
       return             { label: 'High deficit',     hint: 'Only in cool conditions (<20°C) — significant impairment risk [3]' };
     }
 
+    function ftpPctToZone(pct) {
+      if (pct < 56)  return 1;
+      if (pct < 76)  return 2;
+      if (pct < 91)  return 3;
+      if (pct < 106) return 4;
+      return 5;
+    }
+
+    function glycogenLabel(g) {
+      if (g <= 250) return 'Low — fasted / depleted';
+      if (g <= 350) return 'Below average';
+      if (g <= 450) return 'Moderately loaded';
+      if (g <= 550) return 'Well loaded';
+      if (g <= 650) return 'Fully loaded';
+      return 'Super-compensated';
+    }
+
+    function calcCarbBurnRate(power_W, ftpPct) {
+      // Total metabolic rate: 1W ≈ 3.6 kcal/h, derived from ~24% gross mechanical efficiency.
+      // 1 W = 1 J/s = 3.6 kJ/h mechanical. At η ≈ 0.24: metabolic input = 3.6/0.24 = 15 kJ/h per watt
+      // = 3.59 kcal/h per watt (÷ 4.184), rounded to 3.6.
+      //
+      // Efficiency sources:
+      //   [A] Coyle et al. (1992) — cyclists with high % Type I fibres average ~22% gross efficiency.
+      //       J Appl Physiol 70(6):2594–2600. https://pubmed.ncbi.nlm.nih.gov/1501563/
+      //   [B] Moseley & Jeukendrup (2001) — gross efficiency 19–25% across trained cyclists,
+      //       mean ~23%. The reliability of cycling efficiency. Eur J Appl Physiol 85(3–4):217–223.
+      //       https://pubmed.ncbi.nlm.nih.gov/11560069/
+      //   [C] Ettema & Lorås (2019) meta-analysis — world-class cyclists averaged 24.5 ± 0.7%.
+      //       Sports Med Open 5:19. https://link.springer.com/article/10.1186/s40798-019-0196-x
+      const total_kcal_h = power_W * 3.6;
+      // Carb fraction: 20% at 50% FTP → 100% at 100%+ FTP (linear)
+      const carb_frac = Math.min(1.0, Math.max(0.20, ((ftpPct - 50) / 50) * 0.80 + 0.20));
+      return (total_kcal_h * carb_frac) / 4; // g/h
+    }
+
     function calculate() {
       const duration   = parseFloat(document.getElementById('durationSlider').value);
       const carbsph    = parseInt(document.getElementById('carbsSlider').value);
@@ -517,8 +601,21 @@
       const pack_ml    = parseInt(document.getElementById('packSlider').value);
       const capacity   = bottles_ml + pack_ml;
       const saltiness  = parseInt(document.getElementById('saltinessSlider').value);
-      const zone       = parseInt(document.getElementById('zoneSlider').value);
-      const lossPercent = parseFloat(document.getElementById('lossSlider').value);
+
+      const isGalatico = planMode === 'galatico';
+      const isPeba     = planMode === 'peba';
+
+      let zone, ftp = 250, ftpPct = 75, glycogen_g = 400;
+      if (isGalatico) {
+        ftp        = parseInt(document.getElementById('ftpSlider').value);
+        ftpPct     = parseInt(document.getElementById('ftpPctSlider').value);
+        zone       = ftpPctToZone(ftpPct);
+        glycogen_g = parseInt(document.getElementById('glycogenSlider').value);
+      } else {
+        zone = parseInt(document.getElementById('zoneSlider').value);
+      }
+
+      const lossPercent = isPeba ? 1.0 : parseFloat(document.getElementById('lossSlider').value);
 
       const sweat       = calcSweatRate(zone, temp, weight);
       const total_sweat = sweat * duration;
@@ -529,7 +626,7 @@
       const carbs       = carbsph * duration;
 
       return { duration, carbsph, weight, temp, capacity, bottles_ml, pack_ml, saltiness, zone, lossPercent,
-               sweat, total_sweat, water, sodium, potassium, carbs };
+               sweat, total_sweat, water, sodium, potassium, carbs, ftp, ftpPct, glycogen_g };
     }
 
     // ── Food database ────────────────────────────────────────────────
@@ -559,9 +656,39 @@
 
     function setMode(mode) {
       planMode = mode;
-      document.getElementById('btnPeba').className     = mode === 'peba'     ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary';
-      document.getElementById('btnBruto').className    = mode === 'bruto'    ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary';
-      document.getElementById('btnGalatico').className = mode === 'galatico' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-primary';
+      document.getElementById('btnPeba').className     = mode === 'peba'     ? 'btn btn-primary' : 'btn btn-outline-primary';
+      document.getElementById('btnBruto').className    = mode === 'bruto'    ? 'btn btn-primary' : 'btn btn-outline-primary';
+      document.getElementById('btnGalatico').className = mode === 'galatico' ? 'btn btn-primary' : 'btn btn-outline-primary';
+
+      const isPeba     = mode === 'peba';
+      const isGalatico = mode === 'galatico';
+
+      // Duration range
+      const dur = document.getElementById('durationSlider');
+      dur.max = isPeba ? 6 : 16;
+      if (parseFloat(dur.value) > 6 && isPeba) dur.value = 6;
+
+      // Carbs range
+      const carbs = document.getElementById('carbsSlider');
+      carbs.max = isPeba ? 60 : 120;
+      if (parseInt(carbs.value) > 60 && isPeba) carbs.value = 60;
+
+      // Zone range
+      const zone = document.getElementById('zoneSlider');
+      zone.max = isPeba ? 4 : 5;
+      if (parseInt(zone.value) > 4 && isPeba) zone.value = 4;
+
+      // Show/hide rows
+      document.getElementById('lossRow').style.display      = isPeba     ? 'none' : '';
+      document.getElementById('zoneRow').style.display      = isGalatico ? 'none' : '';
+      document.getElementById('ftpRow').style.display       = isGalatico ? ''     : 'none';
+      document.getElementById('ftpPctRow').style.display    = isGalatico ? ''     : 'none';
+      document.getElementById('glycogenRow').style.display  = isGalatico ? ''     : 'none';
+      document.getElementById('bottlesCol').style.display   = isPeba     ? 'none' : '';
+      const planCol = document.getElementById('planCol');
+      planCol.className = isPeba ? 'col-12' : 'col-md-8 mb-3 mb-md-0';
+      document.getElementById('depletionCard').style.display = isGalatico ? ''    : 'none';
+
       update();
     }
 
@@ -797,6 +924,123 @@
       return { stops, interval_min };
     }
 
+    // ── Depletion Chart ──────────────────────────────────────────────
+
+    let _depletionChart = null;
+
+    function drawDepletionChart(r) {
+      // Rainbow intensity levels and their colors (low → high intensity)
+      const INTENSITIES = [50, 60, 70, 80, 90, 100, 105];
+      const COLORS      = ['#22c55e','#84cc16','#eab308','#f97316','#ef4444','#dc2626','#7c3aed'];
+
+      const step   = 0.5;
+      const points = Math.round(r.duration / step) + 1;
+      const labels = Array.from({ length: points }, (_, i) => {
+        const t = i * step;
+        return t % 1 === 0 ? t + 'h' : t.toFixed(1) + 'h';
+      });
+
+      // Find the rainbow line closest to the current ftpPct (for highlight)
+      const activeIdx = INTENSITIES.reduce((best, pct, i) =>
+        Math.abs(pct - r.ftpPct) < Math.abs(INTENSITIES[best] - r.ftpPct) ? i : best, 0);
+
+      const datasets = INTENSITIES.map((pct, idx) => {
+        const power_W  = r.ftp * (pct / 100);
+        const net      = calcCarbBurnRate(power_W, pct) - r.carbsph;
+        const isActive = idx === activeIdx;
+        const data     = [];
+        let g = r.glycogen_g;
+        for (let i = 0; i < points; i++) {
+          data.push(Math.max(0, Math.round(g)));
+          g = Math.max(0, g - net * step);
+        }
+        return {
+          label: pct + '%',
+          data,
+          borderColor: isActive ? COLORS[idx] : COLORS[idx] + '55',
+          backgroundColor: isActive ? COLORS[idx] + '22' : 'transparent',
+          fill: isActive,
+          borderWidth: isActive ? 3 : 1.5,
+          tension: 0.3,
+          pointRadius: 0,
+        };
+      });
+
+      // 100g critical reserve threshold line.
+      // Muscle glycogen < ~70 mmol/kg wet weight impairs sarcoplasmic calcium release and peak power.
+      // A 70 kg athlete with ~15 kg of active muscle mass ≈ 100 g absolute glycogen at that concentration.
+      //   Murray & Rosenbloom (2018) — Fundamentals of glycogen metabolism for coaches and athletes.
+      //   Nutr Rev 76(4):243–259. doi:10.1093/nutrit/nuy001
+      //   https://pmc.ncbi.nlm.nih.gov/articles/PMC6019055/
+      datasets.push({
+        label: 'Bonking Risk',
+        data: Array(points).fill(Math.round(r.weight / 70 * 100)),
+        borderColor: '#000',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [6, 3],
+        pointRadius: 0,
+        tension: 0,
+        order: -1, // draw on top
+      });
+
+      // Note text uses actual selected ftpPct
+      const bonkThreshold = Math.round(r.weight / 70 * 100);
+      const activePower = r.ftp * (r.ftpPct / 100);
+      const activeBurn  = calcCarbBurnRate(activePower, r.ftpPct);
+      const activeNet   = activeBurn - r.carbsph;
+      let bonkTime = null;
+      let g = r.glycogen_g;
+      for (let i = 0; i < points; i++) {
+        const t = i * step;
+        if (g > bonkThreshold && g - activeNet * step <= bonkThreshold && bonkTime === null) bonkTime = t + step;
+        g = Math.max(0, g - activeNet * step);
+      }
+
+      const ctx = document.getElementById('depletionChart').getContext('2d');
+      if (_depletionChart) _depletionChart.destroy();
+      _depletionChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          aspectRatio: 4,
+          plugins: {
+            legend: {
+              display: true,
+              labels: { boxWidth: 10, padding: 8, font: { size: 11 } },
+            },
+          },
+          scales: {
+            y: { min: 0, max: Math.round(r.glycogen_g * 1.10), title: { display: true, text: 'Glycogen (g)' } },
+            x: { title: { display: false } },
+          },
+        },
+      });
+
+      const note = document.getElementById('depletionNote');
+      if (bonkTime !== null) {
+        showBonkAlert('~' + bonkTime.toFixed(1) + 'h', r.ftpPct + '% FTP');
+        note.innerHTML = '';
+      } else if (activeNet > 0) {
+        hideBonkAlert();
+        const finalReserve = Math.round(Math.max(0, r.glycogen_g - activeNet * r.duration));
+        note.innerHTML = `Net depletion: ${Math.round(activeNet)} g/h · Final reserve: ${finalReserve} g`;
+      } else {
+        hideBonkAlert();
+        note.innerHTML = `✅ Intake ≥ burn rate — glycogen maintained`;
+      }
+    }
+
+    function showBonkAlert(timeStr, context = '') {
+      document.getElementById('bonkTime').textContent = timeStr;
+      document.getElementById('bonkContext').textContent = context ? ' at ' + context : '';
+      document.getElementById('bonkWarning').style.display = '';
+    }
+    function hideBonkAlert() {
+      document.getElementById('bonkWarning').style.display = 'none';
+    }
+
     // ── Render ───────────────────────────────────────────────────────
 
     function update() {
@@ -822,16 +1066,33 @@
       document.getElementById('packLabel').textContent    = r.pack_ml === 0 ? 'None' : (r.pack_ml / 1000).toFixed(2) + ' L pack';
       document.getElementById('saltinessLabel').textContent = saltinessLabel(r.saltiness);
 
-      const zl = ZONE_LABELS[r.zone];
-      document.getElementById('zoneValue').textContent = zl.label;
-      document.getElementById('zoneHint').textContent  = zl.hint;
+      const zl = ZONE_LABELS[r.zone] || { label: 'Z?', hint: '' };
+      if (planMode !== 'galatico') {
+        document.getElementById('zoneValue').textContent = zl.label;
+        document.getElementById('zoneHint').textContent  = zl.hint;
+      } else {
+        document.getElementById('ftpValue').textContent     = r.ftp;
+        document.getElementById('ftpHint').textContent      = `${(r.ftp / r.weight).toFixed(1)} W/kg`;
+        document.getElementById('ftpPctValue').textContent  = r.ftpPct;
+        document.getElementById('ftpPctLabel').textContent  = zl.label;
+        document.getElementById('ftpPctHint').textContent   = zl.hint;
+        document.getElementById('glycogenValue').textContent = r.glycogen_g;
+        document.getElementById('glycogenLabel').textContent = glycogenLabel(r.glycogen_g);
+        document.getElementById('glycogenHint').textContent  = `~${Math.round(r.glycogen_g * 4)} kcal stored`;
+        drawDepletionChart(r);
+      }
 
       const ll = lossLabelFn(r.lossPercent);
-      document.getElementById('lossLabel').textContent = ll.label;
-      document.getElementById('lossHint').textContent  = ll.hint;
+      if (planMode !== 'peba') {
+        document.getElementById('lossLabel').textContent = ll.label;
+        document.getElementById('lossHint').textContent  = ll.hint;
+      }
 
+      const intensitySummary = planMode === 'galatico'
+        ? `${Math.round(r.ftp * (r.ftpPct / 100))}W (${r.ftpPct}% FTP)`
+        : zl.label;
       document.getElementById('summaryText').textContent =
-        `${r.duration}h · ${r.weight} kg · ${r.temp}°C · ${zl.label} · ${r.carbsph} g/h carbs · ${r.saltiness} mg/L sodium`;
+        `${r.duration}h · ${r.weight} kg · ${r.temp}°C · ${intensitySummary} · ${r.carbsph} g/h carbs · ${r.saltiness} mg/L sodium`;
 
       // Raw data
       document.getElementById('waterOut').textContent  = r.water.toFixed(1) + ' L';
@@ -872,6 +1133,15 @@
       const pColor = pct >= 60 ? '#198754' : pct >= 30 ? '#c87000' : '#dc3545';
       document.getElementById('potassiumCoverageOut').innerHTML =
         `plan covers <strong style="color:${pColor}">${pct}%</strong> of loss (${Math.round(plan.potassium_covered)} mg)`;
+
+      // Bonking risk alert (Peba & Bruto — Galático handled inside drawDepletionChart)
+      if (planMode === 'peba' || planMode === 'bruto') {
+        const net       = CARB_BURN_ZONE[r.zone] - r.carbsph;
+        const threshold = Math.round(r.weight / 70 * 100);
+        const t         = net > 0 ? (400 - threshold) / net : Infinity;
+        if (t < r.duration) showBonkAlert(t.toFixed(1) + 'h');
+        else hideBonkAlert();
+      }
 
       // Water stops
       const stops = buildStops(r.water, r.capacity, r.duration);
@@ -926,6 +1196,7 @@
         duration: r.duration, carbs: r.carbsph, weight: r.weight,
         temp: r.temp, bottles: r.bottles_ml, pack: r.pack_ml, saltiness: r.saltiness,
         zone: r.zone, loss: r.lossPercent,
+        ftp: r.ftp, ftpPct: r.ftpPct, glycogen: r.glycogen_g,
         mode: planMode
       });
       const url = location.origin + location.pathname + '?' + p.toString();
@@ -945,7 +1216,7 @@
 
     // ── Event listeners ──────────────────────────────────────────────
 
-    ['durationSlider', 'carbsSlider', 'weightSlider', 'tempSlider', 'bottlesSlider', 'packSlider', 'saltinessSlider', 'zoneSlider', 'lossSlider']
+    ['durationSlider', 'carbsSlider', 'weightSlider', 'tempSlider', 'bottlesSlider', 'packSlider', 'saltinessSlider', 'zoneSlider', 'lossSlider', 'ftpSlider', 'ftpPctSlider', 'glycogenSlider']
       .forEach(id => document.getElementById(id).addEventListener('input', update));
 
     // ── Restore from URL params ──────────────────────────────────────
@@ -968,7 +1239,8 @@
     const PARAM_MAP = {
       duration: 'durationSlider', carbs: 'carbsSlider', weight: 'weightSlider',
       temp: 'tempSlider', bottles: 'bottlesSlider', pack: 'packSlider', saltiness: 'saltinessSlider',
-      zone: 'zoneSlider', loss: 'lossSlider'
+      zone: 'zoneSlider', loss: 'lossSlider',
+      ftp: 'ftpSlider', ftpPct: 'ftpPctSlider', glycogen: 'glycogenSlider'
     };
     const params = new URLSearchParams(window.location.search);
     Object.entries(PARAM_MAP).forEach(([key, id]) => {
@@ -976,7 +1248,7 @@
     });
     if (params.has('mode') && ['peba','bruto','galatico'].includes(params.get('mode')))
       setMode(params.get('mode')); // setMode calls update()
-    else update();
+    else setMode(planMode);       // apply default mode UI state before first render
   </script>
 
   <script>
