@@ -974,7 +974,7 @@
       //   https://pmc.ncbi.nlm.nih.gov/articles/PMC6019055/
       datasets.push({
         label: 'Bonking Risk',
-        data: Array(points).fill(Math.round(r.weight / 70 * 100)),
+        data: Array(points).fill(Math.round(r.weight / 70 * 150)),
         borderColor: '#000',
         backgroundColor: 'transparent',
         borderWidth: 1.5,
@@ -985,7 +985,7 @@
       });
 
       // Note text uses actual selected ftpPct
-      const bonkThreshold = Math.round(r.weight / 70 * 100);
+      const bonkThreshold = Math.round(r.weight / 70 * 150);
       const activePower = r.ftp * (r.ftpPct / 100);
       const activeBurn  = calcCarbBurnRate(activePower, r.ftpPct);
       const activeNet   = activeBurn - r.carbsph;
@@ -1137,8 +1137,9 @@
       // Bonking risk alert (Peba & Bruto — Galático handled inside drawDepletionChart)
       if (planMode === 'peba' || planMode === 'bruto') {
         const net       = CARB_BURN_ZONE[r.zone] - r.carbsph;
-        const threshold = Math.round(r.weight / 70 * 100);
-        const t         = net > 0 ? (400 - threshold) / net : Infinity;
+        const threshold = Math.round(r.weight / 70 * 150);
+        const startGlycogen = r.weight / 70 * 400;
+        const t             = net > 0 ? (startGlycogen - threshold) / net : Infinity;
         if (t < r.duration) showBonkAlert(t.toFixed(1) + 'h');
         else hideBonkAlert();
       }
