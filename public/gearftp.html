@@ -39,6 +39,96 @@
   }
   </script>
 
+  <!-- FAQPage Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What's the fastest way to increase cycling speed?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The highest-impact improvements in order: 1) Aerodynamics — a more aggressive position or aero gear reduces CdA and cuts drag, which scales with the square of speed and dominates above 20 km/h. 2) Tires — switching to lower rolling resistance tires (lower Crr) saves watts for free. 3) Gears & cadence — correct gearing keeps you at an efficient 80–100 RPM, avoiding wasted energy. 4) Weight — only meaningfully helps on steep climbs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much faster is a 1 kg lighter bike?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On flat ground at 30 km/h, saving 1 kg gives roughly 0.05 km/h — essentially nothing. On an 8% climb at 10 km/h, it's worth about 0.3 km/h. Weight matters almost exclusively when climbing. On flat roads, money spent on aerodynamics or tires will always outperform a lighter frame."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do better tires actually make you faster?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — significantly. The coefficient of rolling resistance (Crr) measures how much energy the tire wastes per meter rolled. Upgrading from a typical training tire (Crr ≈ 0.006) to a high-performance race tire (Crr ≈ 0.003) saves roughly 5–10 watts at 30 km/h on flat ground, translating to 1–2 km/h of free speed. It's one of the best cost-per-watt upgrades available."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is aerodynamics or weight more important for cycling speed?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Aerodynamics is more important on any terrain above about 15 km/h. Air drag is proportional to the square of speed, and the power needed to overcome it scales with the cube of speed. A 10% reduction in CdA (e.g., tucking into a more aerodynamic position) saves far more energy than losing 2 kg of bike weight on flat or rolling roads. Weight only wins on long, steep climbs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much power do I need to ride at 40 km/h?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For a typical setup — 75 kg rider, 8 kg bike, CdA of 0.35, Crr of 0.004, flat road, no wind — you need approximately 280–310 watts to sustain 40 km/h. The majority of that power (roughly 85%) goes to overcoming aerodynamic drag. Use the calculator above to model your exact setup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a good cadence for cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "80–100 RPM is the efficient range for most trained cyclists. Pedaling too slowly (grinding a big gear) places excessive load on muscles and joints. Spinning too fast raises cardiovascular demand without adding more speed. The right gear selection keeps your cadence in the optimal window for your power output and terrain."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does gear ratio affect cycling speed?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Speed = cadence × (chainring teeth ÷ cog teeth) × wheel circumference. A higher gear ratio means more distance covered per pedal stroke, but requires more force. Choosing the wrong gear forces you out of your optimal cadence range, reducing efficiency. Gain ratio normalizes this across different crank lengths and wheel sizes for a fair comparison."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much harder is a 10% climb compared to a 5% climb?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Roughly twice the power is needed. Gravitational resistance = 9.8 m/s² × total mass × sin(grade angle), so it scales nearly linearly with gradient. A 75 kg rider + 8 kg bike on a 5% grade must overcome about 57 N of gravity force; on a 10% grade that rises to ~113 N. Combined with the loss of aerodynamic drag reduction at slower climbing speeds, the power demand roughly doubles."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is FTP and why does it matter for cycling speed?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FTP (Functional Threshold Power) is the maximum power output a rider can sustain for approximately one hour. It is the fundamental ceiling on your sustainable speed — higher FTP means you can ride faster on any terrain for longer. All training plans aim to raise FTP over time. On flat roads, a rider with 250W FTP will cruise at around 35 km/h; a 300W rider at roughly 38 km/h."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does CdA mean in cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "CdA is the product of the drag coefficient (Cd) and the rider's frontal area (A). It is the single number that captures how aerodynamic a rider-bike system is. A lower CdA means less air resistance at any speed. Typical values: ~0.45 for an upright mountain biker, ~0.35 for a road cyclist in the drops, ~0.20–0.25 for a time trialist on aero bars. CdA can be reduced by changing position, wearing tighter clothing, or using aerodynamic equipment."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
   <script>
@@ -315,6 +405,145 @@
       </div>
     </div>
   </div>
+
+  <!-- H1 + FAQ Section -->
+  <section class="container py-5" aria-label="Frequently Asked Questions">
+    <h1 class="visually-hidden">Free Gear Ratio &amp; FTP Cycling Calculator</h1>
+    <h2 class="mb-4 fs-4 fw-semibold">Frequently Asked Questions — Cycling Power &amp; Speed</h2>
+    <div class="accordion accordion-flush border rounded" id="faqAccordion">
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
+            What's the fastest way to increase cycling speed?
+          </button>
+        </h3>
+        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            The highest-impact improvements in order: <strong>1) Aerodynamics</strong> — a more aggressive position or aero gear reduces CdA and cuts drag, which scales with the square of speed and dominates above 20 km/h. <strong>2) Tires</strong> — switching to lower rolling resistance tires (lower Crr) saves watts for free. <strong>3) Gears &amp; cadence</strong> — correct gearing keeps you at an efficient 80–100 RPM, avoiding wasted energy. <strong>4) Weight</strong> — only meaningfully helps on steep climbs.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+            How much faster is a 1 kg lighter bike?
+          </button>
+        </h3>
+        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            On flat ground at 30 km/h, saving 1 kg gives roughly <strong>0.05 km/h</strong> — essentially nothing. On an 8% climb at 10 km/h, it's worth about <strong>0.3 km/h</strong>. Weight matters almost exclusively when climbing. On flat roads, money spent on aerodynamics or tires will always outperform a lighter frame.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+            Do better tires actually make you faster?
+          </button>
+        </h3>
+        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Yes — significantly. The coefficient of rolling resistance (Crr) measures how much energy the tire wastes per meter rolled. Upgrading from a typical training tire (Crr ≈ 0.006) to a high-performance race tire (Crr ≈ 0.003) saves roughly <strong>5–10 watts at 30 km/h</strong>, translating to 1–2 km/h of free speed. It's one of the best cost-per-watt upgrades available.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+            Is aerodynamics or weight more important for cycling speed?
+          </button>
+        </h3>
+        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Aerodynamics is more important on any terrain above about 15 km/h. Air drag is proportional to the square of speed, and the power needed to overcome it scales with the <strong>cube of speed</strong>. A 10% reduction in CdA (e.g., tucking into a more aerodynamic position) saves far more energy than losing 2 kg of bike weight on flat or rolling roads. Weight only wins on long, steep climbs.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
+            How much power do I need to ride at 40 km/h?
+          </button>
+        </h3>
+        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            For a typical setup — 75 kg rider, 8 kg bike, CdA of 0.35, Crr of 0.004, flat road, no wind — you need approximately <strong>280–310 watts</strong> to sustain 40 km/h. The majority of that power (roughly 85%) goes to overcoming aerodynamic drag. Use the calculator above to model your exact setup.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6" aria-expanded="false" aria-controls="faq6">
+            What is a good cadence for cycling?
+          </button>
+        </h3>
+        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            <strong>80–100 RPM</strong> is the efficient range for most trained cyclists. Pedaling too slowly (grinding a big gear) places excessive load on muscles and joints. Spinning too fast raises cardiovascular demand without adding more speed. The right gear selection keeps your cadence in the optimal window for your power output and terrain.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7" aria-expanded="false" aria-controls="faq7">
+            Does gear ratio affect cycling speed?
+          </button>
+        </h3>
+        <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Yes. Speed = cadence × (chainring teeth ÷ cog teeth) × wheel circumference. A higher gear ratio means more distance covered per pedal stroke, but requires more force. Choosing the wrong gear forces you out of your optimal cadence range, reducing efficiency. <strong>Gain ratio</strong> normalizes this across different crank lengths and wheel sizes for a fair comparison between bike types.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8" aria-expanded="false" aria-controls="faq8">
+            How much harder is a 10% climb compared to a 5% climb?
+          </button>
+        </h3>
+        <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Roughly <strong>twice the power</strong> is needed. Gravitational resistance = 9.8 m/s² × total mass × sin(grade angle), so it scales nearly linearly with gradient. A 75 kg rider + 8 kg bike on a 5% grade must overcome about 57 N of gravity force; on a 10% grade that rises to ~113 N. Combined with slower climbing speeds (reducing aerodynamic drag), the total power demand roughly doubles.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9" aria-expanded="false" aria-controls="faq9">
+            What is FTP and why does it matter for cycling speed?
+          </button>
+        </h3>
+        <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            FTP (Functional Threshold Power) is the maximum power output a rider can sustain for approximately one hour. It is the fundamental ceiling on your sustainable speed — higher FTP means you can ride faster on any terrain for longer. On flat roads, a rider with <strong>250W FTP</strong> will cruise at around 35 km/h; a <strong>300W rider</strong> at roughly 38 km/h (same aero setup). Raising FTP through training is the only long-term speed lever.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq10" aria-expanded="false" aria-controls="faq10">
+            What does CdA mean in cycling?
+          </button>
+        </h3>
+        <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            CdA is the product of the drag coefficient (Cd) and the rider's frontal area (A). It is the single number that captures how aerodynamic a rider-bike system is. A lower CdA means less air resistance at any speed. Typical values: <strong>~0.45</strong> for an upright mountain biker, <strong>~0.35</strong> for a road cyclist in the drops, <strong>~0.20–0.25</strong> for a time trialist on aero bars. CdA can be reduced by changing position, wearing tighter clothing, or using aerodynamic equipment.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
   </main>
  
     <footer role="contentinfo" class="footer">
@@ -509,7 +738,12 @@
         mode: "gauge+number",
         value: x,
         // delta: { reference: 160 },
-        gauge: { axis: { visible: true, range: [lower, higher] } },
+        gauge: {
+          axis: { visible: true, range: [lower, higher] },
+          steps: [
+            { range: [80, 90], color: 'lightgreen' },
+          ],
+        },
         domain: { x: [.1, .9], y: [0, .75] },
 
       };
