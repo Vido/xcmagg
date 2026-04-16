@@ -37,6 +37,96 @@
   }
   </script>
 
+  <!-- FAQPage Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How many carbs should I eat per hour while cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on intensity. At Zone 1–2 (easy): 30–60 g/h. At Zone 3–4 (tempo/threshold): 60–90 g/h. At Zone 5+ (race effort): up to 90–120 g/h. The gut can absorb a maximum of ~60 g/h from a single carbohydrate source (e.g. glucose only), but up to 90 g/h when combining glucose and fructose (e.g. gels + sports drink) due to different intestinal transporters."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens if you don't eat on a long bike ride?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your glycogen stores run out and you bonk (hit the wall). Symptoms include sudden and severe fatigue, brain fog, inability to maintain power, and shaking. Without carbohydrate intake, most cyclists deplete their glycogen within 90–120 minutes at moderate-to-high intensity. Once you bonk, it takes 30–60 minutes of easy riding and eating to partially recover."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much should I drink while cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sweat rate ranges from 0.5 L/h in cool, easy conditions to over 2 L/h in heat at high intensity. A practical guideline: drink enough to avoid losing more than 2% of your body weight in fluid, as performance measurably declines beyond this threshold. For a 70 kg rider, that's a 1.4 L ceiling. In hot weather or long rides, aim to drink 500–750 mL per hour and adjust based on how much you sweat."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need electrolytes (sodium) when cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, on rides longer than 60 minutes — especially in heat. Sweat contains 300–1600 mg of sodium per liter (average ~700 mg/L). Replacing only water without sodium on long efforts risks hyponatremia (dangerously low blood sodium), and insufficient sodium replacement is linked to cramping and impaired fluid absorption. Use electrolyte tabs, sports drinks, or salty foods on rides over an hour."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What should I eat on a 3-hour bike ride?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "At moderate intensity (Zone 3), target 60–90 g of carbs per hour — roughly 180–270 g total. Strategy: real food (banana, rice cakes, energy bars) in the first 2 hours when gut comfort is best; switch to gels or chews in the final hour when digestion slows. Critically, start eating within the first 20–30 minutes — don't wait until you feel hungry or tired."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is bonking (hitting the wall) in cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Bonking is the sudden and severe performance collapse caused by complete glycogen depletion. Unlike normal fatigue, it comes on rapidly — legs stop responding, thinking becomes foggy, and maintaining even an easy pace feels impossible. It is entirely preventable by fueling consistently throughout the ride, starting early, before hunger sets in. Once you bonk, recovery on the bike takes time even with immediate carbohydrate intake."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is glycogen and how much do cyclists store?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Glycogen is the storage form of glucose in muscles and the liver. A typical trained cyclist stores 300–600 g of glycogen (1200–2400 kcal). Muscle glycogen fuels working muscles directly; liver glycogen maintains blood glucose for the brain. At race pace, these stores can be fully depleted in 60–90 minutes without exogenous carbohydrate intake. Carbohydrate loading before an event and fueling during the ride extend the time before depletion."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does heat affect cycling nutrition needs?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Heat significantly increases sweat rate — sometimes doubling it compared to cooler conditions. This raises both fluid and sodium needs substantially. Carbohydrate requirements stay roughly the same, but high core temperature can reduce gut motility and tolerance for solid foods, making liquids and gels preferable. In hot weather, prioritize cooling strategies (cold water, light clothing) and increase electrolyte intake to match higher sweat losses."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I eat before or during a bike ride?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Both. Eat a carbohydrate-rich meal 2–3 hours before the ride to top up liver glycogen. Then start fueling on the bike within the first 20–30 minutes — don't wait until you feel hungry or tired. By the time hunger signals kick in, your glycogen is already partially depleted and it becomes very hard to fully catch up. For rides under 60 minutes, pre-ride fueling alone is typically sufficient."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I drink too much water while cycling?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Drinking excessive plain water during very long events (>4 hours) can dilute blood sodium to dangerously low levels, a condition called exercise-associated hyponatremia (EAH). Symptoms include nausea, headache, confusion, and in severe cases, seizures. To avoid it: match fluid intake to your actual sweat rate (don't drink more than you sweat), and always include sodium — from electrolyte drinks, tabs, or salty food — on long rides."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
   <script>
@@ -415,6 +505,145 @@
     </div>
 
   </div>
+
+  <!-- H1 + FAQ Section -->
+  <section class="container py-5" aria-label="Frequently Asked Questions">
+    <h1 class="visually-hidden">Free Cycling Nutrition Plan Calculator — Carbs, Hydration &amp; Sodium</h1>
+    <h2 class="mb-4 fs-4 fw-semibold">Frequently Asked Questions — Cycling Nutrition &amp; Fueling</h2>
+    <div class="accordion accordion-flush border rounded" id="faqAccordion">
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
+            How many carbs should I eat per hour while cycling?
+          </button>
+        </h3>
+        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            It depends on intensity. At Zone 1–2 (easy): <strong>30–60 g/h</strong>. At Zone 3–4 (tempo/threshold): <strong>60–90 g/h</strong>. At Zone 5+ (race effort): up to <strong>90–120 g/h</strong>. The gut can absorb a maximum of ~60 g/h from a single carbohydrate source, but up to 90 g/h when combining glucose and fructose (e.g. gels + sports drink) due to different intestinal transporters (SGLT1 + GLUT5).
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+            What happens if you don't eat on a long bike ride?
+          </button>
+        </h3>
+        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Your glycogen stores run out and you <strong>bonk</strong> (hit the wall). Symptoms include sudden and severe fatigue, brain fog, inability to maintain power, and shaking. Without carbohydrate intake, most cyclists deplete their glycogen within <strong>90–120 minutes</strong> at moderate-to-high intensity. Once you bonk, it takes 30–60 minutes of easy riding and eating to partially recover.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+            How much should I drink while cycling?
+          </button>
+        </h3>
+        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Sweat rate ranges from <strong>0.5 L/h</strong> in cool, easy conditions to over <strong>2 L/h</strong> in heat at high intensity. A practical guideline: drink enough to avoid losing more than <strong>2% of your body weight</strong> in fluid — performance measurably declines beyond this. For a 70 kg rider, that's a ~1.4 L ceiling per hour of deficit. In hot weather or on long rides, aim for 500–750 mL per hour as a baseline.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+            Do I need electrolytes (sodium) when cycling?
+          </button>
+        </h3>
+        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Yes, on rides longer than 60 minutes — especially in heat. Sweat contains <strong>300–1600 mg of sodium per liter</strong> (average ~700 mg/L). Replacing only water without sodium on long efforts risks hyponatremia and impairs fluid absorption. Sodium is also linked to cramping prevention. Use electrolyte tabs, sports drinks, or salty food on any ride over an hour.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
+            What should I eat on a 3-hour bike ride?
+          </button>
+        </h3>
+        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            At moderate intensity (Zone 3), target <strong>60–90 g of carbs per hour</strong> — roughly 180–270 g total. Strategy: real food (banana, rice cakes, energy bars) in the first 2 hours when gut comfort is best; gels or chews in the final hour. Critically, <strong>start eating within the first 20–30 minutes</strong> — don't wait until you feel hungry or tired.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6" aria-expanded="false" aria-controls="faq6">
+            What is bonking (hitting the wall) in cycling?
+          </button>
+        </h3>
+        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Bonking is the sudden and severe performance collapse caused by <strong>complete glycogen depletion</strong>. Unlike normal fatigue, it comes on rapidly — legs stop responding, thinking becomes foggy, and maintaining even an easy pace feels impossible. It is entirely preventable by fueling consistently throughout the ride, starting early, before hunger sets in. Once you bonk, recovery on the bike takes time even with immediate carbohydrate intake.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7" aria-expanded="false" aria-controls="faq7">
+            What is glycogen and how much do cyclists store?
+          </button>
+        </h3>
+        <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Glycogen is the storage form of glucose in muscles and the liver. A typical trained cyclist stores <strong>300–600 g of glycogen</strong> (1200–2400 kcal). Muscle glycogen fuels working muscles directly; liver glycogen maintains blood glucose for the brain. At race pace, these stores can be fully depleted in <strong>60–90 minutes</strong> without exogenous carbohydrate intake.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8" aria-expanded="false" aria-controls="faq8">
+            How does heat affect cycling nutrition needs?
+          </button>
+        </h3>
+        <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Heat significantly increases sweat rate — sometimes <strong>doubling it</strong> compared to cooler conditions. This raises both fluid and sodium needs substantially. Carbohydrate requirements stay roughly the same, but high core temperature reduces gut motility and tolerance for solid foods, making liquids and gels preferable. Prioritize electrolytes and adjust fluid intake upward in hot conditions.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9" aria-expanded="false" aria-controls="faq9">
+            Should I eat before or during a bike ride?
+          </button>
+        </h3>
+        <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            <strong>Both.</strong> Eat a carbohydrate-rich meal 2–3 hours before the ride to top up liver glycogen. Then start fueling on the bike <strong>within the first 20–30 minutes</strong> — don't wait until you feel hungry or tired. By the time hunger signals kick in, your glycogen is already partially depleted and it becomes very hard to fully catch up. For rides under 60 minutes, pre-ride fueling alone is typically sufficient.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq10" aria-expanded="false" aria-controls="faq10">
+            Can I drink too much water while cycling?
+          </button>
+        </h3>
+        <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary">
+            Yes. Drinking excessive plain water during very long efforts (&gt;4 hours) can dilute blood sodium to dangerously low levels — a condition called <strong>exercise-associated hyponatremia (EAH)</strong>. Symptoms include nausea, headache, and confusion. To avoid it: match fluid intake to your sweat rate (don't drink more than you sweat), and always include sodium from electrolyte drinks, tabs, or salty food on long rides.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
   </main>
 
   <footer role="contentinfo" class="footer">
