@@ -1483,6 +1483,29 @@
       const glucose_g   = plan.glucose_g  ?? 0;
       const fructose_g  = plan.fructose_g ?? 0;
       const per_L = showRecipe ? 1 / r.water : 0;
+
+      // Osmolality estimate per ingredient (mOsm/kg per g/L)
+      // Formula: (1 / MW_g_per_mol) * ions * 1000
+      // Thresholds and methodology: https://www.alextran.org/diy-sports-drink/
+      //   maltodextrin DE~18: MW~1000, 1 ion  → ~1.0 mOsm/g/L
+      //   fructose:           MW 180,  1 ion  → 5.55 mOsm/g/L
+      //   sodium citrate:     MW 294,  4 ions → 13.6 mOsm/g/L
+      const MALTO_MOSM    = 1.0;
+      const FRUCTOSE_MOSM = 5.55;
+      const CITRATE_MOSM  = 13.6;
+      const osmolality = showRecipe
+        ? (glucose_g  * per_L * MALTO_MOSM)
+        + (fructose_g * per_L * FRUCTOSE_MOSM)
+        + (citrate_g  * per_L * CITRATE_MOSM)
+        : 0;
+      // Isotonic: 275–295 mOsm/kg (matches blood osmolality ~285–295)
+      const concLabel = osmolality < 275 ? 'hypotonic'
+                      : osmolality <= 295 ? 'isotonic'
+                      : 'hypertonic';
+      const concClass = osmolality < 275 ? 'text-info'
+                      : osmolality <= 295 ? 'text-success'
+                      : 'text-warning';
+
       const recipeChips = [];
       if (showRecipe && glucose_g  > 0) recipeChips.push(`<span class="recipe-chip recipe-chip--malto">${Math.round(glucose_g  * per_L)} g <span class="recipe-chip__label">malto</span></span>`);
       if (showRecipe && fructose_g > 0) recipeChips.push(`<span class="recipe-chip recipe-chip--fructose">${Math.round(fructose_g * per_L)} g <span class="recipe-chip__label">fructose</span></span>`);
@@ -1491,6 +1514,7 @@
         ? `<div class="bottle-recipe mt-2">
              <div class="bottle-recipe__label">Bottle Mix (per 1 L)</div>
              <div class="bottle-recipe__chips">${recipeChips.join('')}</div>
+             <div class="bottle-recipe__conc small mt-1 ${concClass} fw-semibold">~${Math.round(osmolality)} mOsm/kg · ${concLabel}</div>
            </div>`
         : '';
       const capacity_L = r.capacity / 1000;
