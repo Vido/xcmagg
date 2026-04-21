@@ -162,7 +162,7 @@ def search_event_location(event_title: str) -> str:
             )
         }]
     )
-    print('search_event_location', model,response.usage)
+    print('search_event_location', "gpt-4o-mini-search-preview", response.usage)
     return response.choices[0].message.content or ""
 
 

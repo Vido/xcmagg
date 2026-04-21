@@ -492,6 +492,8 @@ class _DesafioRuralBase(Crawler, Extractor):
             post_fp.write_bytes(resp.content)
 
         _, post_soup = self.get_html(self.URL, suffix='post.html')
+        if self._well(post_soup) is None:
+            return []
         return [self.parse(post_soup, fp)]
 
 
