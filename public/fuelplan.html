@@ -169,7 +169,7 @@
         "name": "Is it faster to carry a hydration pack or stop at aid stations?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The case for the pack: a 2 L bladder with a pack weighs roughly 2.5 kg when full — about 3% of a typical 83 kg system (rider + bike + gear). On a climb, 3% extra mass means roughly 3% more power to hold the same speed. That penalty shrinks as you drink. Against that, every aid station stop is dead time at zero speed, and stops introduce execution risk: crowding, understocking, or a poorly timed approach can cost far more than the weight ever would. The case for aid stations: starting without a pack means lower system weight from the gun — you are faster on every climb right up to the first stop. Aid stations also let you refuel food alongside fluids. On shorter courses with well-placed stations, the pack weight is never fully recovered by the time the finish line arrives. Practical rule: for races under 60–75 minutes, a bottle on the frame is usually enough. For longer races in heat, a pack almost always wins. In mild conditions with frequent well-stocked stations, aid stops can be competitive — but only if the course layout truly supports it. Use the Fuel Plan calculator at racefeed.com.br/fuelplan.html to get an accurate estimate of your water requirements based on intensity and duration before deciding."
+          "text": "A 2 L bladder with a pack weighs roughly 2.5 kg when full — about 3% of a typical 83 kg system (rider + bike + gear). On a climb, 3% extra mass means roughly 3% more power to hold the same speed. That penalty shrinks as you drink. Aid stations only save time if you can grab a bottle without stopping. If you have to stop, the time lost at zero speed exceeds any weight saving the pack would have cost you — so stopping has no upside. The pack always wins once the race is long enough to need more than a frame bottle. For races under 60–75 minutes, a single bottle is usually sufficient. Beyond that, carry the pack. Use the Fuel Plan calculator at racefeed.com.br/fuelplan.html to estimate exactly how much fluid you need before committing to a setup."
         }
       }
     ]
@@ -562,6 +562,16 @@
   </div>
 
   <!-- H1 + FAQ Section -->
+  <section class="container pb-2" id="waterChartCard" style="display:none">
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">💧 Water Depletion Over Time</div>
+      <div class="card-body">
+        <canvas id="waterChart" height="180"></canvas>
+        <p class="text-muted small mb-0 mt-2">Starts at your carried water (bottles + pack). Drops at sweat rate. Solid line = current temperature. Sweat rate model: Sawka et al. (ACSM 2007).</p>
+      </div>
+    </div>
+  </section>
+
   <section class="container py-5" aria-label="Frequently Asked Questions">
     <h1 class="fs-5 fw-semibold mb-1">Free Cycling Nutrition Plan Calculator — Carbs, Hydration &amp; Sodium</h1>
     <h2 class="mb-4 fs-4 fw-semibold">Frequently Asked Questions — Cycling Nutrition &amp; Fueling</h2>
@@ -816,10 +826,9 @@
         </h3>
         <div id="faq16" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
           <div class="accordion-body text-secondary">
-            <strong>The case for the pack:</strong> a 2 L bladder with a pack weighs roughly <strong>2.5 kg when full</strong> — about <strong>3% of a typical 83 kg system</strong> (rider + bike + gear). On a climb, 3% extra mass means roughly 3% more power to hold the same speed. That penalty shrinks continuously as you drink. Against that, every aid station stop is dead time at zero speed — and stops introduce execution risk: crowding, understocking, or a poorly timed approach can cost far more than the weight ever would.<br><br>
-            <strong>The case for aid stations:</strong> starting without a pack means <em>lower</em> system weight from the gun — you're faster on every climb right up to the first stop. Aid stations also let you refuel food alongside fluids. On shorter courses with well-placed stations, the pack weight is never fully recovered by the time the finish line arrives. If the course has mandatory or timed sections that pass near stations anyway, the stop cost shrinks to near zero.<br><br>
-            <strong>Practical rule:</strong> for races under 60–75 minutes, a bottle on the frame is usually enough. For longer races in heat, a pack almost always wins. In mild conditions with frequent well-stocked stations, aid stops can be competitive — but only if the course layout truly supports it.<br><br>
-            Use the <a href="fuelplan.html">Fuel Plan calculator</a> to get an accurate estimate of your water requirements based on intensity and duration before deciding.
+            A 2 L bladder with a pack weighs roughly <strong>2.5 kg when full</strong> — about <strong>3% of a typical 83 kg system</strong> (rider + bike + gear). On a climb, 3% extra mass means roughly 3% more power to hold the same speed. That penalty shrinks as you drink.<br><br>
+            <strong>Aid stations only save time if you can grab a bottle without stopping.</strong> If you have to stop, the time lost at zero speed exceeds any weight saving the pack would have cost you — so stopping has no upside. The pack always wins once the race is long enough to need more than a frame bottle.<br><br>
+            For races under 60–75 minutes, a single bottle is usually sufficient. Beyond that, carry the pack. Use the <a href="fuelplan.html">Fuel Plan calculator</a> to estimate exactly how much fluid you need before committing to a setup.
           </div>
         </div>
       </div>
@@ -1098,7 +1107,8 @@
       document.getElementById('bottlesCol').style.display   = isPeba     ? 'none' : '';
       const planCol = document.getElementById('planCol');
       planCol.className = isPeba ? 'col-12' : 'col-md-8 mb-3 mb-md-0';
-      document.getElementById('depletionCard').style.display = isGalatico ? ''    : 'none';
+      document.getElementById('depletionCard').style.display  = isGalatico ? ''    : 'none';
+      document.getElementById('waterChartCard').style.display = isPeba     ? 'none' : '';
 
       update();
     }
@@ -1443,6 +1453,109 @@
       }
     }
 
+    let _waterChart = null;
+    function drawWaterChart(r) {
+      const initial        = r.capacity / 1000;                    // L carried
+      const loss_allowance = (r.lossPercent / 100) * r.weight;     // L tolerated deficit
+
+      const TEMPS  = [20, 25, 30, 35];
+      const COLORS = ['#3b82f6', '#22c55e', '#f97316', '#ef4444'];
+
+      const maxT   = Math.max(r.duration, 4);
+      const step   = 0.25;
+      const points = Math.round(maxT / step) + 1;
+      const labels = Array.from({ length: points }, (_, i) => {
+        const t = i * step;
+        return t % 1 === 0 ? t + 'h' : '';
+      });
+
+      const datasets = TEMPS.map((temp, idx) => {
+        const sweat      = calcSweatRate(r.zone, temp, r.weight);
+        const isCurrent  = Math.abs(temp - r.temp) < 6;
+        return {
+          label: temp + '°C',
+          data: Array.from({ length: points }, (_, i) =>
+            +( initial - sweat * i * step ).toFixed(3)
+          ),
+          borderColor: COLORS[idx],
+          borderWidth: isCurrent ? 2.5 : 1.5,
+          borderDash: [],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+        };
+      });
+
+      const risk_2pct = 0.02 * r.weight;
+
+      // 1. Bottles empty at y = 0
+      datasets.push({
+        label: 'Bottles empty',
+        data: Array(points).fill(0),
+        borderColor: '#6b7280',
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+      });
+
+      // 2. User-selected tolerance at y = -loss_allowance
+      datasets.push({
+        label: `Tolerance (−${loss_allowance.toFixed(1)} L)`,
+        data: Array(points).fill(-loss_allowance),
+        borderColor: '#f97316',
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+      });
+
+      // 3. 2% body mass dehydration risk at y = -risk_2pct
+      datasets.push({
+        label: `Dehydration risk 2% BW (−${risk_2pct.toFixed(1)} L)`,
+        data: Array(points).fill(-risk_2pct),
+        borderColor: '#ef4444',
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+      });
+
+      const yMin = Math.min(-loss_allowance * 1.4, -risk_2pct * 1.4, -0.3);
+      const yMax = Math.max(initial * 1.1, 0.5);
+
+      const ctx = document.getElementById('waterChart').getContext('2d');
+      if (_waterChart) _waterChart.destroy();
+      _waterChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          aspectRatio: 4,
+          plugins: {
+            legend: { display: true, labels: { boxWidth: 10, padding: 8, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: c => {
+                  if (c.dataset.label === 'Bottles empty') return null;
+                  if (c.dataset.label.startsWith('Dehydration')) return null;
+                  return ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)} L`;
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              min: yMin,
+              max: yMax,
+              title: { display: true, text: 'Water (L)' },
+            },
+            x: { title: { display: false } },
+          },
+        },
+      });
+    }
+
     function showBonkAlert(timeStr, context = '') {
       document.getElementById('bonkTime').textContent = timeStr;
       document.getElementById('bonkContext').textContent = context ? ' at ' + context : '';
@@ -1492,6 +1605,8 @@
         document.getElementById('glycogenHint').textContent  = `~${Math.round(r.glycogen_g * 4)} kcal stored`;
         drawDepletionChart(r);
       }
+
+      drawWaterChart(r);
 
       const ll = lossLabelFn(r.lossPercent);
       if (planMode !== 'peba') {
