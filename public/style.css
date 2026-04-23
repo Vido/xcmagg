@@ -252,3 +252,15 @@ footer.footer {
 		flex-basis: 100%;
 	}
 }
+
+/* noUiSlider cadence range — connect track matches optimal-zone green */
+#cadenceRangeSlider .noUi-connect {
+  background: #2e7d32;
+}
+#cadenceRangeSlider .noUi-handle {
+  border-color: #2e7d32;
+}
+#cadenceRangeSlider .noUi-handle::before,
+#cadenceRangeSlider .noUi-handle::after {
+  background: #2e7d32;
+}

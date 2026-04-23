@@ -204,6 +204,7 @@
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
   <script src='https://cdn.plot.ly/plotly-2.32.0.min.js'></script>
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <link rel="stylesheet" href="style.css"/>
@@ -283,7 +284,7 @@
   <div class="container py-4">
 
     <!-- Top row: Transmission + Wheels & Tires -->
-    <div class="row g-3 mb-4">
+    <div class="row g-2">
 
       <!-- Transmission card -->
       <div class="col-md-8">
@@ -372,9 +373,9 @@
 
     </div> <!-- top row -->
 
-    <div class="row g-3">
+    <div class="row g-2 mt-2">
       <!-- Column 1: Bike Info -->
-      <div class="col-md-4 mb-3">
+      <div class="col-md-4">
         <div class="card">
           <div class="card-header fw-semibold">🚴 System Mass: <span id="totalMassValue">84.0</span> kg</div>
           <div class="card-body">
@@ -399,7 +400,7 @@
           </div> <!-- card-body -->
         </div> <!--card -->
 
-        <div class="card mt-3">
+        <div class="card mt-2">
           <div class="card-header fw-semibold">⚙️ Parameters</div>
           <div class="card-body">
             <div class="mb-3">
@@ -415,6 +416,7 @@
               </label>
               <input type="range" class="form-range" min="2" max="6" value="3" step=0.5 id="drivetrainLossSlider">
               <span class="slider-label-desc" id="drivetrainLossHint"></span>
+              <div id="cogFrictionNote" class="slider-label-desc mt-1" style="display:none;"></div>
             </div>
           </div> <!-- card-body -->
         </div> <!-- card -->
@@ -422,7 +424,7 @@
       </div><!-- col -->
 
       <!-- Column 2: Terrain Info -->
-      <div class="col-md-4 mb-3 text-center">
+      <div class="col-md-4 text-center">
         <div class="card">
           <div class="card-header fw-semibold">🏔️ Terrain Gradient: <span id="gradeLabel">+10.0</span> %</div>
           <div class="card-body">
@@ -435,7 +437,7 @@
           </div> <!-- Card Body -->
         </div>
 
-        <div class="card mt-3">
+        <div class="card mt-2">
           <div class="card-header fw-semibold">⚡ Resistances</div>
           <div class="card-body">
             <div id='aeroDominanceNote' class="small mb-1 text-center text-secondary"></div>
@@ -445,7 +447,7 @@
       </div>
 
       <!-- Column 3: Rider Ouput -->
-      <div class="col-md-4 mb-3 text-center">
+      <div class="col-md-4 text-center">
         <div class="card">
           <div class="card-header fw-semibold">🚀 Rider Output: <span id="wpkValue">3.0</span> W/kg</div>
           <div class="card-body">
@@ -461,13 +463,32 @@
         </div>
 
         <!-- Omni Power Duration Model -->
-        <div class="card mt-3">
+        <div class="card mt-2">
         <div class="card-header fw-semibold">⏱️ Omni Power Duration <span class="badge bg-secondary fw-normal" style="font-size:0.65rem">Beta</span></div>
         <div class="card-body">
           <label>Sustainable for: <span id="sustainableValue">N/A</span></label>
         </div>
       </div>
 
+      </div>
+    </div>
+
+    <!-- Speed by Gear -->
+    <div class="row g-2 mt-2">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header fw-semibold">
+            ⚡ Speed by Gear
+            <span class="text-secondary fw-normal small ms-2">using <span id="sbgFTP">210</span> W · <span id="sbgChainring">50</span>t chainring</span>
+          </div>
+          <div class="card-body">
+            <div id="speedByGearDiv" style="height:300px"></div>
+            <div class="mt-3 px-1">
+              <label class="form-label small mb-2">Preferred cadence range: <strong id="cadenceRangeLabel">75–85 rpm</strong></label>
+              <div id="cadenceRangeSlider" style="margin: 0 8px"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -841,10 +862,11 @@
     ];
 
     const DT_LOSS_THRESHOLDS = [
-      [3, 'Typical 2× setup'],
-      [3.5, 'Typical 1× MTB setup'],
-      [5, 'Dirty or worn drivetrain'],
-      [Infinity, 'Severely worn / muddy conditions'],
+      [2.5, 'Single-speed track bike'],
+      [3,   'Typical 2× road — clean, lubed chain'],
+      [3.5, 'Typical 1× — clean chain'],
+      [5,   'Dirty or worn drivetrain'],
+      [Infinity, 'Heavily worn / muddy conditions'],
     ];
 
     function update_mass() {
@@ -909,6 +931,15 @@
       return whp / (1-(loss_pp/100));
     }
 
+    // Chain articulation friction by cog size.
+    // FrictionFacts (J. Smith) measured ~2.5 W swing from 21T→11T at 250 W on a big ring
+    // (articulation-only; cross-chain excluded). Fixed at 250 W test condition.
+    // Source: rappstar.com/2020/11/29/1x-friction-profiles/
+    function articulationFriction(cog_teeth, power_w = 250) {
+      if (cog_teeth >= 21) return 0;
+      return 2.5 * (1/cog_teeth - 1/21) / (1/11 - 1/21) * (power_w / 250);
+    }
+
     let power_wheel = 200;
     let power_legs = 210;
     let power_brakes = 0;
@@ -916,13 +947,16 @@
     let rolling_w = 0;
     let drag_w = 0;
     let grade = 10;
+    let cog_friction_w = 0;
 
     function update_power() {
       const raw_p_wheel = p_wheel(grade, total_mass, crr, cda, velocity);
       power_gradient = gravity * (velocity / 3.6);
       power_brakes   = Math.max(0, -raw_p_wheel);
       power_wheel    = Math.max(0, raw_p_wheel);
-      power_legs     = power_wheel > 0 ? p_legs(power_wheel, dt_loss) : 0;
+      const cog_n    = parseInt(cassetteSlider.value);
+      cog_friction_w = articulationFriction(cog_n);
+      power_legs     = power_wheel > 0 ? power_wheel / (1 - dt_loss/100) + cog_friction_w : 0;
       rolling_w      = Math.max(0, rolling * velocity / 3.6);
       drag_w         = Math.max(0, drag    * velocity / 3.6);
     }
@@ -1066,6 +1100,9 @@ function update_gauges(cadence) {
       } else {
         terrainEl.textContent = '';
       }
+
+      history.replaceState(null, '', buildShareURL());
+      if (typeof updateSpeedByGearChart === 'function') updateSpeedByGearChart();
 }
 
 $(function () {
@@ -1298,6 +1335,12 @@ $(function () {
       "Gradient":       "#dc3545",  // red
       "Brakes":         "#ffc107",  // yellow
     };
+
+    const BAR_COLORS = {
+      optimal: '#2e7d32',  // cadence in preferred range
+      tooHard: '#bdbdbd',  // below min cadence
+      tooEasy: '#90caf9',  // above max cadence
+    };
     function sankeyNode(labels) {
       return { label: labels, color: labels.map(l => SANKEY_COLORS[l]), align: "right" };
     }
@@ -1371,6 +1414,14 @@ $(function () {
         el.textContent = `${pct}% (${Math.round(dominant.w)} W) is due to ${dominant.label}`;
       } else {
         el.textContent = '';
+      }
+
+      const cfNote = document.getElementById('cogFrictionNote');
+      if (cog_friction_w > 0.1) {
+        cfNote.style.display = '';
+        cfNote.textContent = `⛓️ +${cog_friction_w.toFixed(1)} W cog articulation penalty`;
+      } else {
+        cfNote.style.display = 'none';
       }
     }
 
@@ -1596,6 +1647,103 @@ $(function () {
       navList.classList.toggle('open');
       this.setAttribute('aria-expanded', String(!expanded));
     });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+  <script>
+    // ── Speed by Gear chart ──────────────────────────────────────────────
+
+    let cadenceRangeValues = [75, 85]; // default start; slider range is 60–100
+
+    function solveEquilibriumSpeed(power_w, cog_teeth = 99) {
+      const g = 9.81, rho = 1.225;
+      const angle = Math.atan(grade / 100);
+      const art_loss = articulationFriction(cog_teeth);
+      const net_p = (power_w - art_loss) * (1 - dt_loss / 100);
+      const Frr = crr * total_mass * g * Math.cos(angle);
+      const Fg  = total_mass * g * Math.sin(angle);
+      const k   = 0.5 * rho * cda;
+      if (net_p <= (Frr + Fg) * 0.001) return 0;
+      let lo = 0, hi = 30;
+      for (let i = 0; i < 60; i++) {
+        const mid = (lo + hi) / 2;
+        ((Frr + Fg + k * mid * mid) * mid < net_p) ? lo = mid : hi = mid;
+      }
+      return Math.max(0, (lo + hi) / 2);
+    }
+
+    function updateSpeedByGearChart() {
+      const chainring = parseInt(cranksetSlider.value);
+      const w_m = w_circumference / 1000;
+      const v_eq = solveEquilibriumSpeed(ftp);
+      const [minRpm, maxRpm] = cadenceRangeValues;
+
+      const xs = [], ys = [], colors = [], cdata = [];
+
+      for (let N = 9; N <= 52; N++) {
+        const dev         = chainring * w_m / N;
+        const v_max_cad   = dev * maxRpm / 60;
+        const bar_v       = Math.min(v_max_cad, solveEquilibriumSpeed(ftp, N));
+        const cad_at_veq  = v_eq > 0 ? v_eq / dev * 60 : 0;
+        const cad_at_bar  = bar_v / dev * 60;
+
+        xs.push(N);
+        ys.push(parseFloat((bar_v * 3.6).toFixed(1)));
+        cdata.push([Math.round(cad_at_bar), Math.round(cad_at_veq)]);
+
+        if (cad_at_veq >= minRpm && cad_at_veq <= maxRpm) {
+          colors.push(BAR_COLORS.optimal);
+        } else if (cad_at_veq < minRpm) {
+          colors.push(BAR_COLORS.tooHard);
+        } else {
+          colors.push(BAR_COLORS.tooEasy);
+        }
+      }
+
+      const veqKmh = (v_eq * 3.6).toFixed(1);
+
+      Plotly.react('speedByGearDiv', [{
+        x: xs, y: ys, type: 'bar',
+        marker: { color: colors },
+        customdata: cdata,
+        hovertemplate: '<b>%{x}t</b> — %{y} km/h<br>cadence: %{customdata[0]} rpm<extra></extra>',
+      }], {
+        xaxis: { title: { text: 'Cog (teeth)', standoff: 6 }, dtick: 3, fixedrange: true },
+        yaxis: { title: 'km/h', fixedrange: true },
+        shapes: [{ type: 'line', x0: 8.5, x1: 52.5, y0: v_eq * 3.6, y1: v_eq * 3.6,
+                   line: { color: '#555', width: 1.5, dash: 'dot' } }],
+        annotations: [{ x: 52, y: v_eq * 3.6, xanchor: 'right', yanchor: 'bottom',
+                        text: `${veqKmh} km/h @ FTP`, showarrow: false,
+                        font: { size: 11, color: '#555' } }],
+        margin: { t: 16, r: 16, b: 48, l: 48 },
+        bargap: 0.1,
+        plot_bgcolor: 'transparent',
+        paper_bgcolor: 'transparent',
+      }, { responsive: true, displayModeBar: false });
+
+      document.getElementById('sbgFTP').textContent = ftp;
+      document.getElementById('sbgChainring').textContent = chainring;
+    }
+
+    // noUiSlider init (runs after DOM is ready — script is at bottom of body)
+    (function () {
+      const el = document.getElementById('cadenceRangeSlider');
+      noUiSlider.create(el, {
+        start: [75, 85],
+        connect: true,
+        range: { min: 60, max: 100 },
+        step: 1,
+      });
+      el.noUiSlider.on('update', function (values) {
+        cadenceRangeValues = values.map(Number);
+        const [mn, mx] = cadenceRangeValues.map(Math.round);
+        document.getElementById('cadenceRangeLabel').textContent = `${mn}–${mx} rpm`;
+        updateSpeedByGearChart();
+      });
+      // Explicit initial render — the update event fires before the listener is
+      // registered, so the first call must be triggered manually.
+      updateSpeedByGearChart();
+    })();
   </script>
 
 </body>

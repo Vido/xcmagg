@@ -572,7 +572,7 @@
   <!-- H1 + FAQ Section -->
   <section class="container pb-2" id="waterChartCard" style="display:none">
     <div class="card mb-4">
-      <div class="card-header fw-semibold">💧 Water Depletion Over Time</div>
+      <div class="card-header fw-semibold">💧 Water Depletion</div>
       <div class="card-body">
         <canvas id="waterChart" height="180"></canvas>
         <p class="text-muted small mb-0 mt-2">Starts at your carried water (bottles + pack). Drops at sweat rate. Solid line = current temperature. Sweat rate model: Sawka et al. (ACSM 2007).</p>
@@ -1404,8 +1404,8 @@
           label: pct + '%',
           data,
           borderColor: isActive ? COLORS[idx] : COLORS[idx] + '55',
-          backgroundColor: isActive ? COLORS[idx] + '22' : 'transparent',
-          fill: isActive,
+          backgroundColor: 'transparent',
+          fill: false,
           borderWidth: isActive ? 3 : 1.5,
           tension: 0.3,
           pointRadius: 0,
@@ -1494,16 +1494,19 @@
         return t % 1 === 0 ? t + 'h' : '';
       });
 
+      const activeIdx = TEMPS.reduce((best, t, i) =>
+        Math.abs(t - r.temp) < Math.abs(TEMPS[best] - r.temp) ? i : best, 0);
+
       const datasets = TEMPS.map((temp, idx) => {
-        const sweat      = calcSweatRate(r.zone, temp, r.weight);
-        const isCurrent  = Math.abs(temp - r.temp) < 6;
+        const sweat    = calcSweatRate(r.zone, temp, r.weight);
+        const isActive = idx === activeIdx;
         return {
           label: temp + '°C',
           data: Array.from({ length: points }, (_, i) =>
             +( initial - sweat * i * step ).toFixed(3)
           ),
-          borderColor: COLORS[idx],
-          borderWidth: isCurrent ? 2.5 : 1.5,
+          borderColor: isActive ? COLORS[idx] : COLORS[idx] + '55',
+          borderWidth: isActive ? 3 : 1.5,
           borderDash: [],
           pointRadius: 0,
           tension: 0,
@@ -1762,11 +1765,13 @@
           </div>
           ${recipeHtml ? recipeHtml : ''}`;
       }
+
+      history.replaceState(null, '', buildURL());
     }
 
     // ── Share ────────────────────────────────────────────────────────
 
-    function share() {
+    function buildURL() {
       const r = calculate();
       const p = new URLSearchParams({
         duration: r.duration, carbs: r.carbsph, weight: r.weight,
@@ -1775,8 +1780,12 @@
         ftp: r.ftp, ftpPct: r.ftpPct, glycogen: r.glycogen_g,
         mode: planMode
       });
-      const url = location.origin + location.pathname + '?' + p.toString();
-      const btns = [document.getElementById('shareBtn'), document.getElementById('shareBtn2')];
+      return location.origin + location.pathname + '?' + p.toString();
+    }
+
+    function share() {
+      const url = buildURL();
+      const btns = [document.getElementById('shareBtn2')].filter(Boolean);
       const confirm = () => {
         btns.forEach(b => { b.textContent = '✅ Copied!'; });
         setTimeout(() => btns.forEach(b => { b.textContent = '🔗 Share'; }), 1500);
