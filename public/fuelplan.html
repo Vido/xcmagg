@@ -575,7 +575,7 @@
       <div class="card-header fw-semibold">💧 Water Depletion</div>
       <div class="card-body">
         <canvas id="waterChart" height="180"></canvas>
-        <p class="text-muted small mb-0 mt-2">Starts at your carried water (bottles + pack). Drops at sweat rate. Solid line = current temperature. Sweat rate model: Sawka et al. (ACSM 2007).</p>
+        <p class="text-muted small mb-0 mt-2">Starts at your carried water (bottles + pack). Drops at sweat rate based on temperature. Bold line = current temperature. Sweat rate model: Sawka et al. (ACSM 2007).</p>
       </div>
     </div>
   </section>
@@ -1097,10 +1097,11 @@
 
     // ── Nutrition Plan ───────────────────────────────────────────────
 
-    let planMode = 'peba';
+    let planMode = localStorage.getItem('fuelplan.mode') || 'galatico';
 
     function setMode(mode) {
       planMode = mode;
+      localStorage.setItem('fuelplan.mode', mode);
       document.getElementById('btnPeba').className     = mode === 'peba'     ? 'btn btn-primary' : 'btn btn-outline-primary';
       document.getElementById('btnBruto').className    = mode === 'bruto'    ? 'btn btn-primary' : 'btn btn-outline-primary';
       document.getElementById('btnGalatico').className = mode === 'galatico' ? 'btn btn-primary' : 'btn btn-outline-primary';
@@ -1766,13 +1767,12 @@
           ${recipeHtml ? recipeHtml : ''}`;
       }
 
-      history.replaceState(null, '', buildURL());
+      history.replaceState(null, '', buildURL(r));
     }
 
     // ── Share ────────────────────────────────────────────────────────
 
-    function buildURL() {
-      const r = calculate();
+    function buildURL(r) {
       const p = new URLSearchParams({
         duration: r.duration, carbs: r.carbsph, weight: r.weight,
         temp: r.temp, bottles: r.bottles_ml, pack: r.pack_ml, saltiness: r.saltiness,

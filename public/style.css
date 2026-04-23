@@ -6,6 +6,26 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 	overflow-x: hidden;
+	scrollbar-width: auto;
+	scrollbar-color: #888 #f1f1f1;
+}
+
+/* Scrollbar styling for Chromium browsers */
+body::-webkit-scrollbar {
+	width: 12px;
+}
+
+body::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+body::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 6px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+	background: #555;
 }
 
 nav a {

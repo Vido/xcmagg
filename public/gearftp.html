@@ -1138,6 +1138,7 @@ $(function () {
     const cassetteValue = document.getElementById('cassetteValue');
     const cranksetValue = document.getElementById('cranksetValue');
     const wheelValue = document.getElementById('wheelValue');
+    const cogFrictionNote = document.getElementById('cogFrictionNote');
 
     // Scaling: 51t = 220mm diameter => radius = 110mm
     // So 1t = 220 / 51 = ~4.31 mm diameter => ~2.15 mm radius
@@ -1416,12 +1417,11 @@ $(function () {
         el.textContent = '';
       }
 
-      const cfNote = document.getElementById('cogFrictionNote');
       if (cog_friction_w > 0.1) {
-        cfNote.style.display = '';
-        cfNote.textContent = `⛓️ +${cog_friction_w.toFixed(1)} W cog articulation penalty`;
+        cogFrictionNote.style.display = '';
+        cogFrictionNote.textContent = `⛓️ +${cog_friction_w.toFixed(1)} W cog articulation penalty`;
       } else {
-        cfNote.style.display = 'none';
+        cogFrictionNote.style.display = 'none';
       }
     }
 
@@ -1572,6 +1572,8 @@ $(function () {
         dtl: document.getElementById('drivetrainLossSlider').value,
         cad: document.getElementById('cadence-slider').value,
         ftp: document.getElementById('ftp-slider').value,
+        sbgMin: cadenceRangeValues[0],
+        sbgMax: cadenceRangeValues[1],
       });
       return `${location.origin}${location.pathname}?${params.toString()}`;
     }
@@ -1622,6 +1624,11 @@ $(function () {
         ftp = parseInt(p.get('ftp'));
         document.getElementById('ftp-slider').value = ftp;
         document.getElementById('ftp-handle').textContent = ftp + ' W';
+      }
+
+      // Speed by Gear: cadence range
+      if (p.has('sbgMin') && p.has('sbgMax')) {
+        cadenceRangeValues = [parseInt(p.get('sbgMin')), parseInt(p.get('sbgMax'))];
       }
 
       // Fire input events on range sliders to update display labels and global vars

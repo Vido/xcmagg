@@ -53,7 +53,7 @@ class CorridaPronta(Crawler, Extractor):
         import time
         time.sleep(crawl_delay)
         cf_method = cf_requests.post if method_f.__name__ == 'post' else cf_requests.get
-        kwargs = {'impersonate': 'chrome'}
+        kwargs = {'impersonate': 'chrome', 'timeout': 60}
         if params:
             kwargs['params'] = params
         if payload:
