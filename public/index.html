@@ -136,7 +136,9 @@
 
 			function applyFilters() {
 				const q = searchQuery.toLowerCase();
+				const today = new Date(); today.setHours(0,0,0,0);
 				filtered = allEvents.filter(item => {
+					if (parseEuDate(item.start_date) < today) return false;
 					if (q && !(item.title || '').toLowerCase().includes(q) &&
 						!(item.city || '').toLowerCase().includes(q) &&
 						!(item.uf || '').toLowerCase().includes(q)) return false;
