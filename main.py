@@ -22,6 +22,7 @@ crawlers = [
     InscricoesBike(),
     Nuflow(),
     Atletis(),
+    SampaBikers(),
     DrMtbRace(),
     DrExtremo(),
     Polesportivo(),

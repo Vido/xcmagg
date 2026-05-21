@@ -681,6 +681,57 @@ class Fmc(Crawler, Extractor):
         return events_acc
 
 
+class SampaBikers(Crawler, Extractor):
+    URL = 'https://www.sampabikers.com.br/competicao/'
+    REPO = Path('sampabikers.com.br')
+    META = {
+        'Category': 'Organizador',
+        'Tags': ['MTB', 'Gravel', 'SP'],
+        'DDD': '11',
+    }
+
+    def _event_info(self, soup, label):
+        for li in soup.select('ul.c-event-info li'):
+            h3 = li.find('h3')
+            if h3 and label in h3.get_text():
+                p = li.find('p')
+                return ' '.join(p.get_text(' ', strip=True).split()) if p else ''
+        return ''
+
+    def title(self, soup) -> str:
+        tag = soup.find('h2', class_='c-single__title')
+        return tag.get_text(strip=True) if tag else ''
+
+    def date(self, soup) -> str:
+        return self._event_info(soup, 'Data:')
+
+    def local(self, soup) -> str:
+        return self._event_info(soup, 'Local:')
+
+    def url(self, soup) -> str:
+        return self._current_event_url
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL, suffix='competicao.html')
+        articles = soup.find_all('article', class_='c-card-wrapper')
+
+        hrefs = []
+        for art in articles:
+            a = art.find('h2', class_='c-card__title').find('a')
+            hrefs.append(a['href'])
+
+        events_acc = []
+        for href in hrefs:
+            slug = href.rstrip('/').split('/')[-1]
+            self._current_event_url = href
+            efp, event_soup = self.get_html(href, suffix=f'{slug}.html')
+            try:
+                events_acc.append(self.parse(event_soup, efp))
+            except Exception as e:
+                print(f'Skipping {href}: {e}')
+        return events_acc
+
+
 class FpcParana(Crawler, Extractor):
     URL = 'https://fpcparana.com.br/eventos/'
     REPO = Path('fpcparana.com.br')
