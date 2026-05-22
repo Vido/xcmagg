@@ -13,3 +13,4 @@ sed "s|fetch('data.jsonl')|fetch('https://racefeed.com.br/data.jsonl')|" public/
 scp /tmp/index_prod.html root@164.92.148.125:/var/www/xcmagg/index.html
 rm /tmp/index_prod.html
 
+
