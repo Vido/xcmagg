@@ -409,7 +409,15 @@
       const plotW = VW - LEFT - RIGHT;
       const xOf = v => LEFT + (v - axMin) / (axMax - axMin) * plotW;
 
+      const chartH = TOP + totalRows * ROW_H;
       let svg = `<svg viewBox="0 0 ${VW} ${VH}" width="100%" style="overflow:visible;font-family:system-ui,sans-serif">`;
+
+      // background grid
+      niceTicks(axMin, axMax, 9).forEach(t => {
+        const x = xOf(t);
+        if (x < LEFT - 2 || x > LEFT + plotW + 2) return;
+        svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${chartH}" stroke="#e8e8e8" stroke-width="1"/>`;
+      });
 
       let rowIdx = 0;
       for (const s of setups) {

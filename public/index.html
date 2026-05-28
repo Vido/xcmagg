@@ -229,6 +229,29 @@
 					displayed >= filtered.length ? 'none' : 'block';
 			}
 
+			function readUrlParams() {
+				const p = new URLSearchParams(window.location.search);
+				if (p.has('sport')) {
+					sportFilter = p.get('sport');
+					const sel = document.getElementById('sportSelect');
+					if ([...sel.options].some(o => o.value === sportFilter)) {
+						sel.value = sportFilter;
+					}
+				}
+				if (p.has('q')) {
+					searchQuery = p.get('q');
+					document.getElementById('searchInput').value = searchQuery;
+				}
+			}
+
+			function updateUrl() {
+				const p = new URLSearchParams();
+				if (sportFilter) p.set('sport', sportFilter);
+				if (searchQuery) p.set('q', searchQuery);
+				const qs = p.toString();
+				history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
+			}
+
 			// Fetch and initialize
 			fetch('data.jsonl')
 				.then(r => r.text())
@@ -242,12 +265,14 @@
 						opt.textContent = s;
 						sel.appendChild(opt);
 					});
+					readUrlParams();
 					applyFilters();
 				})
 				.catch(err => console.error('Erro:', err));
 
 			document.getElementById('searchInput').addEventListener('input', function() {
 				searchQuery = this.value.trim();
+				updateUrl();
 				applyFilters();
 			});
 
@@ -255,6 +280,7 @@
 			document.getElementById('sortSelect').addEventListener('change', applyFilters);
 			document.getElementById('sportSelect').addEventListener('change', function() {
 				sportFilter = this.value;
+				updateUrl();
 				applyFilters();
 			});
 
