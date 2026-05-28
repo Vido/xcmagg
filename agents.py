@@ -37,7 +37,8 @@ parse_location_tool = {
 }
 
 
-def normalize_location(location_raw: str, model: str = "gpt-4.1-mini"):
+def normalize_location(location_raw: str, model: str = "gpt-4.1-mini", geo_hints: str = None):
+    content = f'{location_raw}\n{geo_hints}' if geo_hints else location_raw
     response = client.chat.completions.create(
         model=model,
         max_tokens=40,
@@ -49,14 +50,16 @@ def normalize_location(location_raw: str, model: str = "gpt-4.1-mini"):
                     "Rules:\n"
                     "- Event name → all null\n"
                     "- Place/venue → fill address\n"
-                    "- Always infer uf from city (Brazil)\n"
-                    "- If unsure city/uf → confidence=low\n"
+                    "- City known → always infer uf\n"
+                    "- Unsure city/uf → confidence=low\n"
                     "- ALL CAPS → Title Case\n"
                     "- all lowercase → Title Case\n"
+                    "- Missing accents → restore (Divinopolis→Divinópolis, Santo Andre→Santo André, Brasilia→Brasília, Goiania→Goiânia)\n"
+                    "- Geo candidates provided → prefer highest-score match if consistent\n"
                     "- Unknown → null"
                 ),
             },
-            {"role": "user", "content": location_raw},
+            {"role": "user", "content": content},
         ],
         tools=[parse_location_tool],
         tool_choice={"type": "function", "function": {"name": "parse_location"}},
@@ -104,6 +107,10 @@ SPORTS = {
     # Cross Duathlon
     'Cross Duathlon':       'Cross Duathlon',
     'X-Duathlon':           'Cross Duathlon',
+    # Audax / Randonneuring
+    'Audax':                'Audax',
+    'Randonneuring':        'Audax',
+    'Brevet':               'Audax',
 }
 
 _CANONICAL_SPORTS = Enum('Sport', {v: v for v in dict.fromkeys(SPORTS.values())})

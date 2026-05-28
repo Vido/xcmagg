@@ -31,7 +31,7 @@ class GoldLayer:
                         e.sport
                     FROM schema_events e
                     LEFT JOIN geo g
-                        ON LOWER(TRIM(e.location->>'city')) = LOWER(TRIM(g.nome))
+                        ON strip_accents(LOWER(TRIM(e.location->>'city'))) = strip_accents(LOWER(TRIM(g.nome)))
                         AND UPPER(TRIM(e.location->>'uf')) = UPPER(TRIM(g.uf))
                     WHERE TRY_CAST(e.date_range->>'start_date' AS DATE) > CURRENT_DATE
                 ) TO '{ output_file }' (FORMAT JSON, ARRAY false);

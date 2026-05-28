@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 from pathlib import Path
@@ -105,13 +106,18 @@ class SilverLayer:
 
 class Parser:
 
+    _UF_RE = re.compile(r'([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ ]{1,}?)\s*[-/]\s*([A-Z]{2})\b')
+    _GEO_THRESHOLD = 0.92
+    _GEO_RAG_THRESHOLD = 0.70
+
     def __init__(self):
+        from db import Persistence
+        self._conn = Persistence().CONN
         self._location_cache = self._load_location_cache()
 
     def _load_location_cache(self) -> dict:
         try:
-            from db import Persistence
-            rows = Persistence().CONN.execute("""
+            rows = self._conn.execute("""
                 SELECT location->>'location_raw', location
                 FROM schema_events
                 WHERE location->>'confidence' IN ('medium', 'high')
@@ -119,6 +125,21 @@ class Parser:
             return {row[0]: json.loads(row[1]) for row in rows if row[0]}
         except Exception:
             return {}
+
+    def _geo_candidates(self, local: str) -> list:
+        """Return top-3 geo candidates when UF extractable from local."""
+        m = self._UF_RE.search(local)
+        if not m:
+            return []
+        city_raw, uf = m.group(1).strip(), m.group(2).upper()
+        rows = self._conn.execute("""
+            SELECT nome, uf,
+                jaro_winkler_similarity(strip_accents(LOWER(?)), strip_accents(LOWER(nome))) AS score
+            FROM geo
+            WHERE UPPER(uf) = ?
+            ORDER BY score DESC LIMIT 3
+        """, [city_raw, uf]).fetchall()
+        return [(r[0], r[1], r[2]) for r in rows if r[2] >= self._GEO_RAG_THRESHOLD]
 
     def title(self, raw_event) -> str:
         return raw_event.title
@@ -147,8 +168,24 @@ class Parser:
         if llm_input in self._location_cache:
             return Location(**self._location_cache[llm_input])
 
-        # Level 1: nano — cheap, fast
-        llm_parsed = normalize_location(llm_input)
+        candidates = self._geo_candidates(raw_event.local)
+
+        # Fast path: top candidate above threshold → skip LLM
+        if candidates and candidates[0][2] >= self._GEO_THRESHOLD:
+            geo = {'city': candidates[0][0], 'uf': candidates[0][1],
+                   'address': None, 'confidence': 'high', 'location_raw': llm_input}
+            self._location_cache[llm_input] = geo
+            return Location(**geo)
+
+        # RAG path: pass candidates as hints to LLM
+        geo_hints = None
+        if candidates:
+            geo_hints = 'Geo candidates: ' + ', '.join(
+                f'{c[0]} ({c[1]}, score={c[2]:.2f})' for c in candidates
+            )
+
+        # Level 1: LLM with optional geo context
+        llm_parsed = normalize_location(llm_input, geo_hints=geo_hints)
 
         # Level 2: mini — smarter, still no search
         #if not llm_parsed.get('city'):
