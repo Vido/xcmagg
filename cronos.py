@@ -732,6 +732,126 @@ class SampaBikers(Crawler, Extractor):
         return events_acc
 
 
+class KalangasBikers(Crawler, Extractor):
+    URL = 'https://www.kalangasbikers.com.br/'
+    REPO = Path('kalangasbikers.com.br')
+    META = {
+        'Category': 'Organizador',
+        'Tags': ['MTB', 'SP'],
+        'DDD': '11',
+    }
+
+    def _raw(self, soup) -> str:
+        return soup.find('a', class_='moduleItemTitle').get_text(strip=True)
+
+    def title(self, soup) -> str:
+        raw = re.sub(r'^\d{1,2}/\d{2}\s+', '', self._raw(soup))
+        return raw.rsplit(' / ', 1)[0].strip() if ' / ' in raw else raw
+
+    def date(self, soup) -> str:
+        raw = self._raw(soup)
+        m = re.match(r'^(\d{1,2}/\d{2})', raw)
+        if not m:
+            return ''
+        year_m = re.search(r'\b(20\d{2})\b', raw)
+        year = year_m.group(1) if year_m else str(date.today().year)
+        return f'{m.group(1)}/{year}'
+
+    def local(self, soup) -> str:
+        raw = self._raw(soup)
+        return raw.rsplit(' / ', 1)[1].strip() if ' / ' in raw else ''
+
+    def url(self, soup) -> str:
+        return urljoin(self.URL, soup.find('a', class_='moduleItemTitle')['href'])
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL, suffix='home.html')
+        events_acc = []
+        for slide in soup.find_all('div', class_='slide'):
+            if slide.find('a', class_='moduleItemTitle'):
+                try:
+                    events_acc.append(self.parse(slide, fp))
+                except Exception as e:
+                    print(f'Skipping slide: {e}')
+        return events_acc
+
+
+class DesafioNatureza(_DesafioRuralBase):
+    URL = 'https://inscricoes.desafionatureza.com.br/'
+    REPO = Path('inscricoes.desafionatureza.com.br')
+    META = {
+        'Category': 'Organizador',
+        'Tags': ['MTB', 'SP', 'MG'],
+        'DDD': '12',
+    }
+
+
+class RandonneursBrasil(Crawler, Extractor):
+    URL = 'https://pwa.randonneursbrasil.org/'
+    API_URL = 'https://api-pwa.randonneursbrasil.org/appapi/calendarios'
+    REPO = Path('randonneursbrasil.org')
+    META = {
+        'Category': 'Audax',
+    }
+
+    @staticmethod
+    def _call(method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        import time
+        time.sleep(crawl_delay)
+        import requests as _req
+        kwargs = {
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Origin': 'https://pwa.randonneursbrasil.org',
+                'Referer': 'https://pwa.randonneursbrasil.org/',
+                'Accept': 'application/json, text/plain, */*',
+            },
+        }
+        if params:
+            kwargs['params'] = params
+        return _req.get(endpoint, **kwargs)
+
+    def title(self, data) -> str:
+        return data['modalidade']
+
+    def date(self, data) -> str:
+        return data['data']
+
+    def local(self, data) -> str:
+        cidade = data.get('_cidade', '')
+        estado = data.get('_estado', '')
+        if cidade and estado:
+            return f'{cidade} - {estado}'
+        if estado:
+            return estado
+        return data['clube']
+
+    def url(self, data) -> str:
+        return f'https://pwa.randonneursbrasil.org/calendario/{data["id"]}'
+
+    def sport(self, data) -> str:
+        return 'Audax'
+
+    def _club_lookup(self) -> dict:
+        CLUBS_API = 'https://api-pwa.randonneursbrasil.org/appapi/clubes'
+        _, clubs = self.get_json(CLUBS_API, suffix='clubes.json')
+        return {c['clube']: c for c in clubs}
+
+    def trigger(self):
+        clubs = self._club_lookup()
+        fp, data = self.get_json(self.API_URL, suffix='calendarios.json')
+        events = []
+        for group in data:
+            for row in group['calendario']:
+                if row.get('cancelado', 0) != 0:
+                    continue
+                club_info = clubs.get(row['clube'], {})
+                row['_cidade'] = club_info.get('cidade', '').title()
+                row['_estado'] = club_info.get('estado', '')
+                events.append(self.parse(row, fp))
+        return events
+
+
 class FpcParana(Crawler, Extractor):
     URL = 'https://fpcparana.com.br/eventos/'
     REPO = Path('fpcparana.com.br')

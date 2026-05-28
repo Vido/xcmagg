@@ -23,9 +23,12 @@ crawlers = [
     Nuflow(),
     Atletis(),
     SampaBikers(),
+    KalangasBikers(),
+    DesafioNatureza(),
     DrMtbRace(),
     DrExtremo(),
     Polesportivo(),
+    RandonneursBrasil(),
     # FPCiclismo(), # 503
     # Fmc(), # No links
     # FpcParana(), # WIP
