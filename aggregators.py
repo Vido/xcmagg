@@ -184,7 +184,9 @@ class TicketSportsAPI(Crawler, Extractor):
         return data['UF'] + ' / ' + data['Cidade']
 
     def url(self, data) -> str:
-        return urljoin(self.URL, f'e/{data["TituloUrl"]}-{data["IdEvento"]}')
+        from urllib.parse import unquote_plus
+        title_slug = unquote_plus(data["TituloUrl"]).replace(' ', '-').lower()
+        return urljoin(self.URL, f'e/{title_slug}-{data["IdEvento"]}')
 
     def trigger(self):
 

@@ -299,10 +299,14 @@ class Peloto(Crawler, Extractor):
         fp, soup = self.get_html(self.URL, suffix='home.html')
         div = soup.find_all('div', 'prox-eventos')
 
-        href_list = []
+        seen_ids, href_list = set(), []
         for d in div:
             href = d.find('a').get('href')
-            href_list.append(href)
+            event_id = re.search(r'[?&]e[v]?=(\d+)', href)
+            eid = event_id.group(1) if event_id else href
+            if eid not in seen_ids:
+                seen_ids.add(eid)
+                href_list.append(href)
 
         events_acc = []
         for href in href_list:
