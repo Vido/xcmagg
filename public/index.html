@@ -56,28 +56,30 @@
 		</nav>
 
 		<main role="main" class="content">
-			<h1 class="pt-2 text-center">Calendário de eventos e provas:</h1>
-			<p class="lead mb-1">Ative a localização para obter as distâncias</p>
-			<div class="filter-bar">
-				<button id="nearMeBtn" class="btn btn-outline-success btn-sm">📍 Perto de mim</button>
-				<input type="search" id="searchInput" class="search-input" placeholder="Buscar evento ou cidade...">
-				<select id="sportSelect" class="form-select form-select-sm" style="width:auto">
-					<option value="">Todas as modalidades</option>
-				</select>
-				<select id="sortSelect" class="form-select form-select-sm" style="width:auto">
-					<option value="date">Data</option>
-					<option value="distance">Distância</option>
-				</select>
-			</div>
+			<h1 class="pt-2">Calendário de eventos e provas:</h1>
+			<div class="page-layout">
+				<aside class="sidebar">
+					<p class="lead mb-1">Ative a localização para obter as distâncias</p>
+					<button id="nearMeBtn" class="btn btn-outline-success btn-sm w-100">📍 Perto de mim</button>
+					<select id="sortSelect" class="form-select form-select-sm">
+						<option value="date">Data</option>
+						<option value="distance">Distância</option>
+					</select>
+					<select id="sportSelect" class="form-select form-select-sm">
+						<option value="">Todas modalidades</option>
+					</select>
+					<input type="search" id="searchInput" class="search-input" placeholder="Buscar evento ou cidade...">
+					<div class="event-count-bar">
+						<span id="event-count"></span>
+					</div>
+				</aside>
 
-			<div class="event-count-bar">
-				<span id="event-count"></span>
-			</div>
-
-			<div id="event-list"></div>
-
-			<div class="text-center mt-3 mb-4">
-				<button id="load-more-btn" class="btn btn-outline-secondary" style="display:none">Carregar mais</button>
+				<div class="main-col">
+					<div id="event-list"></div>
+					<div class="text-center mt-3 mb-4">
+						<button id="load-more-btn" class="btn btn-outline-secondary" style="display:none">Carregar mais</button>
+					</div>
+				</div>
 			</div>
 
 			<div class="row justify-content-center">
@@ -281,15 +283,52 @@
 			});
 
 			document.getElementById('load-more-btn').addEventListener('click', renderBatch);
-			document.getElementById('sortSelect').addEventListener('change', applyFilters);
+
+			// Near me
+			const nearMeBtn = document.getElementById('nearMeBtn');
+
+			function requestLocation(onSuccess, onDeny, activateFilter = true) {
+				nearMeBtn.innerHTML = '📍 Buscando... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+				nearMeBtn.disabled = true;
+				navigator.geolocation.getCurrentPosition(
+					pos => {
+						userLat = pos.coords.latitude;
+						userLon = pos.coords.longitude;
+						calcDistances();
+						nearMeBtn.disabled = false;
+						if (activateFilter) {
+							nearMeActive = true;
+							nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
+							nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
+						} else {
+							nearMeBtn.textContent = '📍 Perto de mim';
+						}
+						onSuccess();
+					},
+					() => {
+						nearMeBtn.textContent = '📍 Perto de mim';
+						nearMeBtn.disabled = false;
+						alert('Não foi possível obter sua localização.');
+						if (onDeny) onDeny();
+					}
+				);
+			}
+
+			document.getElementById('sortSelect').addEventListener('change', function() {
+				if (this.value === 'distance' && userLat === null) {
+					requestLocation(applyFilters, () => {
+						document.getElementById('sortSelect').value = 'date';
+					}, false);
+					return;
+				}
+				applyFilters();
+			});
 			document.getElementById('sportSelect').addEventListener('change', function() {
 				sportFilter = this.value;
 				updateUrl();
 				applyFilters();
 			});
 
-			// Near me
-			const nearMeBtn = document.getElementById('nearMeBtn');
 			nearMeBtn.addEventListener('click', function() {
 				if (nearMeActive) {
 					nearMeActive = false;
@@ -305,25 +344,7 @@
 					applyFilters();
 					return;
 				}
-				nearMeBtn.innerHTML = '📍 Buscando... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-				nearMeBtn.disabled = true;
-				navigator.geolocation.getCurrentPosition(
-					pos => {
-						userLat = pos.coords.latitude;
-						userLon = pos.coords.longitude;
-						calcDistances();
-						nearMeActive = true;
-						nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
-						nearMeBtn.classList.replace('btn-outline-success', 'btn-success');
-						nearMeBtn.disabled = false;
-						applyFilters();
-					},
-					() => {
-						nearMeBtn.textContent = '📍 Perto de mim';
-						nearMeBtn.disabled = false;
-						alert('Não foi possível obter sua localização.');
-					}
-				);
+				requestLocation(applyFilters);
 			});
 
 			// Hamburger nav

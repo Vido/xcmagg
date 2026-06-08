@@ -68,9 +68,61 @@ nav.navbar {
 .content {
 	margin: auto;
 	flex: 1;
-	width: 70%;
-	max-width: 95%;
+	width: 80%;
+	max-width: 1400px;
 	box-sizing: border-box;
+	padding: 0 24px;
+}
+
+.page-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.sidebar {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.sidebar .search-input,
+.sidebar .form-select,
+.sidebar #nearMeBtn {
+	flex: 1 1 auto;
+}
+
+.main-col {
+	flex: 1;
+	min-width: 0;
+}
+
+@media (min-width: 769px) {
+	.page-layout {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: 32px;
+	}
+	.sidebar {
+		flex-direction: column;
+		flex-wrap: nowrap;
+		flex: 0 0 16.666%;
+		width: 16.666%;
+		flex-shrink: 0;
+		position: sticky;
+		top: 16px;
+		order: 1;
+	}
+	.sidebar .search-input,
+	.sidebar .form-select,
+	.sidebar #nearMeBtn {
+		width: 100%;
+		flex: none;
+	}
+	.main-col {
+		order: 2;
+	}
 }
 
 #nav-toggle {
@@ -84,13 +136,6 @@ nav.navbar {
 	line-height: 1;
 }
 
-/* Filters */
-.filter-bar {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 12px;
-}
 
 .search-input {
 	flex: 1;
@@ -112,6 +157,7 @@ nav.navbar {
 	font-size: 16px;
 	color: gray;
 	margin-bottom: 8px;
+	flex-basis: 100%;
 }
 
 /* Event cards */
@@ -262,14 +308,6 @@ footer.footer {
 		display: flex;
 	}
 
-	.filter-bar {
-		flex-wrap: wrap;
-	}
-
-	.search-input {
-		order: 2;
-		flex-basis: 100%;
-	}
 }
 
 /* noUiSlider cadence range — connect track matches optimal-zone green */
