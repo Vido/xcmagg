@@ -139,7 +139,7 @@
 				const q = searchQuery.toLowerCase();
 				const today = new Date(); today.setHours(0,0,0,0);
 				filtered = allEvents.filter(item => {
-					if (parseEuDate(item.start_date) < today) return false;
+					if (item._ts < today) return false;
 					if (q && !(item.title || '').toLowerCase().includes(q) &&
 						!(item.city || '').toLowerCase().includes(q) &&
 						!(item.uf || '').toLowerCase().includes(q)) return false;
@@ -154,7 +154,7 @@
 				if (sort === 'distance') {
 					filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
 				} else {
-					filtered.sort((a, b) => parseEuDate(a.start_date) - parseEuDate(b.start_date));
+					filtered.sort((a, b) => a._ts - b._ts);
 				}
 				displayed = 0;
 				document.getElementById('event-list').innerHTML = '';
@@ -256,7 +256,11 @@
 			fetch('data.jsonl')
 				.then(r => r.text())
 				.then(text => {
-					allEvents = text.trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
+					allEvents = text.trim().split('\n').filter(Boolean).map(l => {
+							const e = JSON.parse(l);
+							e._ts = parseEuDate(e.start_date);
+							return e;
+						});
 					const sports = [...new Set(allEvents.map(e => e.sport))].filter(Boolean).sort();
 					const sel = document.getElementById('sportSelect');
 					sports.forEach(s => {
@@ -301,7 +305,7 @@
 					applyFilters();
 					return;
 				}
-				nearMeBtn.textContent = '📍 Buscando...';
+				nearMeBtn.innerHTML = '📍 Buscando... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 				nearMeBtn.disabled = true;
 				navigator.geolocation.getCurrentPosition(
 					pos => {

@@ -96,9 +96,13 @@ class Persistence:
 
     def load_geo(self):
         geo_file = str(self.BASE / 'geo' / 'municipios_ibge.json')
+        pop_file = str(self.BASE / 'geo' / 'population.json')
         self.CONN.execute(f"""
             CREATE OR REPLACE TABLE geo AS
-            SELECT * FROM read_json_auto('{geo_file}')
+            SELECT g.*, p.populacao
+            FROM read_json_auto('{geo_file}') g
+            LEFT JOIN read_json_auto('{pop_file}') p
+                ON g.codigo_ibge = p.codigo_ibge
         """)
 
 
