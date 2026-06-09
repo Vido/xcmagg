@@ -20,6 +20,7 @@ crawlers = [
     SeuEsporteApp(),
     TicketSportsAPI2(),
     InscricoesBike(),
+    InscricoesBr(),
     Nuflow(),
     Atletis(),
     SampaBikers(),

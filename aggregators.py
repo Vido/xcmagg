@@ -438,3 +438,50 @@ class Atletis(Crawler, Extractor):
                 break
             page += 1
         return events
+
+
+class InscricoesBr(Crawler, Extractor):
+    URL = 'https://inscricoes.com.br/'
+    REPO = Path('inscricoes.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Agregador',
+    }
+
+    def title(self, soup) -> str:
+        return soup.find('h1').get_text(strip=True)
+
+    def date(self, soup) -> str:
+        # "14/06/2026 às 16:00" → "14/06/2026"
+        for tag in soup.find_all(string=re.compile(r'\d{2}/\d{2}/\d{4}')):
+            m = re.search(r'(\d{2}/\d{2}/\d{4})', tag)
+            if m:
+                return m.group(1)
+        return ''
+
+    def local(self, soup) -> str:
+        # "Cristinápolis, SE"
+        for tag in soup.find_all(string=re.compile(r',\s*[A-Z]{2}$')):
+            return tag.strip()
+        return ''
+
+    def url(self, soup) -> str:
+        return self._current_event_url
+
+    def trigger(self):
+        fp, soup = self.get_html(urljoin(self.URL, 'eventos'), suffix='eventos.html')
+        hrefs = []
+        seen = set()
+        for a in soup.find_all('a', href=re.compile(r'/eventos/[^/]+$')):
+            href = a['href']
+            if href not in seen:
+                seen.add(href)
+                hrefs.append(href)
+
+        events_acc = []
+        for href in hrefs:
+            self._current_event_url = href
+            slug = href.rstrip('/').split('/')[-1]
+            _, detail = self.get_html(self._current_event_url, suffix=f'{slug}.html')
+            events_acc.append(self.parse(detail, fp))
+        return events_acc
