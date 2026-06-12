@@ -1,0 +1,21 @@
+<nav class="mb-6">
+  <ol class="flex items-center gap-2 text-sm text-gray-600">
+    <li>
+      {% if item.is_catalog %}
+      <a href="{{ item.manufacturer.get_absolute_url }}" class="hover:text-blue-600 transition">
+        {{ item.manufacturer.title }}
+      </a>
+      {% else %}
+      <a href="{% url 'user-inventory' item.owner.username %}" class="hover:text-blue-600 transition">
+        @{{ item.owner.username }}
+      </a>
+      {% endif %}
+    </li>
+    <li>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </li>
+    <li class="text-gray-900 font-medium">{{ item.display_name }}</li>
+  </ol>
+</nav>

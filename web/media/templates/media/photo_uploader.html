@@ -1,0 +1,104 @@
+<div
+  class="space-y-3"
+  x-data="photoUploader({
+    maxFiles: 5,
+    maxSizeMB: 2 })">
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    Photos
+  </label>
+
+  {% include 'media/_upload_widget.html' %}
+
+  <!-- Preview list -->
+  <ul class="space-y-3">
+    <template x-for="(file, index) in files" :key="file.id">
+      <div
+        x-show="!file.removing"
+        x-transition:leave.opacity.duration.200ms
+      >
+        <li
+          :class="{ 'scale-[0.97]': file.bump }"
+          class="flex items-center justify-between gap-3
+                 bg-gray-100 dark:bg-gray-700
+                 rounded-lg px-3 py-3
+                 transition-transform duration-200 ease-out"
+        >
+          <!-- Left: thumbnail + meta -->
+          <div class="flex items-center gap-3 min-w-0">
+            <img :src="previewUrl(file)"
+              class="w-12 h-12 rounded-md object-cover flex-shrink-0"
+            />
+
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span
+                  x-show="index === 0"
+                  class="text-xs font-semibold px-2 py-0.5 rounded bg-green-600 text-white"
+                >
+                  Primary
+                </span>
+              </div>
+              <p
+                class="text-sm text-gray-800 dark:text-gray-200 max-w-[12rem] sm:max-w-[16rem] overflow-hidden"
+              >
+                <span
+                  x-text="displayName(file)"
+                  style="
+                    display: block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    direction: rtl;
+                    text-align: left;
+                  "
+                ></span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: actions -->
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              @click="moveUp(index)"
+              :disabled="index === 0"
+              class="w-10 h-10 flex items-center justify-center
+                     rounded-md bg-white dark:bg-gray-600
+                     text-gray-700 dark:text-gray-200
+                     transition active:scale-90
+                     disabled:opacity-40 disabled:pointer-events-none"
+              aria-label="Move up"
+            >
+              ↑
+            </button>
+
+            <button
+              type="button"
+              @click="moveDown(index)"
+              :disabled="index === files.length - 1"
+              class="w-10 h-10 flex items-center justify-center
+                     rounded-md bg-white dark:bg-gray-600
+                     text-gray-700 dark:text-gray-200
+                     transition active:scale-90
+                     disabled:opacity-40 disabled:pointer-events-none"
+              aria-label="Move down"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              @click="remove(index)"
+              class="w-10 h-10 flex items-center justify-center
+                     rounded-md bg-red-600 text-white
+                     transition active:scale-90"
+              aria-label="Delete"
+            >
+              ✕
+            </button>
+          </div>
+        </li>
+      </div>
+    </template>
+  </ul>
+
+</div>

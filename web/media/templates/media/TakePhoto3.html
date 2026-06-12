@@ -1,0 +1,100 @@
+Cool. Here’s the **minimal, correct way** to use `getUserMedia` for “Take photo” — PWA-friendly, no fluff.
+
+---
+
+## What we’ll do
+
+* Button → opens camera
+* Live preview
+* “Capture” → turns frame into a `File`
+* Reuses your existing `handleFiles(...)`
+
+---
+
+## HTML (mobile only)
+
+```html
+<div class="block md:hidden">
+  <button
+    type="button"
+    @click="openCamera()"
+    class="w-full flex items-center justify-center gap-3 p-4 rounded-xl
+           bg-gray-100 dark:bg-gray-900
+           text-gray-800 dark:text-gray-100
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+    Take a photo
+  </button>
+
+  <video x-ref="video" class="hidden w-full rounded-lg mt-3" autoplay playsinline></video>
+
+  <button
+    type="button"
+    x-show="cameraOpen"
+    @click="capturePhoto()"
+    class="mt-3 w-full py-2 rounded-md
+           bg-gray-800 text-white text-sm">
+    Capture
+  </button>
+
+  <canvas x-ref="canvas" class="hidden"></canvas>
+</div>
+```
+
+---
+
+## Alpine.js logic
+
+```js
+{
+  cameraOpen: false,
+  stream: null,
+
+  async openCamera() {
+    this.stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    })
+    this.$refs.video.srcObject = this.stream
+    this.$refs.video.classList.remove("hidden")
+    this.cameraOpen = true
+  },
+
+  capturePhoto() {
+    const video = this.$refs.video
+    const canvas = this.$refs.canvas
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    canvas.getContext("2d").drawImage(video, 0, 0)
+
+    canvas.toBlob(blob => {
+      const file = new File([blob], "photo.jpg", { type: "image/jpeg" })
+      this.handleFiles([file])
+    }, "image/jpeg", 0.9)
+
+    this.stream.getTracks().forEach(t => t.stop())
+    this.cameraOpen = false
+    video.classList.add("hidden")
+  }
+}
+```
+
+---
+
+## Why this is the right choice
+
+* ✅ Real camera (no OS picker)
+* ✅ Full control over wording & UX
+* ✅ Works perfectly in PWAs
+* ✅ Clean fallback to file input if needed
+
+---
+
+### Next smart steps (optional)
+
+* auto-close camera on blur
+* retake / confirm UI
+* fallback to `<input capture>` if permission denied
+* HEIC → JPEG normalization on iOS
+
+Say which one.

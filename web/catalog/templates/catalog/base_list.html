@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  
+  {% block header %}
+  {% endblock header %}
+
+  {% block sections %}
+
+    <!-- Section 3: Community Posts -->
+    {% block community_section %}
+      {% if community_posts %}
+        <section class="mb-16">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block community_title %}Community Posts{% endblock %}</h2>
+              <p class="text-gray-600 dark:text-gray-400">{% block community_subtitle %}Discussions and reviews{% endblock %}</p>
+            </div>
+            {% block community_action %}{% endblock %}
+          </div>
+          
+          {% block community_content %}
+            <!-- Community Posts Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {% for post in community_posts %}
+                {% include '_post_card.html' with post=post %}
+              {% endfor %}
+            </div>
+          {% endblock community_content %}
+        </section>
+      {% endif %}
+    {% endblock community_section %}
+
+    <!-- Section 0: Community Posts -->
+    {% block reviews_section %}
+      {% if reviews_posts %}
+        <section class="mb-16">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block reviews_title %}Reviews and Opinions{% endblock %}</h2>
+              <p class="text-gray-600 dark:text-gray-400">{% block reviews_subtitle %}Discussions and reviews about catalogs items{% endblock %}</p>
+            </div>
+            {% block reviews_action %}{% endblock %}
+          </div>
+          
+          {% block reviews_content %}
+            <!-- Reviews and Opinions Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {% for post in reviews_posts %}
+                {% include '_post_card.html' with post=post %}
+              {% endfor %}
+            </div>
+          {% endblock reviews_content %}
+        </section>
+      {% endif %}
+    {% endblock reviews_section %}
+
+    <!-- Section 1: Inventory Items -->
+    {% block inventory_section %}
+      {% if inventory_items %}
+        <section class="mb-16">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block inventory_title %}In Collections{% endblock %}</h2>
+              <p class="text-gray-600 dark:text-gray-400">{% block inventory_subtitle %}Items owned by the community{% endblock %}</p>
+            </div>
+            {% block inventory_action %}{% endblock %}
+          </div>
+
+          <!-- Inventory Grid - Photo Gallery Focus -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for item in inventory_items %}
+              {% include "media/_simple_gallery.html" with node=item.node %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endblock inventory_section %}
+
+    <!-- Section 2: Catalog Items -->
+    {% block catalog_section %}
+      {% if catalog_items %}
+        <section class="mb-16">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block catalog_title %}Catalog Items{% endblock %}</h2>
+              <p class="text-gray-600 dark:text-gray-400">{% block catalog_subtitle %}Browse available gear{% endblock %}</p>
+            </div>
+            {% block catalog_action %}{% endblock %}
+          </div>
+          
+          <!-- Filter Bar -->
+          <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-wrap gap-2">
+              <button 
+                class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Filter
+              </button>
+            </div>
+            
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              {{ catalog_items|length }} items
+            </span>
+          </div>
+
+          <!-- Catalog Grid -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for item in catalog_items %}
+              {% include "media/_simple_gallery.html" with node=item.node %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endblock catalog_section %}
+
+    <!-- Empty State (shown when all sections are empty) -->
+    {% if not inventory_items and not catalog_items and not community_posts %}
+      {% block empty_state %}
+        <div class="text-center py-16">
+          <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 mb-6">
+            <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{% block empty_title %}Nothing here yet{% endblock %}</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+            {% block empty_description %}
+              No items or content available at the moment.
+            {% endblock %}
+          </p>
+        </div>
+      {% endblock empty_state %}
+    {% endif %}
+  {% endblock sections %}
+
+</div>
+{% endblock %}

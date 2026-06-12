@@ -1,0 +1,82 @@
+{% load url2 %}
+{% if request.user.is_authenticated %}
+  <form
+    id="comment-form"
+    hx-post="{% url 'add-comment' node.shortcode %}"
+    hx-target="#comments-list"
+    hx-swap="afterbegin"
+    hx-on::after-request="if(event.detail.successful) this.reset(); document.getElementById('comment-textarea').blur(); document.getElementById('comment-actions').classList.add('hidden'); document.getElementById('photo-section').classList.add('hidden'); document.getElementById('photo-toggle-btn').classList.remove('hidden');"
+    class="mb-8">
+    
+    <div class="flex gap-3">
+      <!-- Avatar Component -->
+      {% include 'engagement/includes/_avatar.html' with user=request.user %}
+
+      <div class="flex-1">
+        <textarea 
+          id="comment-textarea"
+          name="body"
+          rows="3"
+          required
+          aria-label="Add a comment"
+          placeholder="Add a comment..."
+          onfocus="document.getElementById('comment-actions').classList.remove('hidden')"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition"></textarea>
+
+        <!-- Action Buttons (Hidden by default) -->
+        <div id="comment-actions" class="hidden mt-3 space-y-3">
+          
+          <!-- Collapsible Photo Uploader Section -->
+          <div id="photo-section" class="hidden">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-800/50">
+              {% include "media/photo_uploader.html" %}
+            </div>
+          </div>
+
+          <!-- Action Buttons Row -->
+          <div class="flex items-center justify-end gap-2">
+            <!-- Add Photos Button (hidden when photo section is shown) -->
+            <button 
+              type="button"
+              id="photo-toggle-btn"
+              onclick="document.getElementById('photo-section').classList.remove('hidden'); this.classList.add('hidden');"
+              class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 transition mr-auto">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span>Add Photos</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Optional</span>
+            </button>
+
+            <!-- Cancel/Submit Buttons (always right-aligned) -->
+            <div class="flex items-center gap-2">
+              <button 
+                type="button"
+                onclick="document.getElementById('comment-form').reset(); document.getElementById('comment-textarea').blur(); document.getElementById('comment-actions').classList.add('hidden'); document.getElementById('photo-section').classList.add('hidden'); document.getElementById('photo-toggle-btn').classList.remove('hidden');"
+                class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                class="px-8 py-1 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                hx-indicator="#comment-loading">
+                SEND!
+              </button>
+              <svg class="htmx-indicator animate-spin h-5 w-5 text-blue-600 dark:text-blue-400 hidden" id="comment-loading" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+{% else %}
+  <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center mb-8">
+    <p class="text-gray-600 dark:text-gray-400 mb-3">Sign in to leave a comment</p>
+    <a href="{% url2 'welcome' next=request.path %}" class="inline-flex items-center px-5 py-2.5 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-medium rounded-lg transition">
+      Enter
+    </a>
+  </div>
+{% endif %}

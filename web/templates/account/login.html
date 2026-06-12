@@ -1,0 +1,89 @@
+{% extends "allauth/layouts/entrance.html" %}
+{% load url2 %}
+{% load i18n %}
+{% load socialaccount %}
+{% load widget_tweaks %}
+
+{% block card-header %}
+<div class="text-center">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+        {% trans "Password Login" %}
+    </h2>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      {% trans "Don’t have an account?" %}
+      <a href="{% url 'welcome' %}" class="font-medium text-primary-600 hover:underline">
+        {% trans "Sign up" %}
+      </a>
+    </p>
+</div>
+{% endblock card-header %}
+
+{% block card-body %}
+  {% if not SOCIALACCOUNT_ONLY %}
+    <form method="post" action="{% url 'account_login' %}" class="space-y-4">
+      {% csrf_token %}
+
+      <div class="text-red-500">{{ form.non_field_errors }}</div>
+
+      <div>
+        {{ form.login.label_tag }}
+        {% render_field form.login class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" %}
+        <div class="text-red-500">{{ form.login.errors }}</div>
+
+      </div>
+
+      <div>
+        {{ form.password.label_tag }}
+        {% render_field form.password class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent" %}
+        <div class="text-red-500">{{ form.password.errors }}</div>
+      </div>
+
+      {% if form.remember %}
+        <div class="flex items-center">
+          {% render_field form.remember class="checkbox ml-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" %}
+          <label class="ml-2">
+            {% trans "Remember me" %}
+          </label>
+        </div>
+      {% endif %}
+
+      {{ redirect_field }}
+
+      <div id="cf-turnstile-container"
+           class="flex flex-col items-center gap-2">
+        {{ form.captcha }}
+        {% if form.captcha.errors %}
+          <p class="text-sm text-red-500 text-center">
+            {{ form.captcha.errors.0 }}
+          </p>
+        {% endif %}
+      </div>
+
+      <button 
+          type="submit"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-green-700 hover:bg-green-800 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 transition font-medium">
+          <span class="htmx-hide-on-request">{% trans "Sign in" %}</span>
+      </button>
+    </form>
+  {% endif %}
+{% endblock card-body %}
+
+{% block card-alternatives %}
+  {% if SOCIALACCOUNT_ENABLED %}
+    <div class="mt-6">
+      {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    </div>
+  {% endif %}
+  <p class="text-xs text-gray-500 dark:text-gray-400">
+
+      {% trans "Prefer an alternative method?" %} <a href="{% url2 'welcome' %}" class="hover:underline">
+      {% trans "Login with OTT" %}</a>
+    <br>
+    <a href="{% url 'account_reset_password' %}"
+       class="hover:underline">
+      {% trans "Forgot your password?" %}
+    </a>
+  </p>
+
+{% endblock card-alternatives %}
+

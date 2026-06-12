@@ -1,0 +1,78 @@
+{% comment %}
+Post Card Component
+Usage: {% include '_post_card.html' with post=post %}
+Parameters:
+  - post: Post object with owner, primary_photo, title, body, created_at, likes_count, comments_count
+{% endcomment %}
+<article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl transition-shadow group">
+  <!-- Post Image -->
+  {% with primary=post.primary_photo %}
+  {% if primary %}
+  <div class="aspect-video bg-gray-100 dark:bg-gray-900 overflow-hidden">
+    <img 
+      src="{{ primary.image.url }}" 
+      alt="{{ post.title }}"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="p-5">
+    <!-- Author Info -->
+    <div class="flex items-center gap-3 mb-4">
+      {% include 'engagement/includes/_avatar.html' with user=post.owner %}
+      <div>
+        <a href="{% url 'user-inventory' post.owner.username %}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-violet-600 dark:hover:text-violet-400">
+          @{{ post.owner.username }}
+        </a>
+        <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          {% if post.parent %}
+            <a
+              href="{{ post.parent.get_absolute_url }}"
+              class="font-medium text-gray-700 dark:text-gray-300 hover:underline truncate max-w-[16rem]"
+            >
+              {{ post.parent.title }}
+            </a>
+            <span class="opacity-50">•</span>
+          {% else %}
+            <span class="opacity-50">General •</span>
+          {% endif %}
+          <span>{{ post.published_at|timesince }} ago</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Post Title -->
+    <a href="{% url 'post-details' post.shortcode post.slug %}" class="block mb-3">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition line-clamp-2">
+        {{ post.title }}
+      </h3>
+    </a>
+
+    <!-- Post Excerpt -->
+    {% if post.body %}
+    <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+      {{ post.body|truncatewords:20 }}
+    </p>
+    {% endif %}
+
+    <!-- Post Stats -->
+    <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+      <span class="flex items-center">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        {{ post.likes_count|default:"N/A" }}
+      </span>
+      <span class="flex items-center">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        {{ post.comments_count|default:"N/A" }}
+      </span>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}
+  {% if item %}Edit Item{% else %}New Item{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-6">
+
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="flex items-baseline gap-3 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <span>{{ title }}</span>
+
+      {% if item.is_draft %}
+        <span
+          class="inline-flex items-center rounded-md
+                 px-2 py-0.5 text-sm font-semibold
+                 bg-yellow-100 text-yellow-800
+                 dark:bg-yellow-900/40 dark:text-yellow-300">
+          Draft
+        </span>
+      {% endif %}
+    </h1>
+
+    {% if item %}
+      <button
+        class="text-sm text-red-600 dark:text-red-400 font-medium hover:text-red-700 dark:hover:text-red-300"
+        hx-delete="."
+        hx-confirm="Delete this item permanently?">
+        Delete
+      </button>
+    {% endif %}
+  </div>
+
+  <!-- FORM -->
+  <form method="post" enctype="multipart/form-data" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- BASIC -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+      <h2 class="font-semibold text-gray-800 dark:text-gray-200">Basics</h2>
+
+      <div class="space-y-4">
+        <input 
+          type="text"
+          name="{{ node_form.title.html_name }}"
+          id="{{ node_form.title.id_for_label }}"
+          value="{{ node_form.title.value|default:'' }}"
+          placeholder="Title"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          required />
+
+          {% for error in node_form.title.errors %}
+            <p class="text-sm text-red-500">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- photos -->
+        {% include "media/photo_uploader.html" with photos=photos %}
+
+        <div class="space-y-1">
+        <textarea 
+          name="{{ item_form.description.html_name }}"
+          id="{{ item_form.description.id_for_label }}"
+          placeholder="Description"
+          rows="6"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">{{ item_form.description.value|default:'' }}</textarea>
+	</div>
+    </section>
+
+    <!-- RELATIONSHIPS -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+      <h2 class="font-semibold text-gray-800 dark:text-gray-200">Classification</h2>
+
+      <!-- Category -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+        <input
+          type="text"
+          name="category_label"
+          placeholder="Search category…"
+          hx-get="{% url 'category-lookup' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#category-results"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
+        {{ item_form.category }}
+        <div id="category-results" class="mt-2 space-y-1"></div>
+      </div>
+
+      <!-- Manufacturer -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Manufacturer</label>
+        <input
+          type="text"
+          name="manufacturer_label"
+          placeholder="Search manufacturer…"
+          hx-get="{% url 'manufacturer-lookups' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#manufacturer-results"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
+        {{ item_form.manufacturer }}
+        <div id="manufacturer-results" class="mt-2 space-y-1"></div>
+      </div>
+
+      <!-- Catalog Node -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catalog Reference</label>
+        <input
+          type="text"
+          name="catalog_node_label"
+          placeholder="Link to catalog item…"
+          hx-get="{% url 'catalog-lookups' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#catalog-results"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
+        {{ item_form.catalog_node }}
+        <div id="catalog-results" class="mt-2 space-y-1"></div>
+      </div>
+    </section>
+
+    <!-- MARKETPLACE -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-gray-800 dark:text-gray-200">Marketplace</h2>
+        <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Public / Optional</span>
+      </div>
+
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ item_form.is_listed }}
+          <span>For sale</span>
+        </label>
+
+        <div>
+          {{ item_form.price.label_tag }}
+          {{ item_form.price }}
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ item_form.accepts_trade }}
+          <span>Accept trades</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO TRACKING (PRIVATE) -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-gray-800 dark:text-gray-200">Portfolio Tracking</h2>
+        <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          Private / Optional
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          {{ item_form.acquired_at.label_tag }}
+          <input
+            type="date"
+            name="{{ item_form.acquired_at.html_name }}"
+            id="{{ item_form.acquired_at.id_for_label }}"
+            value="{{ item_form.acquired_at.value|default:'' }}"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          {{ item_form.cost.label_tag }}
+          {{ item_form.cost }}
+        </div>
+      </div>
+    </section>
+
+    <!-- VISIBILITY -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+      <h2 class="font-semibold text-gray-800 dark:text-gray-200">Privacy</h2>
+
+      <div class="flex gap-6">
+        {{ node_form.visibility.label_tag }}
+        {{ node_form.visibility }}
+
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ node_form.votes_allowed }}
+          <span>Allow Votes</span>
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ node_form.comments_allowed }}
+          <span>Allow Comments</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- RETAILER LINKS -->
+    {% include "catalog/includes/_retailer_links_form.html" %}
+
+    {% if node_form.non_field_errors or post_form.non_field_errors %}
+    <section class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-2">
+      {% for error in node_form.non_field_errors %}
+        <p class="text-sm text-red-500">{{ error }}</p>
+      {% endfor %}
+      {% for error in item_form.non_field_errors %}
+        <p class="text-sm text-red-500">{{ error }}</p>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ACTIONS -->
+    <div class="flex gap-3">
+      {% if new %}
+      <!-- Save Draft -->
+      <button
+        type="submit"
+        name="publish"
+        value="draft"
+        class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+               text-gray-800 dark:text-gray-100 font-semibold rounded-lg px-4 py-3">
+        Save as Draft
+      </button>
+      {% endif %}
+
+      <!-- Publish -->
+      <button
+        type="submit"
+        name="publish"
+        value="publish"
+        class="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600
+               text-white font-semibold rounded-lg px-4 py-3">
+        {% if new %}Publish{% else %}Save{% endif %}
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ photos|json_script:"photos-data" }}
+  <script>
+    window.addEventListener("dragover", e => e.preventDefault());
+    window.addEventListener("drop", e => e.preventDefault());
+  </script>
+  <script src="{% static 'js/photo_uploader.js' %}" defer></script>
+
+{% endblock %}

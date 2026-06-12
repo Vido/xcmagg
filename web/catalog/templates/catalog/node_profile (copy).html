@@ -1,0 +1,45 @@
+{% extends "catalog/base_list.html" %}
+
+{% block title %}{{ node.title }} - EDCX.club{% endblock %}
+
+{% block header %}
+  <!-- Page Header -->
+  <header class="mb-8">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ node.title }}
+        </h1>
+      </div>
+    </div>
+  </header>
+{% endblock header %}
+
+{% block empty_list %}
+  <!-- Empty State -->
+  <div class="text-center py-16">
+    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-100 mb-6">
+      <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">No items yet</h3>
+    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+      {% if owner == request.user %}
+        Start building your EDC inventory by adding your first item with photos.
+      {% else %}
+        This user hasn't added any items to their inventory yet.
+      {% endif %}
+    </p>
+    {% if owner == request.user %}
+      <button 
+        type="button"
+        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition focus:ring-4 focus:ring-blue-300">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Your First Item
+      </button>
+    {% endif %}
+  </div>
+{% endblock empty_list %}

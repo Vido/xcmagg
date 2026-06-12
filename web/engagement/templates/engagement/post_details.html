@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load markdown %}
+
+{% block title %}{{ post.title }} - @{{ post.owner.username }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+
+  <!-- Main Column -->
+  <div class="md:col-span-2 space-y-8">
+    <!-- Post Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+
+      <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
+        {% if post.parent %}
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <a href="{{ post.parent.get_absolute_url }}"
+             class="font-semibold text-gray-700 dark:text-gray-200 hover:underline truncate">
+            {{ post.parent.title }}
+        </a>
+        {% else %}
+          <span>General</span>
+        {% endif %}
+        <span class="mx-1">•</span>
+        <a href="{{ post.owner_absolute_url }}">@{{ post.owner.username }}</a>
+        <span class="mx-1">•</span>
+        <span>{{ post.published_at|timesince }} ago</span>
+      </div>
+
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ post.title }}</h1>
+
+      <!-- Photo Gallery -->
+      {% include "media/_photo_gallery.html" with node=post.node owner=post.owner %}
+
+      <div class="prose prose-gray dark:prose-invert max-w-none
+                  break-words overflow-hidden
+                  [&_img]:max-w-full [&_img]:h-auto
+                  [&_pre]:overflow-x-auto
+                  [&_table]:block [&_table]:overflow-x-auto">
+        {{ post.body|markdown|safe }}
+      </div>
+
+      <!-- Post Actions -->
+      <div class="flex items-center space-x-2 text-gray-500 dark:text-gray-400 select-none">
+        {% include 'engagement/partials/_h_voting_widget.html' with node=post.node user_action=user_action %}
+        {% include 'engagement/includes/_actions.html' with node=post.node owner=post.owner %}
+      </div>
+
+      <!-- Comments Section -->
+      {% include "engagement/includes/_comments_section.html" with node=post.node %}
+    </div>
+  </div>
+
+  {% block sidebar %}
+  <!-- Sidebar -->
+      {% include "engagement/includes/_sidebar.html" %}
+  {% endblock %}
+
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/photo_uploader.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% load static %}
+{% load user_vote %}
+
+<!-- Post Cards -->
+{% for post in posts %}
+<article class="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow">
+  <div class="flex">
+    
+    <!-- Vote Section -->
+    <div class="w-12 bg-gray-50 dark:bg-gray-900 rounded-l-lg flex flex-col items-center py-2 space-y-1">
+      <div class="flex flex-col items-center space-y-1">
+        <!-- Upvote -->
+        <button
+          hx-post="{% url 'cast-vote' post.node.shortcode %}"
+          hx-vals='{"action": "up"}'
+          hx-target="#votes-{{ post.node.shortcode }}"
+          hx-swap="outerHTML"
+          class="p-1 rounded hover:bg-orange-100 dark:hover:bg-orange-900/30 transition
+                 {% if post.node|user_vote:user == 'up' %}text-orange-500{% else %}text-gray-400 dark:text-gray-500 hover:text-orange-500{% endif %}">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 011.414 0L10 3.414l5.293 5.293a1 1 0 111.414-1.414l-6-6a1 1 0 00-1.414 0l-6 6a1 1 0 010 1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+        
+        <!-- Score -->
+        <span id="votes-{{ post.node.shortcode }}" 
+              class="text-xs font-bold {% if post.node|user_vote:user == 'up' %}text-orange-500{% elif post.node|user_vote:user == 'down' %}text-blue-500{% else %}text-gray-700 dark:text-gray-300{% endif %}">
+          {{ post.node.score|default:0 }}
+        </span>
+        
+        <!-- Downvote -->
+        <button
+          hx-post="{% url 'cast-vote' post.node.shortcode %}"
+          hx-vals='{"action": "down"}'
+          hx-target="#votes-{{ post.node.shortcode }}"
+          hx-swap="outerHTML"
+          class="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/30 transition
+                 {% if post.node|user_vote:user == 'down' %}text-blue-500{% else %}text-gray-400 dark:text-gray-500 hover:text-blue-500{% endif %}">
+          <svg class="w-6 h-6 transform rotate-180" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 011.414 0L10 3.414l5.293 5.293a1 1 0 111.414-1.414l-6-6a1 1 0 00-1.414 0l-6 6a1 1 0 010 1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+
+    <!-- Content Section -->
+    <div class="flex flex-col items-center space-y-1">
+        {% if post.primary_photo %}
+        <div class="flex-shrink-0 w-20 h-20 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+          <img
+            src="{{ post.primary_photo.image.url }}"
+            alt="{{ post.title }}"
+            class="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      {% endif %}
+    </div>
+    </div>
+
+      <!-- Post Header -->
+      <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2 space-x-2">
+        {% if post.parent %}
+        <a href="{{ post.parent.get_absolute_url }}" 
+           class="font-semibold hover:underline flex items-center">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span class="truncate max-w-[150px]">{{ post.reply_to.title }}</span>
+        </a>
+        {% endif %}
+        <span>•</span>
+        <a href="{{ post.owner_absolute_url }}" class="hover:underline">
+          @{{ post.owner.username }}
+        </a>
+        <span>•</span>
+        <span>{{ post.published_at|timesince }} ago</span>
+      </div>
+
+      <!-- Post Title -->
+      <h2 class="text-xl font-semibold mb-2">
+        <a href="{{ post.get_absolute_url }}" 
+           class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+          {{ post.title }}
+        </a>
+      </h2>
+
+      <!-- Post Body Preview -->
+      {% if post.body %}
+      <div class="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-3">
+        {{ post.body|striptags|truncatewords:50 }}
+      </div>
+      {% endif %}
+
+      <!-- Post Actions -->
+      <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+        
+        <!-- Comments -->
+        <a href="{{ post.get_absolute_url }}#comments" 
+           class="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <span>{{ post.comment_count|default:0 }} Comments</span>
+        </a>
+
+        <!-- Share -->
+        <button 
+          class="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition"
+          onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{{ post.get_absolute_url }}')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+          </svg>
+          <span>Share</span>
+        </button>
+
+        {% comment %}
+        <!-- Save -->
+        <button 
+          class="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition"
+          hx-post="{% url 'save-post' post.id %}"
+          hx-swap="none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+          </svg>
+          <span>Save</span>
+        </button>
+        {% endcomment %}
+
+      </div>
+    </div>
+
+  </div>
+</article>
+{% empty %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No posts yet</h3>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Be the first to create a post!</p>
+  <div class="mt-6">
+    <a href="{% url 'create-post' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+      Create Post
+    </a>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Infinite Scroll Trigger -->
+{% if has_next %}
+  <div id="feed-loading-indicator"
+       class="flex justify-center py-8 text-gray-500 htmx-indicator">
+    <div class="flex items-center space-x-2">
+      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>Loading more posts...</span>
+    </div>-
+  </div>
+  <!-- Trigger -->
+  <div
+      hx-get="{% url 'feed' %}?page={{ next_page }}&sort={{ current_sort }}"
+      hx-trigger="intersect once"
+      {# hx-swap="outerHTML" #}
+      hx-swap="afterend"
+      hx-target="#feed-container"
+      hx-indicator="#feed-spinner">
+  </div>
+{% endif %}

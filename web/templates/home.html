@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block head_title %}Your Everyday Carry Community{% endblock %}
+
+{% block content %}
+
+{% comment %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-800 dark:via-blue-900 dark:to-indigo-950 text-white">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
+        Your Everyday Carry, <span class="text-blue-200 dark:text-blue-300">Cataloged & Shared</span>
+      </h1>
+      <p class="text-base md:text-lg text-blue-100 dark:text-blue-200 max-w-2xl mx-auto">
+        Build your EDC collection, discover gear from the community, and connect with fellow enthusiasts.
+      </p>
+    </div>
+
+  <!-- Search Bar -->
+  <div class="max-w-3xl mx-auto mb-6">
+    <div class="relative">
+      <input 
+        type="text" 
+        placeholder="Search for gear, manufacturers, or users..." 
+        class="w-full px-6 py-4 pr-12 rounded-lg text-gray-900 dark:text-gray-100 dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 shadow-xl text-lg">
+      <button class="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <a href="#" class="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-400 font-semibold rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition shadow-lg text-base">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Start Your Inventory
+      </a>
+
+    </div>
+  </div>
+</div>
+{% endcomment %}
+
+<div class="max-w-7xl mx-auto px-4 py-4">
+
+  <!-- Latest Posts Section -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Community Highlights</h2>
+        <p class="text-gray-600 dark:text-gray-400">See what the EDC community is sharing</p>
+      </div>
+      <a href="{% url 'feed' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View All Posts
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for post in highlighted_posts %}
+        {% include '_post_card.html' with post=post %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Latest Catalog Items Section -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Recently Added Gear</h2>
+        <p class="text-gray-600 dark:text-gray-400">Fresh items from the catalog</p>
+      </div>
+      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View Catalog
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {% for item in highlighted_inventory %}
+        {% include '_item_card.html' with item=item %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Latest Catalog Items Section -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Recently Added Gear</h2>
+        <p class="text-gray-600 dark:text-gray-400">Fresh items from the catalog</p>
+      </div>
+      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View Catalog
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {% for item in highlighted_catalog %}
+        {% include '_item_card.html' with item=item %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Browse by Category</h2>
+        <p class="text-gray-600 dark:text-gray-400">Explore gear organized by type</p>
+      </div>
+      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View All
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {% for category in categories %}
+        {% include '_category_card.html' with category=category %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Manufacturers Section -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Manufacturers</h2>
+        <p class="text-gray-600 dark:text-gray-400">Best gear from trusted manufacturers</p>
+      </div>
+      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View All
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+      {% for brand in manufacturers %}
+        {% include '_brand_card.html' with brand=brand %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="bg-gradient-to-br from-zinc-800 via-zinc-900 to-violet-900 dark:from-zinc-900 dark:via-black dark:to-violet-950 rounded-2xl p-12 text-center text-gray-100 shadow-2xl">
+    <h2 class="text-4xl font-semibold mb-4 tracking-tight">
+      Ready to Build Your EDC?
+    </h2>
+
+    <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+      Join thousands of EDC enthusiasts sharing and trading their EDC gear — built for people who care about details.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        href="{% url 'welcome' %}"
+        class="inline-flex items-center px-8 py-4 bg-zinc-100 dark:bg-zinc-800 text-violet-800 dark:text-violet-300 font-semibold text-lg rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition shadow-xl"
+      >
+        Sign Up Free
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </a>
+
+      <a
+        href="#"
+        class="inline-flex items-center px-8 py-4 bg-transparent border border-zinc-500/60 text-zinc-200 font-semibold text-lg rounded-lg hover:border-zinc-300 hover:text-white transition"
+      >
+        Learn More
+      </a>
+    </div>
+  </section>
+
+
+
+</div>
+
+{% endblock %}

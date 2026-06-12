@@ -1,0 +1,11 @@
+Hi,
+
+Your login code is:
+
+{{ magic_url }}
+
+This code expires shortly.
+
+Thanks,
+
+EDCX.club

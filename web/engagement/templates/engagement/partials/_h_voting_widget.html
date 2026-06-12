@@ -1,0 +1,36 @@
+{% load user_vote %}
+{% comment %}
+<!-- Reusable Voting Widget -->
+<!-- For Posts: include '_h_voting_widget.html' with node=post.node -->
+<!-- For Comments: include '_h_voting_widget.html' with node=comment.node -->
+{% endcomment %}
+<div class="flex items-center space-x-2 text-gray-500 select-none" id="votes-{{ node.shortcode }}">
+  <!-- Upvote -->
+  <button
+    hx-post="{% url 'cast-vote' node.shortcode %}"
+    hx-vals='{"action": "UP"}'
+    hx-target="#votes-{{ node.shortcode }}"
+    hx-swap="outerHTML"
+    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-orange-100 active:bg-orange-200 transition-colors
+           {% if node|user_vote:user == 'UP' %}text-orange-500 bg-orange-50{% else %}hover:text-orange-500{% endif %}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 011.414 0L10 3.414l5.293 5.293a1 1 0 111.414-1.414l-6-6a1 1 0 00-1.414 0l-6 6a1 1 0 010 1.414z" clip-rule="evenodd"/>
+    </svg>
+  </button>
+  
+  <!-- Score -->
+  <span class="text-gray-700 font-medium">{{ node.score|default:'?' }}</span>
+  
+  <!-- Downvote -->
+  <button
+    hx-post="{% url 'cast-vote' node.shortcode %}"
+    hx-vals='{"action": "DOWN"}'
+    hx-target="#votes-{{ node.shortcode }}"
+    hx-swap="outerHTML"
+    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-blue-100 active:bg-blue-200 transition-colors
+           {% if node|user_vote:user == 'DOWN' %}text-blue-500 bg-blue-50{% else %}hover:text-blue-500{% endif %}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transform rotate-180" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 011.414 0L10 3.414l5.293 5.293a1 1 0 111.414-1.414l-6-6a1 1 0 00-1.414 0l-6 6a1 1 0 010 1.414z" clip-rule="evenodd"/>
+    </svg>
+  </button>
+</div>

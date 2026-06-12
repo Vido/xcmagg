@@ -1,0 +1,122 @@
+<div class="flex flex-col md:flex-row gap-4">
+
+  <!-- LEFT CARD: QR / MOBILE ACTIONS -->
+  <div class="w-full md:w-1/2">
+
+    <!-- Desktop: QR Code -->
+  <div class="hidden md:block">
+  <div id="qr-container">
+    <button
+      type="button"
+      hx-post="{% url 'generate-qr' %}"
+      hx-target="#qr-container"
+      hx-swap="innerHTML"
+      hx-vals='{"next": "{{ request.get_full_path }}"}'
+      class="w-full h-full flex items-center gap-4 p-6 rounded-xl
+             border border-gray-300 dark:border-gray-700
+             bg-gray-50 dark:bg-gray-900
+             hover:bg-gray-100 dark:hover:bg-gray-800
+             transition"
+    >
+      <!-- Icon -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-10 h-10 text-gray-700 dark:text-gray-300 flex-shrink-0"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <path d="M14 14h3v3h-3zM20 14h1v1h-1zM14 20h1v1h-1zM18 18h3v3h-3z" />
+      </svg>
+
+      <!-- Text -->
+      <div class="text-left">
+        <div class="text-base font-semibold text-gray-800 dark:text-gray-100">
+          Scan QR Code
+        </div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          Easy upload from mobile
+        </div>
+      </div>
+    </button>
+  </div>
+</div>
+
+
+
+    <!-- Mobile: Take Photo -->
+    <!-- Mobile: Take Photo -->
+    <div class="block md:hidden">
+      <label
+        for="camera-input"
+        class="w-full flex items-center justify-center gap-3 p-4 rounded-xl
+               bg-gray-100 dark:bg-gray-900
+               text-gray-800 dark:text-gray-100
+               text-sm font-medium
+               cursor-pointer
+               hover:bg-gray-200 dark:hover:bg-gray-800
+               transition"
+      >
+        <!-- Camera icon -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-5 h-5 text-gray-700 dark:text-gray-300"
+             fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 7h3l2-3h8l2 3h3v11H3V7z" />
+          <circle cx="12" cy="13" r="3" />
+        </svg>
+
+        Take a photo
+      </label>
+
+      <input
+        id="camera-input"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        class="hidden"
+        @change="handleFiles($event.target.files)"
+      />
+    </div>
+    <!-- -->
+
+  </div>
+
+  <!-- RIGHT CARD: DRAG & DROP / FILE PICKER -->
+  <div
+    @dragover.prevent
+    @drop.prevent="handleDrop($event)"
+    @click="$refs.input.click()"
+    class="w-full md:w-1/2 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
+           border-gray-300 dark:border-gray-600
+           hover:border-blue-500 transition"
+  >
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      Click to select || Drag & drop
+    </p>
+    <p class="text-xs text-gray-500 mt-1">
+      JPG / PNG only · Max: 5 files, 2MB each
+    </p>
+
+    <input
+      x-ref="input"
+      type="file"
+      name="photos"
+      multiple
+      accept="image/*"
+      class="hidden"
+      @change="handleFiles($event.target.files)"
+    />
+
+    <input type="hidden" name="new_photos" :value="serializedAdd()">
+    <input type="hidden" name="current_photos" :value="serializedUpdate()">
+    <input type="hidden" name="deleted_photos" :value="serializedDeleted()">
+  </div>
+
+</div>

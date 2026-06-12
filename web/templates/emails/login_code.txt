@@ -1,0 +1,5 @@
+Your login code is:
+
+{{ code }}
+
+This code expires shortly.

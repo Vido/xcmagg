@@ -1,0 +1,10 @@
+Hi,
+
+Someone tried to sign in with {{ email }}.
+
+If this was you, you can sign up here:
+{{ signup_url }}
+
+If it wasn't you, just ignore this email.
+
+Thanks, ECDX

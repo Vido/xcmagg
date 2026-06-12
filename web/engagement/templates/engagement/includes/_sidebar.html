@@ -1,0 +1,71 @@
+  <aside class="md:col-span-1 space-y-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+      <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Recent Posts</h3>
+      <ul class="space-y-4">
+        {% for recent in recent_posts %}
+        <li class="border-b border-gray-200 dark:border-gray-700 pb-3">
+
+          <!-- Subreddit / Node -->
+          <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
+            {% if recent.parent %}
+              <a href="{{ recent.parent.get_absolute_url }}"
+                 class="font-semibold text-gray-700 dark:text-gray-200 hover:underline truncate">
+                {{ recent.parent.title }}
+              </a>
+            {% else %}
+              <span>General</span>
+            {% endif %}
+            <span class="mx-1">•</span>
+            <span>{{ recent.published_at|timesince }} ago</span>
+          </div>
+
+          <!-- Post title (full width, clipped) -->
+          <a href="{{ recent.get_absolute_url }}"
+             class="block font-medium text-gray-900 dark:text-gray-100 hover:underline
+                    overflow-hidden text-ellipsis whitespace-nowrap mb-2">
+            {{ recent.title }}
+          </a>
+
+          <!-- Content row -->
+          <div class="flex items-start gap-2 min-w-0">
+
+            <!-- Stats -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-3">
+                <span>{{ recent.upvotes }} upvotes</span>
+                <span>•</span>
+                <span>{{ recent.comments.count }} comments</span>
+                <span>•</span>
+                <span>{{ recent.display_balance }}</span>
+              </div>
+
+              <!-- Body preview -->
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-1 mt-2
+                      overflow-hidden line-clamp-2">
+                      {{ recent.body|striptags }}
+              </p>
+            </div>
+
+            {% if recent.primary_photo %}
+              <div class="flex-shrink-0 w-20 h-20 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+                <img
+                  src="{{ recent.primary_photo.image.url }}"
+                  alt="{{ recent.title }}"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            {% endif %}
+
+
+
+          </div>
+
+        </li>
+        {% empty %}
+          <li class="text-gray-400 dark:text-gray-500 text-sm">No recent posts</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>

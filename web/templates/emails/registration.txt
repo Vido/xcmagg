@@ -1,0 +1,13 @@
+Hi,
+
+Someone tried to sign up in EDCX.club with this address.
+
+If this was you, you can sign up here:
+{{ magic_url }}
+
+If it wasn't you, just ignore this email.
+This link expires shortly.
+
+Thanks,
+
+EDCX.club

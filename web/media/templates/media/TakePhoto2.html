@@ -1,0 +1,35 @@
+    <!-- Mobile: Take Photo -->
+    <div class="block md:hidden">
+      <label
+        for="camera-input"
+        class="w-full flex items-center justify-center gap-3 p-4 rounded-xl
+               bg-gray-100 dark:bg-gray-900
+               text-gray-800 dark:text-gray-100
+               text-sm font-medium
+               cursor-pointer
+               hover:bg-gray-200 dark:hover:bg-gray-800
+               transition"
+      >
+        <!-- Camera icon -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-5 h-5 text-gray-700 dark:text-gray-300"
+             fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 7h3l2-3h8l2 3h3v11H3V7z" />
+          <circle cx="12" cy="13" r="3" />
+        </svg>
+
+        Take a photo
+      </label>
+
+      <input
+        id="camera-input"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        class="hidden"
+        @change="handleFiles($event.target.files)"
+      />
+    </div>

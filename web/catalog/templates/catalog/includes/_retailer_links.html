@@ -1,0 +1,46 @@
+<!-- Retailer Links Panel -->
+{% if links %}
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+    <h3 class="text-base font-bold text-blue-900 mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4.474 4.474 0 00-6.272 0l-4 4a4.474 4.474 0 106.727 6.727l1.527-1.527M10.172 13.828a4.474 4.474 0 006.272 0l4-4a4.474 4.474 0 10-6.727-6.727l-1.526 1.526"/>
+      </svg>
+      Checkout the best Offers
+    </h3>
+
+    <div class="flex flex-col gap-2">
+      {% for link in links %}
+        <div class="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition">
+          <a href="{{ link.url }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="text-blue-500 font-semibold">{{ link.label }}:</span>
+            <span>{{ link.text }}</span>
+          </a>
+          <span class="flex items-center gap-2 ml-3">
+            {% if link.promo_code %}
+              <button
+                type="button"
+                onclick="navigator.clipboard.writeText('{{ link.promo_code }}')"
+                class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full hover:bg-green-200 transition cursor-pointer"
+                title="Click to copy"
+              >
+                {{ link.promo_code }}
+              </button>
+            {% endif %}
+            {% if link.is_affiliate %}
+              <span class="text-xs text-blue-400 italic">affiliate</span>
+            {% endif %}
+            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19.293L9.707 19l-5-5 1.414-1.414L10 16.586l8.879-8.879 1.414 1.414L10 19.293z"/>
+              </svg>
+            </a>
+          </span>
+        </div>
+      {% empty %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

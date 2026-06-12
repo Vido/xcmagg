@@ -1,0 +1,70 @@
+<div
+  x-data="{ isMobile: window.matchMedia('(pointer: coarse)').matches }"
+  @dragover.prevent
+  @drop.prevent="handleDrop($event)"
+  class="border-2 border-dashed rounded-lg p-6
+         border-gray-300 dark:border-gray-600
+         hover:border-blue-500 transition"
+>
+
+  <!-- ACTION ROW -->
+  <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+
+    <!-- Desktop only -->
+    <button
+      type="button"
+      x-show="!isMobile"
+      hx-post="{% url 'generate_qr' %}"
+      hx-target="#qr-container"
+      class="underline hover:text-blue-600"
+    >
+      Upload from Mobile · Scan QR
+    </button>
+
+    <!-- Mobile only -->
+    <label
+      x-show="isMobile"
+      class="underline cursor-pointer hover:text-blue-600"
+    >
+      Take Photo
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        class="hidden"
+        @change="handleFiles($event.target.files)"
+      />
+    </label>
+
+    <!-- Always -->
+    <span
+      class="underline cursor-pointer hover:text-blue-600"
+      @click="$refs.input.click()"
+    >
+      Click to select · Drag & drop
+    </span>
+
+  </div>
+
+  <!-- HINT -->
+  <p class="text-xs text-gray-500 mt-2 text-center">
+    JPG / PNG only · Max: 5 files, 2MB each
+  </p>
+
+  <!-- FILE INPUT -->
+  <input
+    x-ref="input"
+    type="file"
+    name="photos"
+    multiple
+    accept="image/*"
+    class="hidden"
+    @change="handleFiles($event.target.files)"
+  />
+
+  <!-- STATE -->
+  <input type="hidden" name="new_photos" :value="serializedAdd()">
+  <input type="hidden" name="current_photos" :value="serializedUpdate()">
+  <input type="hidden" name="deleted_photos" :value="serializedDeleted()">
+
+</div>

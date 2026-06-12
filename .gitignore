@@ -12,9 +12,12 @@ wheels/
 # Sensitive environment variables
 .env
  
-# Data
+# Data (DBs — local only, never commit)
 data/
-public/data.jsonl
+
+# Django
+web/staticfiles/
+web/.pytest_cache/
 
 # IDE
 .vscode

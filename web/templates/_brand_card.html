@@ -1,0 +1,22 @@
+{% comment %}
+Brand Card Component
+Usage: {% include '_brand_card.html' with brand=brand %}
+Parameters:
+  - brand: Brand/Manufacturer object with slug, title, logo, item_count
+{% endcomment %}
+
+<a href="{% url 'manufacturer-profile' brand.slug %}" 
+   class="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-lg transition-all flex flex-col items-center justify-center aspect-square">
+  {% if brand.logo %}
+    <img 
+      src="{{ brand.logo.url }}" 
+      alt="{{ brand.title }}"
+      class="max-w-full max-h-20 object-contain mb-3 grayscale group-hover:grayscale-0 transition">
+  {% else %}
+    <div class="w-20 h-20 mb-3 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+      <span class="text-2xl font-bold text-gray-400 dark:text-gray-500">{{ brand.title|slice:":1" }}</span>
+    </div>
+  {% endif %}
+  <h3 class="font-bold text-gray-900 dark:text-gray-100 text-center text-sm">{{ brand.title }}</h3>
+  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ brand.item_count|default:"N/A" }} items</p>
+</a>

@@ -1,0 +1,67 @@
+{% load setvar %}
+{% comment %}
+Avatar Component (Using Django Include)
+Usage:
+  {% include 'components/avatar.html' with user=request.user %}
+  {% include 'components/avatar.html' with user=comment.owner size="large" %}
+  {% include 'components/avatar.html' with user=post.author size="small" %}
+
+Parameters:
+  - user (required): User object with avatar_url and username attributes
+  - size (optional): "small" (w-8 h-8), "medium" (w-10 h-10, default), "large" (w-12 h-12), "xl" (w-16 h-16)
+  - border (optional): Set to False to disable border (default: true)
+{% endcomment %}
+
+{# Define size mappings #}
+{% if size == "small" %}
+    {% setvar "w-8 h-8" as size_class %}
+    {% setvar "text-xs" as text_size %}
+{% elif size == "large" %}
+    {% setvar "w-12 h-12" as size_class %}
+    {% setvar "text-xl" as text_size %}
+{% elif size == "xl" %}
+    {% setvar "w-16 h-16" as size_class %}
+    {% setvar "text-2xl" as text_size %}
+{% else %}
+    {% setvar "w-10 h-10" as size_class %}
+    {% setvar "text-base" as text_size %}
+{% endif %}
+
+{# Generate a consistent color based on username #}
+{% with user.username|first|upper as initial %}
+{% with user.username|length as name_length %}
+{% with name_length|add:"0"|stringformat:"d"|slice:"-1" as color_index %}
+
+{# Define color palette (matching Google's style) #}
+{% if color_index == "0" or color_index == "1" %}
+    {% setvar "bg-blue-500 dark:bg-blue-600" as bg_color %}
+{% elif color_index == "2" or color_index == "3" %}
+    {% setvar "bg-green-500 dark:bg-green-600" as bg_color %}
+{% elif color_index == "4" or color_index == "5" %}
+    {% setvar "bg-purple-500 dark:bg-purple-600" as bg_color %}
+{% elif color_index == "6" or color_index == "7" %}
+    {% setvar "bg-orange-500 dark:bg-orange-600" as bg_color %}
+{% else %}
+    {% setvar "bg-pink-500 dark:bg-pink-600" as bg_color %}
+{% endif %}
+
+<div class="flex-shrink-0">
+  {% if user.avatar_url %}
+    <img 
+      src="{{ user.avatar_url }}" 
+      alt="{{ user.username }}"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      class="{{ size_class }} rounded-full {% if border != False %}border-2 border-gray-200 dark:border-gray-700{% endif %} bg-gray-100 dark:bg-gray-800">
+    <div class="{{ size_class }} rounded-full {% if border != False %}border-2 border-gray-200 dark:border-gray-700{% endif %} {{ bg_color }} items-center justify-center text-white font-semibold {{ text_size }} hidden">
+      {{ initial }}
+    </div>
+  {% else %}
+    <div class="{{ size_class }} rounded-full {% if border != False %}border-2 border-gray-200 dark:border-gray-700{% endif %} {{ bg_color }} flex items-center justify-center text-white font-semibold {{ text_size }}">
+      {{ initial }}
+    </div>
+  {% endif %}
+</div>
+
+{% endwith %}
+{% endwith %}
+{% endwith %}
