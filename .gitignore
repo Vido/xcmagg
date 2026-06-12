@@ -14,6 +14,7 @@ wheels/
  
 # Data (DBs — local only, never commit)
 data/
+public/data.jsonl
 
 # Django
 web/staticfiles/

@@ -10,7 +10,7 @@ class GoldLayer:
     @classmethod
     def publish(klass):
         p = Persistence()
-        output_file = str((Path(__file__).parent / 'data' / 'gold' / 'data.jsonl').resolve())
+        output_file = str((Path(__file__).parent.parent / 'data' / 'gold' / 'data.jsonl').resolve())
         results = p.CONN.execute(
             f"""
                 COPY (

@@ -6,7 +6,7 @@ from bronze import RawEvent
 
 class Persistence:
 
-    BASE = Path(__file__).parent / 'data'
+    BASE = Path(__file__).parent.parent / 'data'
 
     def __init__(self):
         self.CONN = duckdb.connect(str(self.BASE / 'events.duckdb'))

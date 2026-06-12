@@ -80,7 +80,7 @@ class SchemaEvent:
 
 class SilverLayer:
 
-    BASE = Path(__file__).parent / 'data' / 'silver'
+    BASE = Path(__file__).parent.parent / 'data' / 'silver'
 
     def __init__(self):
         self.BASE.mkdir(parents=True, exist_ok=True)

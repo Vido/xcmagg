@@ -2,7 +2,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / 'data' / 'geo' / 'municipios_ibge.json'
+DB_PATH = Path(__file__).parent.parent / 'data' / 'geo' / 'municipios_ibge.json'
 
 @lru_cache(maxsize=1)
 def _load_db() -> dict:

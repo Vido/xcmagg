@@ -1,7 +1,9 @@
+import os
 from pathlib import Path
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = Path(os.environ.get('DATA_DIR', BASE_DIR.parent / 'data'))
 
 # Application definition
 INSTALLED_APPS = [
@@ -76,14 +78,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # PROD - no joke
-        'NAME': BASE_DIR.parent / 'data' / 'db' /'db.sqlite3',
-    },
-    "OPTIONS": {
-        "init_command": "PRAGMA journal_mode=WAL;"
-        " PRAGMA mmap_size=268435456;"
-        " PRAGMA synchronous=1;",
-        # TODO: Lightstream for PITR
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'init_command': 'PRAGMA journal_mode=WAL;'
+            ' PRAGMA mmap_size=268435456;'
+            ' PRAGMA synchronous=1;',
+        },
     },
 }
 
@@ -122,7 +123,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_ROOT = BASE_DIR.parent / 'data' / 'uploads'
+MEDIA_ROOT = DATA_DIR / 'uploads'
 MEDIA_URL = 'media/'
 
 DEFAULT_FROM_EMAIL = "EDCX <no-reply@edcx.club>"

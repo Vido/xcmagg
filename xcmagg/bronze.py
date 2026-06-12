@@ -60,7 +60,7 @@ class RawEvent:
 
 class RawLayer:
 
-    BASE = Path(__file__).parent / 'data' / 'bronze'
+    BASE = Path(__file__).parent.parent / 'data' / 'bronze'
 
     def __init__(self):
         if not hasattr(self, 'REPO'):
@@ -165,7 +165,7 @@ class Crawler(ABC, RawLayer):
 
 class BronzeLayer:
 
-    BASE = Path(__file__).parent / 'data' / 'bronze'
+    BASE = Path(__file__).parent.parent / 'data' / 'bronze'
 
     @classmethod
     def store_jsonl(klass,
