@@ -14,8 +14,8 @@ RUN useradd -m django
 
 WORKDIR /app
 
-COPY web/pyproject.toml .
-RUN uv sync --no-dev
+COPY web/pyproject.toml web/uv.lock ./
+RUN uv sync --no-dev --frozen
 
 COPY web/ .
 
