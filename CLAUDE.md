@@ -28,13 +28,17 @@ Pattern: each app creates its own named Docker network; lvido-proxy joins it.
 ```yaml
 # backend docker-compose.yaml
 networks:
-  xcmagg_network:
-    name: xcmagg_network
+  racefeed_network:
+    name: racefeed_network
 
 # lvido-proxy/docker-compose.yml — add to nginx-certbot networks + networks section
 networks:
-  xcmagg_network:
+  racefeed_network:
     external: true
 ```
 
 Container name format: `<compose-project-dir>-<service>-1` (e.g. `xcmagg-web-1` for service `web` in dir `xcmagg/`).
+
+### Data Storage
+
+Django SQLite DB uses named Docker volume `xcmagg_db`, mounted at `/data` inside container. `DATA_DIR=/data` env var points Django there. Do not change mount path or replace with bind mount.

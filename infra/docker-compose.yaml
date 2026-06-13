@@ -3,25 +3,28 @@ version: "3.9"
 services:
   web:
     build:
-      context: .
+      context: ..
       dockerfile: infra/Dockerfile
     env_file:
-      - .env
+      - ../.env
+    environment:
+      DATA_DIR: /data
+      DJANGO_SETTINGS_MODULE: config.prod_settings
     volumes:
-      - sqlite_data:/data
+      - xcmagg_db:/data
     restart: unless-stopped
     networks:
-      - edcx_network
+      - racefeed_network
 
   memcached:
     image: memcached:latest
     restart: unless-stopped
     networks:
-      - edcx_network
+      - racefeed_network
 
 networks:
-  edcx_network:
-    external: true
+  racefeed_network:
+    name: racefeed_network
 
 volumes:
-  sqlite_data:
+  xcmagg_db:

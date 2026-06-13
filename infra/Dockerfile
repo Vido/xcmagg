@@ -3,6 +3,8 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 RUN apt-get update && apt-get install -y \
     libsqlite3-0 \
     curl \
@@ -12,17 +14,14 @@ RUN useradd -m django
 
 WORKDIR /app
 
-COPY infra/requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+COPY web/pyproject.toml .
+RUN uv sync --no-dev
 
-# Copy project
-COPY src/ .
+COPY web/ .
 
 USER django
 
-CMD ["uvicorn", "project.asgi:application", \
-    # "--config", "uvicorn.conf.py", \
+CMD ["uv", "run", "uvicorn", "config.asgi:application", \
     "--host", "0.0.0.0", \
     "--port", "8000", \
     "--workers", "2"]
