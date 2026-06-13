@@ -3,56 +3,54 @@ from nodes.models import Node, NodeKind
 from catalog.models import Manufacturer
 
 
-SEED_MANUFACTURERS = {
-    "knives": [
-        ("Benchmade", "https://www.benchmade.com"),
-        ("Spyderco", "https://www.spyderco.com"),
-        ("CIVIVI", "https://www.civivi.com"),
-        ("Kizer", "https://www.kizerknives.com"),
-        ("ESEE Knives", "https://eseeknives.com"),
-    ],
-    "flashlights": [
-        ("Olight", "https://www.olightstore.com"),
-        ("Fenix", "https://www.fenixlighting.com"),
-        ("Streamlight", "https://www.streamlight.com"),
-        ("SureFire", "https://www.surefire.com"),
-        ("AceBeam", "https://www.acebeam.com"),
-    ],
-    "multitools": [
-        ("Leatherman", "https://www.leatherman.com"),
-        ("Victorinox", "https://www.victorinox.com"),
-        ("Gerber", "https://www.gerbergear.com"),
-        ("SOG", "https://sogknives.com"),
-        ("Roxon", "https://roxontool.com"),
-    ],
-    "watches": [
-        ("Casio", "https://www.casio.com"),
-        ("Seiko", "https://www.seikowatches.com"),
-        ("Citizen", "https://www.citizenwatch.com"),
-        ("G-Shock", "https://www.gshock.com"),
-        ("Garmin", "https://www.garmin.com"),
-    ],
-}
+SEED_MANUFACTURERS = [
+    ("Silca", "https://silca.cc"),
+    ("Muc-Off", "https://muc-off.com"),
+    ("Topeak", "https://www.topeak.com"),
+    ("Lezyne", "https://www.lezyne.com"),
+    ("Park Tool", "https://www.parktool.com"),
+    ("Garmin", "https://www.garmin.com"),
+    ("Wahoo", "https://www.wahoofitness.com"),
+    ("Elite", "https://www.elite-it.com"),
+    ("CamelBak", "https://www.camelbak.com"),
+    ("Continental", "https://www.continental-tires.com"),
+    ("Pirelli", "https://velo.pirelli.com"),
+    ("Shimano", "https://bike.shimano.com"),
+    ("SRAM", "https://www.sram.com"),
+    ("Fizik", "https://www.fizik.com"),
+    ("Selle Italia", "https://www.selleitalia.com"),
+    ("Lizard Skins", "https://www.lizardskins.com"),
+    ("Crankbrothers", "https://www.crankbrothers.com"),
+    ("Knog", "https://www.knog.com"),
+    ("Bryton", "https://www.brytonsport.com"),
+    ("Finish Line", "https://www.finishlineusa.com"),
+    ("WD-40 Bike", "https://wd40bike.com"),
+    ("Stan's NoTubes", "https://www.notubes.com"),
+    ("Orange Seal", "https://www.orangeseal.com"),
+    ("Tubolito", "https://tubolito.com"),
+    ("Specialized", "https://www.specialized.com"),
+    ("Bontrager", "https://www.trekbikes.com/bontrager"),
+    ("Abus", "https://www.abus.com"),
+    ("Kask", "https://www.kask.com"),
+]
 
 
 class Command(BaseCommand):
-    help = "Seed top EDC manufacturers"
+    help = "Seed top cycling brands"
 
     def handle(self, *args, **options):
-        for category_slug, manufacturers in SEED_MANUFACTURERS.items():
-            for title, website in manufacturers:
-                node, _ = Node.objects.update_or_create(
-                    title=title,
-                    defaults={
-                        "kind": NodeKind.MANUFACTURER,
-                    },
-                )
+        for title, website in SEED_MANUFACTURERS:
+            node, _ = Node.objects.update_or_create(
+                title=title,
+                kind=NodeKind.MANUFACTURER,
+                defaults={},
+            )
 
-                Manufacturer.objects.update_or_create(
-                    node=node,
-                    defaults={
-                        "website": website,
-                    },
-                )
+            Manufacturer.objects.update_or_create(
+                node=node,
+                defaults={
+                    "website": website,
+                },
+            )
 
-        self.stdout.write(self.style.SUCCESS("Seeded EDC manufacturers"))
+        self.stdout.write(self.style.SUCCESS("Seeded cycling brands"))

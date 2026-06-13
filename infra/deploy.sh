@@ -12,6 +12,7 @@ rsync -avz --delete \
   --exclude '__pycache__' \
   --exclude '.venv' \
   --exclude '*.pyc' \
+  --exclude '.env' \
   "$REPO_ROOT/web" "$REPO_ROOT/infra" \
   "$SERVER:$REMOTE_DIR/"
 

@@ -167,3 +167,36 @@ ACCOUNT_LOGIN_BY_CODE_ENABLED = False
 LOGIN_URL = 'welcome'
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'welcome'
+
+# Logging — emit to stdout so `docker-compose logs` captures everything.
+# Without this, DEBUG=False swallows 500 tracebacks (Django default only mails admins).
+LOG_LEVEL = config("LOG_LEVEL", default="INFO")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        # Full tracebacks for unhandled 500s, regardless of DEBUG.
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}

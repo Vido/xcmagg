@@ -4,78 +4,68 @@ from catalog.models import Category
 
 SEED_CATEGORIES = [
     {
-        "slug": "knives",
-        "title": "Knives",
-        "description": "Folding knives, fixed blades, and cutting tools for everyday carry.",
+        "title": "Pumps & Inflation",
+        "description": "Floor pumps, mini pumps, CO2 inflators, and pressure gauges.",
     },
     {
-        "slug": "watches",
-        "title": "Watches",
-        "description": "Mechanical, quartz, digital, and tool watches for daily wear.",
+        "title": "Tools & Maintenance",
+        "description": "Multitools, chain tools, torque wrenches, and workshop tools.",
     },
     {
-        "slug": "flashlights",
-        "title": "Flashlights",
-        "description": "Compact and high-output lights for EDC and emergency use.",
+        "title": "Lube & Cleaning",
+        "description": "Chain lubricants, degreasers, cleaners, and drivetrain care.",
     },
     {
-        "slug": "multitools",
-        "title": "Multitools",
-        "description": "Multi-purpose tools combining blades, pliers, and drivers.",
+        "title": "Bottles & Hydration",
+        "description": "Bidons, cages, and hydration systems for riding.",
     },
     {
-        "slug": "wallets",
-        "title": "Wallets",
-        "description": "Minimalist, tactical, and traditional wallets.",
+        "title": "Bags & Storage",
+        "description": "Saddle bags, frame bags, top tube bags, and bikepacking storage.",
     },
     {
-        "slug": "lighters",
-        "title": "Lighters",
-        "description": "Reusable and disposable lighters for utility and preparedness.",
+        "title": "Lights",
+        "description": "Front and rear lights for visibility and night riding.",
     },
     {
-        "slug": "key-solutions",
-        "title": "Key Solutions",
-        "description": "Key organizers, carabiners, and key management systems.",
+        "title": "Computers & Sensors",
+        "description": "GPS head units, power meters, and speed/cadence/HR sensors.",
     },
     {
-        "slug": "bags-hucksacks",
-        "title": "Bags & Hucksacks",
-        "description": "Backpacks, slings, and bags designed for daily carry.",
+        "title": "Tires & Tubes",
+        "description": "Clincher, tubeless, and tubular tires plus inner tubes.",
     },
     {
-        "slug": "carry-systems",
-        "title": "Carry Systems",
-        "description": "Pouches, organizers, and modular carry solutions.",
+        "title": "Tubeless & Sealant",
+        "description": "Tubeless valves, sealant, plugs, and conversion kits.",
     },
     {
-        "slug": "pry-bars",
-        "title": "Pry Bars",
-        "description": "Compact pry tools for leverage and utility tasks.",
+        "title": "Saddles",
+        "description": "Road, gravel, and MTB saddles for comfort and performance.",
     },
     {
-        "slug": "pens",
-        "title": "Pens",
-        "description": "Durable pens designed for everyday and tactical use.",
+        "title": "Bar Tape & Grips",
+        "description": "Handlebar tape and grips for road and off-road bikes.",
     },
     {
-        "slug": "notebooks",
-        "title": "Notebooks",
-        "description": "Pocket notebooks and paper goods for daily notes.",
+        "title": "Pedals & Cleats",
+        "description": "Clipless and flat pedals plus replacement cleats.",
+    },
+    {
+        "title": "Helmets",
+        "description": "Road, gravel, and MTB helmets for protection.",
     },
 ]
 
 class Command(BaseCommand):
-    help = "Seed canonical EDC categories"
+    help = "Seed canonical cycling categories"
 
     def handle(self, *args, **options):
         for data in SEED_CATEGORIES:
             node, _ = Node.objects.update_or_create(
-                slug=data["slug"],
-                defaults={
-                    "kind": NodeKind.CATEGORY,
-                    "title": data["title"],
-                },
+                title=data["title"],
+                kind=NodeKind.CATEGORY,
+                defaults={},
             )
 
             Category.objects.update_or_create(
@@ -85,4 +75,4 @@ class Command(BaseCommand):
                 },
             )
 
-        self.stdout.write(self.style.SUCCESS("Seeded EDC categories"))
+        self.stdout.write(self.style.SUCCESS("Seeded cycling categories"))

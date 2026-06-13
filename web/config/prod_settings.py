@@ -6,12 +6,17 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=lambda v: v.split(","))
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="racefeed.com.br,www.racefeed.com.br",
+    cast=lambda v: v.split(","),
+)
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        "LOCATION": config("MEMCACHED_LOCATION"),
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        # Defaults to the memcached service defined in infra/docker-compose.yaml
+        "LOCATION": config("MEMCACHED_LOCATION", default="memcached:11211"),
     }
 }
 
@@ -27,5 +32,3 @@ ANYMAIL = {
 }
 
 # TODO: R2 STORAGE
-~
-~
