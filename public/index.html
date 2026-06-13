@@ -17,6 +17,7 @@
 		<link rel="manifest" href="/site.webmanifest">
 		-->
 		<!-- Open Graph / Social Sharing -->
+		<meta property="og:site_name" content="RaceFeed" />
 		<meta property="og:title" content="RaceFeed - Calendário de provas de Ciclismo" />
 		<meta property="og:description" content="O calendário unificado de eventos de ciclismo e MTB." />
 		<meta property="og:type" content="website" />
@@ -38,11 +39,21 @@
 			gtag('config', 'G-K196Y4ZCFK');
 		</script>
 
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"name": "RaceFeed",
+			"url": "https://racefeed.com.br/"
+		}
+		</script>
+
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"/>
 		<link rel="stylesheet" href="style.css"/>
 	</head>
 	<body>
 		<nav role="navigation" class="navbar">
+			<div class="nav-inner">
 			<a href="https://racefeed.com.br/" class="logo"><img src="LOGO.svg" alt="RaceFeed" /></a>
 			<button id="nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
 			<ul class="nav-list" id="nav-list">
@@ -58,6 +69,8 @@
 				</li>
 				<li><a href="/community/">Community</a></li>
 			</ul>
+			</div>
+
 		</nav>
 
 		<main role="main" class="content">

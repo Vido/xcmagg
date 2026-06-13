@@ -50,8 +50,8 @@ xcmagg/                        ← git repo
 ├── infra/
 │   ├── Dockerfile
 │   ├── nginx.conf
-│   └── docker-compose.yaml
-└── deploy.sh
+│   ├── docker-compose.yaml
+│   └── deploy.sh
 ```
 
 ---
@@ -132,7 +132,7 @@ server {
         try_files $uri =404;
     }
 
-    # Everything else → Django container via xcmagg_network
+    # Everything else → Django container via racefeed_network
     location / {
         proxy_pass http://xcmagg-web-1:8000;
         include /etc/nginx/includes/proxy.conf;
@@ -140,13 +140,13 @@ server {
 }
 ```
 
-**Update `lvido-proxy/docker-compose.yml`** — add `xcmagg_network`:
+**Update `lvido-proxy/docker-compose.yml`** — add `racefeed_network`:
 
 ```yaml
 # add to networks section:
 networks:
   ...
-  xcmagg_network:
+  racefeed_network:
     external: true
 
 # add to nginx-certbot service networks:
@@ -154,15 +154,15 @@ services:
   nginx-certbot:
     networks:
       - ...
-      - xcmagg_network
+      - racefeed_network
 ```
 
-**xcmagg `infra/docker-compose.yaml`** — use `xcmagg_network`:
+**xcmagg `infra/docker-compose.yaml`** — use `racefeed_network`:
 
 ```yaml
 networks:
-  xcmagg_network:
-    name: xcmagg_network
+  racefeed_network:
+    name: racefeed_network
 ```
 
 **Deploy path for static files** — `public/` rsyncs to `/var/www/xcmagg/` on server (proxy already mounts this volume, no change needed).
@@ -190,17 +190,17 @@ services:
       - /var/www/xcmagg/data:/app/data   # bind mount — data/ at repo root
     restart: unless-stopped
     networks:
-      - xcmagg_network
+      - racefeed_network
 
   memcached:
     image: memcached:latest
     restart: unless-stopped
     networks:
-      - xcmagg_network
+      - racefeed_network
 
 networks:
-  xcmagg_network:
-    name: xcmagg_network
+  racefeed_network:
+    name: racefeed_network
 ```
 
 No port binding needed — proxy reaches container via Docker network (`xcmagg-web-1:8000`).
@@ -289,9 +289,9 @@ No env vars needed. Both find `data/` via relative paths.
 6. Update `infra/Dockerfile` — uv, `COPY web/`, `config.asgi` fix
 7. Update `infra/docker-compose.yaml` — bind mount, port binding, network rename
 8. Write `infra/nginx.conf` with try_files + proxy
-9. Update `deploy.sh` — single rsync for whole repo
+9. Update `infra/deploy.sh` — single rsync for whole repo
 10. Add `data/` to `.gitignore`
-11. On server: create `xcmagg_network` (`docker network create xcmagg_network`)
+11. On server: create `racefeed_network` (`docker network create racefeed_network`)
 12. On server: `docker compose up -d --build`
 13. On server: `docker compose exec web uv run python manage.py migrate`
 14. On server: `docker compose exec web uv run python manage.py collectstatic`

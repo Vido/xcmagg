@@ -1,6 +1,6 @@
 Hi,
 
-Someone tried to sign up in EDCX.club with this address.
+Someone tried to sign up in RaceFeed with this address.
 
 If this was you, you can sign up here:
 {{ magic_url }}
@@ -10,4 +10,4 @@ This link expires shortly.
 
 Thanks,
 
-EDCX.club
+RaceFeed

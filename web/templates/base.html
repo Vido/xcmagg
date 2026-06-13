@@ -3,7 +3,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}EDCX.club{% endblock %}{% block head_title %}{% endblock head_title %}</title>
+  <title>{% block title %}RaceFeed{% endblock %}{% block head_title %}{% endblock head_title %}</title>
+
+  <!-- SEO / Brand -->
+  <meta property="og:site_name" content="RaceFeed" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "RaceFeed",
+    "url": "https://racefeed.com.br/"
+  }
+  </script>
 
   <!-- Responsive -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,11 +65,11 @@
   </script>
 
   <style>
-    /* Custom EDC theme colors */
+    /* RaceFeed theme colors */
     :root {
-      --edc-primary: #1f2937;
-      --edc-secondary: #374151;
-      --edc-accent: #3b82f6;
+      --rf-primary: #262626;
+      --rf-secondary: #374151;
+      --rf-accent: #e66b00;
     }
     /* Smooth transitions for dark mode */
     * {
@@ -91,21 +102,46 @@
   x-init="darkMode = document.documentElement.classList.contains('dark'); console.log('Alpine initialized, darkMode:', darkMode)">
   
   <!-- Mobile-friendly Navigation -->
-  <nav class="bg-gray-900 dark:bg-gray-950 border-b border-gray-800 dark:border-gray-700">
+  <nav class="bg-neutral-800 border-b border-neutral-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo/Brand -->
         <div class="flex items-center">
           <a href="/" class="flex items-center space-x-2">
-            <svg class="w-8 h-8 text-violet-500 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-            <span class="text-xl font-bold text-white">EDCX.club</span>
+            <img src="/LOGO.svg" alt="RaceFeed" class="h-8">
           </a>
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden md:flex md:items-center md:space-x-6">
+          <!-- Public links (always visible) -->
+          <a href="/" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+            Calendário
+          </a>
+          <div class="relative" x-data="{ toolsOpen: false }">
+            <button @click="toolsOpen = !toolsOpen"
+                    @click.away="toolsOpen = false"
+                    class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition flex items-center">
+              Tools
+              <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <div x-show="toolsOpen"
+                 x-transition:enter="transition ease-out duration-100"
+                 x-transition:enter-start="transform opacity-0 scale-95"
+                 x-transition:enter-end="transform opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-75"
+                 x-transition:leave-start="transform opacity-100 scale-100"
+                 x-transition:leave-end="transform opacity-0 scale-95"
+                 class="absolute left-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+              <a href="/gearftp.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear vs FTP</a>
+              <a href="/fuelplan.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Fuel Plan</a>
+              <a href="/gear-matrix.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Matrix</a>
+              <a href="/stem-comparison.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Stem Compare</a>
+            </div>
+          </div>
+
           {% if user.is_authenticated %}
             <a href="#" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
               Categories
@@ -221,6 +257,27 @@
          x-transition:leave-end="opacity-0 -translate-y-1"
          class="md:hidden bg-gray-800 dark:bg-gray-900 border-t border-gray-700 dark:border-gray-600">
       <div class="px-2 pt-2 pb-3 space-y-1">
+        <!-- Public links -->
+        <a href="/" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
+          Calendário
+        </a>
+        <div x-data="{ mobileToolsOpen: false }">
+          <button @click="mobileToolsOpen = !mobileToolsOpen"
+                  class="w-full text-left text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium flex items-center justify-between">
+            Tools
+            <svg class="w-4 h-4" :class="mobileToolsOpen ? 'rotate-180' : ''" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div x-show="mobileToolsOpen" class="pl-4">
+            <a href="/gearftp.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear vs FTP</a>
+            <a href="/fuelplan.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Fuel Plan</a>
+            <a href="/gear-matrix.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Matrix</a>
+            <a href="/stem-comparison.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Stem Compare</a>
+          </div>
+        </div>
+        <hr class="my-1 border-gray-700 dark:border-gray-600">
+
         {% if user.is_authenticated %}
           <a href="#" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
             Dashboard
@@ -295,10 +352,10 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
+  <footer class="bg-neutral-800 border-t border-neutral-700 mt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="text-center text-sm text-gray-500 dark:text-gray-400">
-        <p>&copy; 2024 EDC Inventory. Keep track of your everyday carry.</p>
+      <div class="text-center text-sm text-gray-400">
+        <p>&copy; 2025 RaceFeed.</p>
       </div>
     </div>
   </footer>

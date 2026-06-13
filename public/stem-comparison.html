@@ -12,6 +12,7 @@
   <link rel="canonical" href="https://racefeed.com.br/stem-comparison.html" />
   <link rel="icon" href="/favicon.ico" />
 
+  <meta property="og:site_name" content="RaceFeed" />
   <meta property="og:title" content="Stem Comparison Tool | RaceFeed" />
   <meta property="og:description" content="Visualize and compare bicycle stem reach and rise for any length and angle combination." />
   <meta property="og:type" content="website" />
@@ -62,10 +63,19 @@
     .delta-negative { color: #c62828; }
     .delta-zero { color: #555; }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "RaceFeed",
+  "url": "https://racefeed.com.br/"
+}
+</script>
 </head>
 
 <body>
   <nav role="navigation" class="navbar">
+			<div class="nav-inner">
     <a href="https://racefeed.com.br/" class="logo"><img src="LOGO.svg" alt="RaceFeed" /></a>
     <button id="nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
     <ul class="nav-list" id="nav-list">
@@ -81,6 +91,8 @@
       </li>
       <li><a href="/community/">Community</a></li>
     </ul>
+  	</div>
+
   </nav>
 
   <main role="main" class="content">

@@ -38,14 +38,27 @@ nav a:hover {
 	opacity: 0.7;
 }
 
+.logo {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
 .logo img {
 	height: 40px;
 	display: block;
 }
 
 nav.navbar {
+	width: 100%;
+	background: #262626;
+}
+
+.nav-inner {
 	box-sizing: border-box;
-	background: #333;
+	width: 80%;
+	max-width: 1400px;
+	margin: 0 auto;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -75,7 +88,7 @@ nav.navbar {
 	position: absolute;
 	top: 100%;
 	left: 0;
-	background: #333;
+	background: #262626;
 	list-style: none !important;
 	list-style-type: none !important;
 	padding: 4px 0 !important;
@@ -282,15 +295,18 @@ div#contato div.banner-contato {
 
 /* Footer */
 footer.footer {
-	background: #333;
+	background: #262626;
 	color: white;
 	padding: 20px 0;
 	margin-top: 40px;
 }
 
 .footer-content {
+	box-sizing: border-box;
 	width: 80%;
+	max-width: 1400px;
 	margin: 0 auto;
+	padding: 0 24px;
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -312,27 +328,51 @@ footer.footer {
 		width: 95%;
 	}
 
-	nav.navbar {
-		justify-content: space-between;
+	.nav-inner {
+		width: 95%;
 		height: auto;
 		padding: 8px 16px;
 	}
 
-	#nav-toggle {
-		display: block;
+	.footer-content {
+		width: 95%;
 	}
 
+	#nav-toggle {
+		display: block;
+		position: relative;
+		z-index: 420;
+	}
+
+	/* Off-canvas drawer — slides in from right */
 	.nav-list {
-		display: none;
-		width: 100%;
+		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: flex-start;
 		gap: 4px;
-		padding: 8px 0 4px;
+		position: fixed;
+		top: 0;
+		right: 0;
+		height: 100vh;
+		width: 75%;
+		max-width: 300px;
+		background: #262626;
+		padding: 72px 24px 24px;
+		box-sizing: border-box;
+		transform: translateX(100%);
+		transition: transform 0.3s ease;
+		z-index: 410;
+		box-shadow: -2px 0 12px rgba(0, 0, 0, 0.4);
+		overflow-y: auto;
 	}
 
 	.nav-list.open {
-		display: flex;
+		transform: translateX(0);
+	}
+
+	.nav-list li {
+		margin: 0;
+		width: 100%;
 	}
 
 	.nav-list.open .nav-dropdown-menu {
@@ -340,8 +380,9 @@ footer.footer {
 		display: flex;
 		flex-direction: column;
 		border-top: none;
-		padding: 0;
+		padding: 0 0 0 12px;
 		min-width: unset;
+		background: transparent;
 	}
 
 }
