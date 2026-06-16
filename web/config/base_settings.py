@@ -123,6 +123,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = DATA_DIR / 'static'  # nginx serves this via /static/ (host: /var/www/xcmagg/data/static)
 MEDIA_ROOT = DATA_DIR / 'uploads'
 MEDIA_URL = 'media/'
 

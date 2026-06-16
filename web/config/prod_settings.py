@@ -12,6 +12,17 @@ ALLOWED_HOSTS = config(
     cast=lambda v: v.split(","),
 )
 
+# Behind the lvido-proxy nginx (TLS terminated there). proxy.conf forwards
+# X-Forwarded-Proto, so Django sees the request as secure.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Required for HTTPS POST (admin/login) — Django checks Origin against this list.
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://racefeed.com.br,https://www.racefeed.com.br",
+    cast=lambda v: v.split(","),
+)
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
