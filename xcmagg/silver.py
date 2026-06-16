@@ -60,6 +60,7 @@ class SchemaEvent:
     processed_at: datetime
     crawled_at: datetime
     sport: str = ''
+    canonical_url: str = ''
     #bronze_file: Optional[Path] = None
 
     def __post_init__(self):
@@ -245,6 +246,7 @@ class Parser:
             location=self.location(raw_event),
             date_range=self.date_range(raw_event),
             url=self.url(raw_event),
+            canonical_url=raw_event.canonical_url,
             source=self.source(raw_event),
             crawled_at=raw_event.crawled_at,
             processed_at=datetime.now(),

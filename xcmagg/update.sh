@@ -15,9 +15,9 @@ deploy() {
 
     scp "$PUBLIC_DIR"/* root@164.92.148.125:/var/www/xcmagg/public/
 
-    sed "s|fetch('data.jsonl')|fetch('https://racefeed.com.br/data.jsonl')|" "$PUBLIC_DIR/index.html" > /tmp/index_prod.html
-    scp /tmp/index_prod.html root@164.92.148.125:/var/www/xcmagg/public/index.html
-    rm /tmp/index_prod.html
+    sed "s|fetch('data.jsonl')|fetch('https://racefeed.com.br/data.jsonl')|" "$PUBLIC_DIR/calendar.html" > /tmp/calendar_prod.html
+    scp /tmp/calendar_prod.html root@164.92.148.125:/var/www/xcmagg/public/calendar.html
+    rm /tmp/calendar_prod.html
 }
 
 if [[ "$1" == "--deploy" ]]; then

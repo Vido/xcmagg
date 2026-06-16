@@ -3,13 +3,32 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit, urlunsplit, unquote_plus
 from collections import OrderedDict
 
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cf_requests
 
-from bronze import Crawler, Extractor
+from bronze import Crawler, Extractor, slugify, canonical_url as generic_canonical_url
+
+
+_TS_EVENT_RE = re.compile(r'(/e/)(.+)-(\d+)/?$')
+
+
+def canonical_ticketsports_url(url: str) -> str:
+    """TicketSports event URLs ship the same event with differing slug
+    casing/encoding while sharing the trailing event id, e.g.
+      .../e/super-action-indaiatuba-sunset-2026-74661
+      .../e/SUPER+ACTION+INDAIATUBA+SUNSET+2026-74661
+    Collapse to one canonical URL keyed by the slug-folded id.
+    """
+    parts = urlsplit(url)
+    m = _TS_EVENT_RE.match(parts.path)
+    if not m:
+        return generic_canonical_url(url)  # non-event ticketsports page
+    prefix, slug, event_id = m.groups()
+    path = f'{prefix}{slugify(unquote_plus(slug))}-{event_id}'
+    return urlunsplit((parts.scheme, parts.netloc.lower(), path, '', ''))
 
 
 class ConfederacaoBrasileira:
@@ -112,6 +131,7 @@ class Sprinta():
 
 
 class TicketSports(Crawler, Extractor):
+    """DEAD — superseded by TicketSportsAPI2. Not wired in main.py."""
     URL = 'https://www.ticketsports.com.br/'
     REPO = Path('ticketsports.com.br')
     META = {
@@ -155,6 +175,7 @@ class TicketSports(Crawler, Extractor):
 
 
 class TicketSportsAPI(Crawler, Extractor):
+    """DEAD — superseded by TicketSportsAPI2. Not wired in main.py."""
     URL = 'https://www.ticketsports.com.br/'
     REPO = Path('api.ticketsports.com.br')
 
@@ -252,6 +273,9 @@ class TicketSportsAPI2(Crawler, Extractor):
 
     def url(self, data) -> str:
         return data['uri']
+
+    def canonical_url(self, url: str) -> str:
+        return canonical_ticketsports_url(url)
 
     QUICK_FILTERS = ['mountain-bike', 'ciclismo', 'triathlon']
 

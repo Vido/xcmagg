@@ -488,7 +488,10 @@ class _DesafioRuralBase(Crawler, Extractor):
 
         post_fp = self._repo / f'{date.today().isoformat()}-post.html'
         if not self._is_file_fresh(post_fp):
-            ghash = get_soup.find('input', id='ghash')['value']
+            ghash_input = get_soup.find('input', id='ghash')
+            if ghash_input is None:
+                return []
+            ghash = ghash_input['value']
             resp = cf_requests.post(self.URL, data={
                 'ic': '', 'ghash': ghash,
                 'cpf': self._CPF, 'datanascimento': self._NASC, 'sexo': 'Masculino',

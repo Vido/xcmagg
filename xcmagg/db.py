@@ -11,15 +11,17 @@ class Persistence:
     def __init__(self):
         self.CONN = duckdb.connect(str(self.BASE / 'events.duckdb'))
 
-    def _store_data(self, table: str, jsonlfile: Path):
+    def _store_data(self, table: str, jsonlfile: Path, key: str = 'url'):
 
         if not table.isidentifier():
             raise ValueError(f"Invalid table name: {table}")
+        if not key.isidentifier():
+            raise ValueError(f"Invalid key column: {key}")
 
         exists = self.CONN.execute(
             """
-            SELECT COUNT(*) 
-            FROM information_schema.tables 
+            SELECT COUNT(*)
+            FROM information_schema.tables
             WHERE table_name = ?
             """,
             [table]
@@ -29,9 +31,9 @@ class Persistence:
             MERGE INTO {table} AS t
             USING (
                 SELECT * FROM read_json_auto(?)
-                QUALIFY ROW_NUMBER() OVER (PARTITION BY url ORDER BY crawled_at DESC) = 1
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY {key} ORDER BY crawled_at DESC) = 1
             ) AS s
-            ON t.url = s.url
+            ON t.{key} = s.{key}
             WHEN MATCHED THEN
                 UPDATE SET *
             WHEN NOT MATCHED THEN
@@ -51,7 +53,8 @@ class Persistence:
         self.CONN.execute("VACUUM")
 
     def store_raw_events(self, jsonlfile: Path):
-        return self._store_data('raw_events', jsonlfile)
+        # Raw layer is keyed on the as-served url: every encoding variant is kept.
+        return self._store_data('raw_events', jsonlfile, key='url')
 
     def load_all_events(self):
         rows = self.CONN.execute("SELECT * FROM raw_events").fetchall()
@@ -59,14 +62,14 @@ class Persistence:
         data = [dict(zip(cols, row)) for row in rows]
         return data
 
-    # Dedup
+    # Dedup — keyed on canonical_url so url encoding/casing variants collapse.
     def load_new_events(self):
         rows = self.CONN.execute("""
         SELECT * FROM (
-            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.url ORDER BY r.crawled_at DESC) AS rn
+            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.canonical_url ORDER BY r.crawled_at DESC) AS rn
             FROM raw_events r
-            LEFT JOIN schema_events s ON r.url = s.url
-            WHERE s.url IS NULL
+            LEFT JOIN schema_events s ON r.canonical_url = s.canonical_url
+            WHERE s.canonical_url IS NULL
         ) WHERE rn = 1;
         """).fetchall()
         cols = [c[0] for c in self.CONN.description]
@@ -78,9 +81,9 @@ class Persistence:
     def load_low_quality_events(self):
         rows = self.CONN.execute("""
         SELECT r.* FROM (
-            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.url ORDER BY r.crawled_at DESC) AS rn
+            SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.canonical_url ORDER BY r.crawled_at DESC) AS rn
             FROM raw_events r
-            JOIN schema_events s ON r.url = s.url
+            JOIN schema_events s ON r.canonical_url = s.canonical_url
             WHERE (s.sport = '' OR s.location.confidence = 'low')
               AND TRY_CAST(s.date_range->>'start_date' AS DATE) > CURRENT_DATE
         ) r WHERE rn = 1;
@@ -92,7 +95,7 @@ class Persistence:
         return data
 
     def store_schema_events(self, jsonlfile: Path):
-        return self._store_data('schema_events', jsonlfile)
+        return self._store_data('schema_events', jsonlfile, key='canonical_url')
 
     def load_geo(self):
         geo_file = str(self.BASE / 'geo' / 'municipios_ibge.json')

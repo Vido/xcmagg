@@ -1,8 +1,10 @@
 import os
+import re
 import time
+import unicodedata
 from pathlib import Path
 from itertools import chain
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from urllib.parse import urlparse, urlencode, urlsplit, urlunsplit, parse_qsl
 from datetime import date, datetime, timedelta
 
 from abc import ABC, abstractmethod
@@ -17,6 +19,28 @@ import pdfplumber
 from bs4 import BeautifulSoup
 
 
+def slugify(text: str) -> str:
+    """Accent-fold to ASCII, lowercase, collapse non-alphanumerics to single dashes."""
+    ascii_str = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode()
+    return re.sub(r'[^a-z0-9]+', '-', ascii_str.lower()).strip('-')
+
+
+def canonical_url(url: str) -> str:
+    """Generic canonical form of `url`, used as the dedup key.
+
+    Lowercases the host, strips `utm_*` tracking params and a trailing slash —
+    lossless enough to dedup without merging distinct events. Sources with
+    quirkier URL schemes (e.g. TicketSports) override Extractor.canonical_url.
+    """
+    parts = urlsplit(url)
+    query = urlencode([
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+        if not k.lower().startswith('utm_')
+    ])
+    path = parts.path.rstrip('/') or '/'
+    return urlunsplit((parts.scheme, parts.netloc.lower(), path, query, ''))
+
+
 @dataclass
 class RawEvent:
     title: str
@@ -27,6 +51,7 @@ class RawEvent:
     crawled_at: datetime
     raw_file: Path
     sport: str = ''
+    canonical_url: str = ''
 
     def __post_init__(self):
         self.validate()
@@ -232,6 +257,10 @@ class Extractor(ABC):
     def sport(self, soup) -> str:
         return ''
 
+    def canonical_url(self, url: str) -> str:
+        """Dedup key for this source's URLs. Override for source-specific rules."""
+        return canonical_url(url)
+
     def source(self) -> str:
         return self.URL
 
@@ -254,6 +283,7 @@ class Extractor(ABC):
                 raw_file=self.raw_file(filepath),
                 sport=self.sport(soup),
             )
+             event.canonical_url = self.canonical_url(event.url)
         except Exception as e:
             print(f"Error parsing race from {self.source()}: {e}")
             # Log the problematic HTML for debugging
