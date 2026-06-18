@@ -18,10 +18,10 @@ from catalog.models import (
     Category,
     Manufacturer,
     Item,
-    RetailerLink
 )
 from media.models import Photo
 from media.services import PhotoService
+from catalog.services import RetailerLinkService
 
 
 class NodeForm(forms.ModelForm):
@@ -50,15 +50,6 @@ class ItemForm(forms.ModelForm):
             "price",
         ]
 
-RetailerLinkFormSet = forms.inlineformset_factory(
-    Node,
-    RetailerLink,
-    fields=["text", "url", "is_affiliate", "promo_code"],
-    extra=1,
-    can_delete=True,
-)
-
-
 def htmx_redirect(request, obj):
     url = obj.get_absolute_url()
     if obj.is_draft:
@@ -83,6 +74,7 @@ def new_item(request):
         "title": 'New Item',
         "item": None,
         "new": True,
+        "links": [],
     }
 
     if request.method == "GET":
@@ -107,6 +99,11 @@ def new_item(request):
             node=node,
             add_json=request.POST.get('new_photos'),
             request_files=request.FILES.getlist("photos")
+        )
+
+        RetailerLinkService.sync(
+            node=node,
+            links_json=request.POST.get("links_json"),
         )
 
         item = item_form.save(commit=False)
@@ -134,6 +131,7 @@ def new_catalog_item(request):
         "title": "New Catalog Item",
         "item": None,
         "new": True,
+        "links": [],
     }
 
     if request.method == "GET":
@@ -163,6 +161,11 @@ def new_catalog_item(request):
             node=node,
             add_json=request.POST.get('new_photos'),
             request_files=request.FILES.getlist("photos")
+        )
+
+        RetailerLinkService.sync(
+            node=node,
+            links_json=request.POST.get("links_json"),
         )
 
         item = item_form.save(commit=False)
@@ -199,18 +202,12 @@ def edit_item(request, shortcode, slug=None):
 
     node_form = NodeForm(instance=node)
     item_form = ItemForm(instance=node.item)
-    formset = RetailerLinkFormSet(
-        request.POST or None,
-        instance=node,
-        prefix="retailer")
 
     if request.method == "POST":
         node_form = NodeForm(request.POST, instance=node)
         item_form = ItemForm(request.POST, instance=node.item)
 
-        if (node_form.is_valid() and
-            item_form.is_valid() and 
-            formset.is_valid()):
+        if node_form.is_valid() and item_form.is_valid():
 
             with transaction.atomic():
                 node = node_form.save(commit=False)
@@ -219,8 +216,10 @@ def edit_item(request, shortcode, slug=None):
 
                 item = item_form.save()
 
-                formset.instance = node
-                formset.save()
+                RetailerLinkService.sync(
+                    node=node,
+                    links_json=request.POST.get("links_json"),
+                )
 
                 PhotoService.delete(
                     node=node,
@@ -241,9 +240,9 @@ def edit_item(request, shortcode, slug=None):
         {
             'node_form': node_form,
             'item_form': item_form,
-            'retailerlink_formset': formset,
             'item': node.item,
             'photos': PhotoService.json_photos(node),
+            'links': RetailerLinkService.json_links(node),
             "title": f'Edit { node.get_kind_display() }',
             "new": node.is_draft,
         },

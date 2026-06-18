@@ -11,9 +11,9 @@
     <div class="flex flex-col gap-2">
       {% for link in links %}
         <div class="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition">
-          <a href="{{ link.url }}"
+          <a href="{{ link.get_redirect_url }}"
              target="_blank"
-             rel="noopener noreferrer"
+             rel="{{ link.rel }}"
              class="flex items-center gap-2 flex-1 min-w-0">
             <span class="text-blue-500 font-semibold">{{ link.label }}:</span>
             <span>{{ link.text }}</span>
@@ -32,7 +32,7 @@
             {% if link.is_affiliate %}
               <span class="text-xs text-blue-400 italic">affiliate</span>
             {% endif %}
-            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+            <a href="{{ link.get_redirect_url }}" target="_blank" rel="{{ link.rel }}">
               <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19.293L9.707 19l-5-5 1.414-1.414L10 16.586l8.879-8.879 1.414 1.414L10 19.293z"/>
               </svg>

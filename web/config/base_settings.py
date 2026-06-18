@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'engagement',
     'catalog',
     'media',
+    'linkcloak',
     # TODO: static_sitemaps
 ]
 
@@ -129,6 +130,11 @@ MEDIA_URL = 'media/'
 
 DEFAULT_FROM_EMAIL = "EDCX <no-reply@edcx.club>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# linkcloak: base URL for cloak redirects. Empty -> relative /go2/ path (current).
+# Set to e.g. "https://go.edcx.club" later to serve redirects from a subdomain
+# without code changes.
+LINKCLOAK_BASE_URL = config("LINKCLOAK_BASE_URL", default="")
 
 # Required allauth
 SITE_ID = 1

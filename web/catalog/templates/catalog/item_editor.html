@@ -244,4 +244,7 @@
   </script>
   <script src="{% static 'js/photo_uploader.js' %}" defer></script>
 
+  {{ links|json_script:"links-data" }}
+  <script src="{% static 'js/retailer_links.js' %}" defer></script>
+
 {% endblock %}

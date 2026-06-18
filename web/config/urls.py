@@ -3,11 +3,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-urlpatterns = [   
+urlpatterns = [
     path('admin_3dcx/', admin.site.urls),
     # path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/', include('profiles.urls')),
     # path('accounts/', include('allauth.urls')),
+    path('', include('linkcloak.urls')),
 ]
 
 from django.views.generic import TemplateView

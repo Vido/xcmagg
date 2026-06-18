@@ -113,6 +113,17 @@ class RetailerLinkAdmin(admin.ModelAdmin):
         "text",
         "is_affiliate",
         "promo_code",
+        "target_url",
+        "cloak",
     )
-    list_filter = ("is_affiliate",)
-    search_fields = ("text", "url", "node__title")
+    list_filter = ("is_affiliate", "link__cloak")
+    search_fields = ("text", "link__target_url", "link__slug", "node__title")
+    raw_id_fields = ("node", "link")
+
+    @admin.display(description="Destination")
+    def target_url(self, obj):
+        return obj.link.target_url
+
+    @admin.display(boolean=True, description="Cloak")
+    def cloak(self, obj):
+        return obj.link.cloak

@@ -179,7 +179,12 @@ class RetailerLink(models.Model):
     label = models.CharField(max_length=32)  # "Knife", "Pen", "Watch"
     text = models.CharField(max_length=64)
 
-    url = models.URLField()
+    # Destination, slug, cloak and rel= live on the cloakable Link.
+    link = models.OneToOneField(
+        "linkcloak.Link",
+        on_delete=models.CASCADE,
+        related_name="retailer_link",
+    )
     order = models.PositiveIntegerField(default=0)
 
     is_affiliate = models.BooleanField(default=False)
@@ -191,3 +196,15 @@ class RetailerLink(models.Model):
 
     def __str__(self):
         return f"{self.text} ({'affiliate' if self.is_affiliate else 'direct'})"
+
+    # Proxies to the underlying Link, so templates stay simple.
+    @property
+    def target_url(self):
+        return self.link.target_url
+
+    @property
+    def rel(self):
+        return self.link.rel
+
+    def get_redirect_url(self):
+        return self.link.get_redirect_url()

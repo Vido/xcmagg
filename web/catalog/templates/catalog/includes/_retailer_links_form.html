@@ -1,35 +1,37 @@
-{% load static widget_tweaks %}
-
-<section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
+<section
+  x-data="retailerLinks()"
+  class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
   <div class="flex items-center justify-between">
     <h2 class="font-semibold text-gray-800 dark:text-gray-200">Retailer Links</h2>
     <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Optional</span>
   </div>
 
-  {{ retailerlink_formset.management_form }}
-
-  <div id="retailer-links" class="space-y-4">
-    {% for form in retailerlink_formset %}
+  <div class="space-y-4">
+    <template x-for="(link, index) in links" :key="link.id">
       <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Text
             </label>
-            {% render_field form.text class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" %}
+            <input type="text" x-model="link.text"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               URL
             </label>
-            {% render_field form.url class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" %}
+            <input type="url" x-model="link.url"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4 items-center">
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            {% render_field form.is_affiliate class="rounded border-gray-300 dark:border-gray-600" %}
+            <input type="checkbox" x-model="link.is_affiliate"
+              @change="onAffiliateChange(link)"
+              class="rounded border-gray-300 dark:border-gray-600" />
             <span>Affiliate link</span>
           </label>
 
@@ -37,27 +39,65 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Promo code
             </label>
-            {% render_field form.promo_code class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" %}
+            <input type="text" x-model="link.promo_code"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
           </div>
         </div>
 
-        {% if form.instance.pk %}
-          <label class="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
-            {{ form.DELETE }}
-            <span>Remove</span>
+        <!-- Cloak + slug -->
+        <div class="grid grid-cols-2 gap-4 items-center">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input type="checkbox" x-model="link.cloak"
+              class="rounded border-gray-300 dark:border-gray-600" />
+            <span>Cloak (redirect via /go/)</span>
           </label>
-        {% endif %}
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Slug
+            </label>
+            <input type="text" x-model="link.slug" placeholder="auto"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+          </div>
+        </div>
+
+        <!-- rel= tokens -->
+        <div class="flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-300">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" x-model="link.rel_sponsored"
+              class="rounded border-gray-300 dark:border-gray-600" />
+            <span>sponsored</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" x-model="link.rel_nofollow"
+              class="rounded border-gray-300 dark:border-gray-600" />
+            <span>nofollow</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" x-model="link.rel_ugc"
+              class="rounded border-gray-300 dark:border-gray-600" />
+            <span>ugc</span>
+          </label>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          <code>noopener noreferrer</code> is always applied. Leave slug blank to auto-generate.
+        </p>
+
+        <label class="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 cursor-pointer">
+          <button type="button" @click="remove(index)"
+            class="text-sm font-medium hover:underline">Remove</button>
+        </label>
       </div>
-    {% endfor %}
+    </template>
   </div>
 
   <!-- ADD BUTTON -->
   <button
     type="button"
-    hx-get="#"
-    hx-target="#retailer-links"
-    hx-swap="beforeend"
+    @click="add()"
     class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
     + Add another
   </button>
+
+  <input type="hidden" name="links_json" :value="serialized()" />
 </section>
