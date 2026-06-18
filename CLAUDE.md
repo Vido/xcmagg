@@ -21,6 +21,14 @@ Selection: `manage.py`, `config/asgi.py`, `config/wsgi.py` all `setdefault('DJAN
 
 Env vars are read with python-decouple `config()` — see `web/.env.example` for the var list and defaults. Prod env file: `web/.env` (gitignored, **independent from the scraper's `xcmagg/.env`**), loaded into the web container via `env_file: ../web/.env` in compose. No `export ` prefixes — docker `env_file` does not parse them. `infra/deploy.sh` excludes `.env` from rsync; place it on the server manually once.
 
+## Templates
+
+Lean on the generic base templates — **don't override a whole section to change one part**.
+
+- Base list/detail templates (e.g. `catalog/base_list.html`) expose customization via `{% block %}` hooks: per-section titles/subtitles/actions, content, and a shared empty state (`empty_title`, `empty_description`, `empty_action`). Child templates override the smallest relevant block, not the enclosing section.
+- If the variation you need has no hook, **add a new `{% block %}` to the base** and override it in the child — do not copy the section's markup into the child to wedge in a change.
+- Empty/CTA states belong in the base's empty-state blocks, gated by context (e.g. `{% if owner == request.user %}`), not in bespoke per-page markup.
+
 ## Infrastructure
 
 ### Reverse Proxy

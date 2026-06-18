@@ -15,13 +15,14 @@ placeholder = TemplateView.as_view(template_name="_placeholder.html")
 
 # Catalog
 from catalog.views import home, category_profile, manufacturer_profile, catalog_details
-from catalog.form_views import new_item, edit_item
+from catalog.form_views import new_item, new_catalog_item, edit_item
 urlpatterns += [
     path("", home, name="home"),
     path("manufacturer/<slug:brand>/<slug:shortcode>/<slug:slug>/", catalog_details, name="catalog-details"),
     path("manufacturer/<slug:slug>", manufacturer_profile, name="manufacturer-profile"),
     path("category/<slug:slug>", category_profile, name="category-profile"),
-    path("catalog/new/", new_item, name="new-item"),
+    path("inventory/new/", new_item, name="new-item"),
+    path("catalog/new/", new_catalog_item, name="new-catalog-item"),
     path("catalog/<slug:shortcode>/<slug:slug>/", edit_item, name="edit-item"),
 ]
 

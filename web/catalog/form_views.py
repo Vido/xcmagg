@@ -9,6 +9,7 @@ from django.shortcuts import (
     get_object_or_404
 )
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, HttpResponseForbidden, QueryDict
 
@@ -100,6 +101,62 @@ def new_item(request):
             node.is_draft = request.POST.get('publish') == "draft"
         node.owner = request.user
         node.kind = NodeKind.INVENTORY_ITEM
+        node.save(send_signals=False)
+
+        PhotoService.add(
+            node=node,
+            add_json=request.POST.get('new_photos'),
+            request_files=request.FILES.getlist("photos")
+        )
+
+        item = item_form.save(commit=False)
+        item.node = node
+        item.save()
+
+    return htmx_redirect(request, item)
+
+
+@staff_member_required
+@require_http_methods(["GET", "POST"])
+def new_catalog_item(request):
+
+    initial = {}
+    cat_slug = request.GET.get("category")
+    man_slug = request.GET.get("manufacturer")
+    if cat_slug:
+        initial["category"] = Category.objects.filter(node__slug=cat_slug).first()
+    if man_slug:
+        initial["manufacturer"] = Manufacturer.objects.filter(node__slug=man_slug).first()
+
+    context = {
+        "node_form": NodeForm(),
+        "item_form": ItemForm(initial=initial),
+        "title": "New Catalog Item",
+        "item": None,
+        "new": True,
+    }
+
+    if request.method == "GET":
+        return render(request, "catalog/item_editor.html", context)
+
+    node_form = NodeForm(request.POST)
+    item_form = ItemForm(request.POST)
+    context["node_form"] = node_form
+    context["item_form"] = item_form
+
+    if not (node_form.is_valid() and item_form.is_valid()):
+        return render(request, "catalog/item_editor.html", context)
+
+    publishing = request.POST.get("publish") != "draft"
+    if publishing and not item_form.cleaned_data.get("manufacturer"):
+        messages.error(request, "A catalog item needs a manufacturer before publishing.")
+        return render(request, "catalog/item_editor.html", context)
+
+    with transaction.atomic():
+        node = node_form.save(commit=False)
+        node.is_draft = not publishing
+        node.owner = request.user
+        node.kind = NodeKind.CATALOG_ITEM
         node.save(send_signals=False)
 
         PhotoService.add(
