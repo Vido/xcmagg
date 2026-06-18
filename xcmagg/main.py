@@ -2,6 +2,7 @@ from pprint import pprint
 
 from cronos import *
 from aggregators import *
+from generalists import *
 from bronze import BronzeLayer
 from silver import SilverLayer, Parser
 
@@ -30,6 +31,7 @@ crawlers = [
     DrExtremo(),
     Polesportivo(),
     RandonneursBrasil(),
+    Sympla(),
     # FPCiclismo(), # 503
     # Fmc(), # No links
     # FpcParana(), # WIP
