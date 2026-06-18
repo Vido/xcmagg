@@ -217,10 +217,10 @@ def edit_item(request, shortcode, slug=None):
                 node.is_draft = request.POST.get('publish') == "draft"
                 node.save()
 
-                formset.instance = item
-                formset.save()
-
                 item = item_form.save()
+
+                formset.instance = node
+                formset.save()
 
                 PhotoService.delete(
                     node=node,
