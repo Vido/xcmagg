@@ -65,7 +65,7 @@ def category_list(request):
         {
             "list_title": "Browse by Category",
             "list_subtitle": "Explore gear organized by type",
-            "objects": CategorySelectors.featured(),
+            "shelves": CategorySelectors.shelves(),
             "card_template": "_category_card.html",
             "grid_class": "grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
             "show_community": True,

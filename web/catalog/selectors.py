@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 
 from nodes.models import Visibility
-from catalog.models import Category, Manufacturer, Item
+from catalog.models import Category, Manufacturer, Item, Durability, Audience
 
 from django.db.models import Q
 
@@ -43,6 +43,34 @@ class CategorySelectors:
     @staticmethod
     def featured():
         return _featured_feed(model=Category)
+
+    @staticmethod
+    def shelves():
+        """Featured categories split into ordered shelves — rider consumables
+        first, then bike consumables, then durables. Within each shelf the
+        most-stocked categories surface first (via _featured_feed ordering)."""
+        cats = list(_featured_feed(model=Category))  # evaluate once; reuse item_count
+        shelves = [
+            ("Fuel Your Ride", Audience.RIDER, Durability.CONSUMABLE),
+            ("Keep It Rolling", Audience.BIKE, Durability.CONSUMABLE),
+            ("Upgrade Your Bike", Audience.BIKE, Durability.DURABLE),
+            ("Gear Up", Audience.RIDER, Durability.DURABLE),
+        ]
+        result = []
+        for label, audience, durability in shelves:
+            members = [
+                c for c in cats
+                if c.audience == audience and c.durability == durability
+            ]
+            if members:
+                result.append({"label": label, "categories": members})
+
+        shelved = {c.pk for shelf in result for c in shelf["categories"]}
+        rest = [c for c in cats if c.pk not in shelved]
+        if rest:
+            result.append({"label": "More", "categories": rest})
+
+        return result
 
 class ManufacturerSelectors:
     inventory_items = lambda node: ItemSelectors.for_node(

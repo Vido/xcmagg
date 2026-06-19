@@ -10,4 +10,27 @@ Allow: /calendar.html
 Allow: /gear-matrix.html
 Allow: /stem-comparison.html
 
+# Render assets — crawlers need these to render the pages above
+Allow: /style.css
+Allow: /cassette-database.js
+Allow: /favicon.ico
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.svg$
+
+# edcx app at /community/ — allow content, block private/action/redirect paths
+Allow: /community/
+Disallow: /community/admin_3dcx/
+Disallow: /community/accounts/
+Disallow: /community/magic/
+Disallow: /community/go2/
+Disallow: /community/lookups/
+Disallow: /community/inventory/new/
+Disallow: /community/catalog/new/
+Disallow: /community/post/new/
+Disallow: /community/vote/
+Disallow: /community/rate/
+Disallow: /community/comments/new/
+Disallow: /community/photos/upload/
+
 Sitemap: https://racefeed.com.br/sitemap.xml

@@ -10,10 +10,13 @@ from catalog.models import Category, Manufacturer, Item, RetailerLink
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         "node_title",
+        "durability",
+        "audience",
         "icon_preview",
         "node_visibility",
         "node_created_at",
     )
+    list_filter = ("durability", "audience")
     search_fields = ("node__title", "node__shortcode")
     readonly_fields = ("node",)
 

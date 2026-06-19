@@ -71,7 +71,11 @@ class Visibility(models.TextChoices):
 
 
 class Node(models.Model):
-    
+
+    # Future: a generic Tag(axis, value) model with an M2M here (related_name="tags")
+    # would make any node faceted (discipline, tier, season); start with per-model
+    # CharFields and migrate here once an axis needs multiple values per node.
+
     # Identity + ACL + routing
 
     owner = models.ForeignKey(

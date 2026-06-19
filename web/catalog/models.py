@@ -6,6 +6,16 @@ from django.core.exceptions import ValidationError
 from nodes.models import NodeKind, NodeBoundModel
 
 
+class Durability(models.TextChoices):
+    DURABLE = "durable", "Durable"
+    CONSUMABLE = "consumable", "Consumable"
+
+
+class Audience(models.TextChoices):
+    BIKE = "bike", "For the Bike"
+    RIDER = "rider", "For the Rider"
+
+
 class Category(NodeBoundModel, models.Model):
 
     node = models.OneToOneField(
@@ -17,6 +27,16 @@ class Category(NodeBoundModel, models.Model):
 
     icon = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    # Single-value classification flags. If we ever need a multi-value axis
+    # (e.g. discipline: road+gravel) promote these to a generic Tag(axis, value)
+    # model with an M2M to Node — see the note on Node.
+    durability = models.CharField(
+        max_length=16, choices=Durability.choices, blank=True
+    )
+    audience = models.CharField(
+        max_length=16, choices=Audience.choices, blank=True
+    )
 
     class Meta:
         verbose_name_plural = "categories"
