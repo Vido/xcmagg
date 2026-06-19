@@ -127,6 +127,9 @@ class Item(NodeBoundModel, models.Model):
             )
 
         if self.kind == NodeKind.CATALOG_ITEM:
+            if not self.manufacturer:
+                # Catalog item without a manufacturer has no public URL yet.
+                return self.get_edit_url()
             return reverse(
                 "catalog-details",
                 kwargs={
@@ -176,7 +179,7 @@ class RetailerLink(models.Model):
 
     )
 
-    label = models.CharField(max_length=32)  # "Knife", "Pen", "Watch"
+    label = models.CharField(max_length=32, blank=True)  # "Knife", "Pen", "Watch"
     text = models.CharField(max_length=64)
 
     # Destination, slug, cloak and rel= live on the cloakable Link.

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-4">
+
+  {% if show_community %}
+  <!-- Community Highlights -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Community Highlights</h2>
+        <p class="text-gray-600 dark:text-gray-400">See what the community is sharing</p>
+      </div>
+      <a href="{% url 'feed' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View All Posts
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    {% if highlighted_posts %}
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in highlighted_posts %}
+          {% include '_post_card.html' with post=post %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% url 'new-post' as new_post_url %}
+      {% include '_empty_cta.html' with cta_title="No posts here yet" cta_text="Be the first to share your gear with the community." cta_url=new_post_url cta_label="Share a post" %}
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <section class="mb-16">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ list_title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400">{{ list_subtitle }}</p>
+    </div>
+
+    {% if objects %}
+      <div class="grid {{ grid_class }} gap-6">
+        {% for obj in objects %}
+          {% include card_template with category=obj brand=obj item=obj %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% url 'new-item' as new_item_url %}
+      {% include '_empty_cta.html' with cta_title=empty_title cta_text=empty_text cta_url=new_item_url cta_label="Add your gear" %}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -21,28 +21,44 @@ class VoteMap(models.IntegerChoices):
             raise ValueError(f"Invalid vote action: {action}")
 
 
-class Vote(models.Model):
+class NodeReaction(models.Model):
+    """Abstract base for per-(node, owner) signals attached to a Node.
+
+    Concrete reactions (Vote, Rating) share the same shape and one-per-user
+    constraint, but keep their own `value` semantics and isolated aggregates.
+    """
 
     node = models.ForeignKey(
         'nodes.Node',
         on_delete=models.CASCADE,
-        related_name="votes"
+        related_name="%(class)ss",
     )
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="votes",
+        related_name="%(class)ss",
     )
 
-    value = models.SmallIntegerField(choices=VoteMap.choices)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        abstract = True
         unique_together = ("node", "owner")
         indexes = [
             models.Index(fields=["node"]),
         ]
+
+
+class Vote(NodeReaction):
+    value = models.SmallIntegerField(choices=VoteMap.choices)
+
+
+class Rating(NodeReaction):
+    MIN, MAX = 1, 5
+    value = models.PositiveSmallIntegerField(
+        choices=[(i, str(i)) for i in range(MIN, MAX + 1)]
+    )
 
 
 class Post(NodeBoundModel, models.Model):

@@ -21,6 +21,11 @@ class RetailerLinkData:
     rel_sponsored: bool = False
     rel_nofollow: bool = True
     rel_ugc: bool = False
+    utm_source: str = ""
+    utm_medium: str = ""
+    utm_campaign: str = ""
+    utm_term: str = ""
+    utm_content: str = ""
 
     @classmethod
     def parse_list(cls, data: str) -> List["RetailerLinkData"]:
@@ -52,6 +57,11 @@ class RetailerLinkData:
                 rel_sponsored=bool(obj.get("rel_sponsored", False)),
                 rel_nofollow=bool(obj.get("rel_nofollow", True)),
                 rel_ugc=bool(obj.get("rel_ugc", False)),
+                utm_source=(obj.get("utm_source") or "").strip(),
+                utm_medium=(obj.get("utm_medium") or "").strip(),
+                utm_campaign=(obj.get("utm_campaign") or "").strip(),
+                utm_term=(obj.get("utm_term") or "").strip(),
+                utm_content=(obj.get("utm_content") or "").strip(),
             )
 
 
@@ -84,6 +94,11 @@ class RetailerLinkService:
                     rel_sponsored=ld.rel_sponsored,
                     rel_nofollow=ld.rel_nofollow,
                     rel_ugc=ld.rel_ugc,
+                    utm_source=ld.utm_source,
+                    utm_medium=ld.utm_medium,
+                    utm_campaign=ld.utm_campaign,
+                    utm_term=ld.utm_term,
+                    utm_content=ld.utm_content,
                 )
                 link.slug_hint = ld.text
                 link.save()
@@ -111,6 +126,11 @@ class RetailerLinkService:
             link.rel_sponsored = ld.rel_sponsored
             link.rel_nofollow = ld.rel_nofollow
             link.rel_ugc = ld.rel_ugc
+            link.utm_source = ld.utm_source
+            link.utm_medium = ld.utm_medium
+            link.utm_campaign = ld.utm_campaign
+            link.utm_term = ld.utm_term
+            link.utm_content = ld.utm_content
             if ld.slug:
                 link.slug = ld.slug
             link.save()
@@ -130,6 +150,11 @@ class RetailerLinkService:
                 "rel_sponsored": rl.link.rel_sponsored,
                 "rel_nofollow": rl.link.rel_nofollow,
                 "rel_ugc": rl.link.rel_ugc,
+                "utm_source": rl.link.utm_source,
+                "utm_medium": rl.link.utm_medium,
+                "utm_campaign": rl.link.utm_campaign,
+                "utm_term": rl.link.utm_term,
+                "utm_content": rl.link.utm_content,
             }
             for rl in node.retailer_links.select_related("link").order_by("order", "id")
         ]

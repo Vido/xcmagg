@@ -13,14 +13,14 @@ def _featured_feed(*, model):
         model.objects
         .annotate(
             item_count=Count(
-                "node__children",
+                "items",
                 filter=Q(
-                    node__children__visibility=Visibility.PUBLIC,
-                    node__children__kind__in=[
+                    items__node__visibility=Visibility.PUBLIC,
+                    items__node__kind__in=[
                         NodeKind.INVENTORY_ITEM,
                         NodeKind.CATALOG_ITEM,
                     ],
-                    node__children__item__is_sold=False,
+                    items__is_sold=False,
                 ),
                 distinct=True,
             )
@@ -91,7 +91,8 @@ class ItemSelectors:
             )
             .filter(
                 is_sold=False,
-                node__kind=NodeKind.CATALOG_ITEM
+                node__kind=NodeKind.CATALOG_ITEM,
+                manufacturer__isnull=False,
             )
             .select_related('node', 'node__owner', 'category', 'manufacturer')
             .order_by('-node__published_at')
@@ -113,7 +114,7 @@ class ItemSelectors:
     def visible_inventory_for(viewer, owner):
         return (
             Item.visible.to(viewer, owner)
-            .filter(node__owner=owner)
+            .filter(node__owner=owner, node__kind=NodeKind.INVENTORY_ITEM)
             .select_related('node', 'node__owner', 'catalog_node')
             .order_by('-node__published_at')
         )
@@ -125,6 +126,7 @@ class ItemSelectors:
             .filter(
                 node__owner=owner,
                 node__shortcode=shortcode,
+                node__kind=NodeKind.INVENTORY_ITEM,
                 is_sold=False,
             )
             .select_related("node", "node__owner", "catalog_node")

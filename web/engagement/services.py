@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from nodes.models import Node, NodeKind
-from engagement.models import Post, Vote, VoteMap
+from engagement.models import Post, Vote, VoteMap, Rating
 
 
 class PostService:
@@ -66,3 +66,30 @@ class VoteService:
             node=node,
             defaults={"value": VoteMap.parse(action)},
         )
+
+
+class RatingService:
+    @staticmethod
+    def clean_value(value):
+        try:
+            value = int(value)
+        except (TypeError, ValueError):
+            raise ValueError("Rating must be a number")
+        if not (Rating.MIN <= value <= Rating.MAX):
+            raise ValueError(f"Rating must be {Rating.MIN}-{Rating.MAX}")
+        return value
+
+    @staticmethod
+    @transaction.atomic
+    def cast(*, user, node, value):
+        return Rating.objects.update_or_create(
+            owner=user,
+            node=node,
+            defaults={"value": RatingService.clean_value(value)},
+        )
+
+    @staticmethod
+    def cast_review(*, user, parent_node, value):
+        """Upsert a rating when a post is a review (parent = catalog item)."""
+        if parent_node and parent_node.kind == NodeKind.CATALOG_ITEM and value:
+            RatingService.cast(user=user, node=parent_node, value=value)

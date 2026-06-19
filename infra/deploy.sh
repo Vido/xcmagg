@@ -17,3 +17,8 @@ rsync -avz --delete \
   "$SERVER:$REMOTE_DIR/"
 
 ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml up --build -d"
+
+# Optional DB migration: ./infra/deploy.sh --migrate
+if [[ "${1:-}" == "--migrate" ]]; then
+  ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml exec -T web uv run python manage.py migrate"
+fi

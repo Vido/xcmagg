@@ -15,10 +15,16 @@ from django.views.generic import TemplateView
 placeholder = TemplateView.as_view(template_name="_placeholder.html")
 
 # Catalog
-from catalog.views import home, category_profile, manufacturer_profile, catalog_details
+from catalog.views import (
+    home, category_profile, manufacturer_profile, catalog_details,
+    category_list, manufacturer_list, catalog_list,
+)
 from catalog.form_views import new_item, new_catalog_item, edit_item
 urlpatterns += [
     path("", home, name="home"),
+    path("categories/", category_list, name="category-list"),
+    path("manufacturers/", manufacturer_list, name="manufacturer-list"),
+    path("catalog/", catalog_list, name="catalog-list"),
     path("manufacturer/<slug:brand>/<slug:shortcode>/<slug:slug>/", catalog_details, name="catalog-details"),
     path("manufacturer/<slug:slug>", manufacturer_profile, name="manufacturer-profile"),
     path("category/<slug:slug>", category_profile, name="category-profile"),
@@ -54,9 +60,10 @@ urlpatterns += [
 ]
 
 # Engagement
-from engagement.views import cast_vote, add_comment
+from engagement.views import cast_vote, add_comment, cast_rating
 urlpatterns += [
     path("vote/<slug:shortcode>/", cast_vote, name="cast-vote"),
+    path("rate/<slug:shortcode>/", cast_rating, name="cast-rating"),
     path("comments/new/<slug:shortcode>/", add_comment, name="add-comment"),
     path("comments/<slug:shortcode>/", placeholder, name="comments"),
 ]

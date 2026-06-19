@@ -1,7 +1,7 @@
 
 from django.db import transaction
 from django.urls import reverse
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django.contrib.auth.decorators import login_required
@@ -9,8 +9,8 @@ from django.views.decorators.http import require_POST
 
 from nodes.models import Node
 from engagement.models import Post
-from engagement.selectors import PostSelector
-from engagement.services import PostService, VoteService
+from engagement.selectors import PostSelector, RatingSelector
+from engagement.services import PostService, VoteService, RatingService
 
 
 def post_details(request, shortcode, slug):
@@ -30,7 +30,8 @@ def post_details(request, shortcode, slug):
         {
             'post': node.post,
             # 'photos': photos_for(post),
-            'recent_posts': PostSelector.highlighted()
+            'recent_posts': PostSelector.highlighted(),
+            'author_rating': RatingSelector.user_rating(node.parent, node.owner),
         },
     )
 
@@ -83,4 +84,40 @@ def cast_vote(request, shortcode):
             'node': node,
             #'user_vote': action,
         },
+    )
+
+def rating_widget_context(node, user):
+    agg = RatingSelector.aggregate_for(node)
+    user_rating = None
+    if user.is_authenticated:
+        r = node.ratings.filter(owner=user).first()
+        user_rating = r.value if r else None
+    return {
+        "node": node,
+        "rating_avg": agg["avg"],
+        "rating_count": agg["count"],
+        "user_rating": user_rating,
+    }
+
+
+def cast_rating(request, shortcode):
+
+    if not request.user.is_authenticated:
+        return HttpResponse(status=401)
+
+    node = get_object_or_404(Node, shortcode=shortcode)
+
+    try:
+        RatingService.cast(
+            user=request.user,
+            node=node,
+            value=request.POST.get("value"),
+        )
+    except ValueError as e:
+        return HttpResponseBadRequest(str(e))
+
+    return render(
+        request,
+        "engagement/partials/_rating_widget.html",
+        rating_widget_context(node, request.user),
     )

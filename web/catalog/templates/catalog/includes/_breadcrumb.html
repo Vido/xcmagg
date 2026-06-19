@@ -1,5 +1,5 @@
 <nav class="mb-6">
-  <ol class="flex items-center gap-2 text-sm text-gray-600">
+  <ol class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
     <li>
       {% if item.is_catalog %}
       <a href="{{ item.manufacturer.get_absolute_url }}" class="hover:text-blue-600 transition">
@@ -16,6 +16,6 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
     </li>
-    <li class="text-gray-900 font-medium">{{ item.display_name }}</li>
+    <li class="text-gray-900 dark:text-gray-100 font-medium">{{ item.display_name }}</li>
   </ol>
 </nav>

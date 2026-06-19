@@ -1,5 +1,5 @@
 <section
-  x-data="retailerLinks()"
+  x-data="retailerLinks"
   class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
   <div class="flex items-center justify-between">
     <h2 class="font-semibold text-gray-800 dark:text-gray-200">Retailer Links</h2>
@@ -44,6 +44,7 @@
           </div>
         </div>
 
+        {% if request.user.is_staff %}
         <!-- Cloak + slug -->
         <div class="grid grid-cols-2 gap-4 items-center">
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -82,6 +83,24 @@
         <p class="text-xs text-gray-500 dark:text-gray-400">
           <code>noopener noreferrer</code> is always applied. Leave slug blank to auto-generate.
         </p>
+
+        <!-- UTM params (optional, appended to the destination) -->
+        <details class="text-sm">
+          <summary class="cursor-pointer text-gray-600 dark:text-gray-400">UTM parameters (optional)</summary>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <input type="text" x-model="link.utm_source" placeholder="utm_source"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+            <input type="text" x-model="link.utm_medium" placeholder="utm_medium"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+            <input type="text" x-model="link.utm_campaign" placeholder="utm_campaign"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+            <input type="text" x-model="link.utm_term" placeholder="utm_term"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+            <input type="text" x-model="link.utm_content" placeholder="utm_content"
+              class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2" />
+          </div>
+        </details>
+        {% endif %}
 
         <label class="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 cursor-pointer">
           <button type="button" @click="remove(index)"

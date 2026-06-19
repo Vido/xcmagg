@@ -1,0 +1,27 @@
+{% comment %}
+Interactive product rating widget (vote-like). Context:
+  node, rating_avg, rating_count, user_rating
+{% endcomment %}
+<div id="rating-widget-{{ node.shortcode }}" class="space-y-1">
+  {% if request.user.is_authenticated %}
+    <div class="flex items-center gap-1">
+      {% for i in "12345"|make_list %}
+        <button type="button"
+          hx-post="{% url 'cast-rating' node.shortcode %}"
+          hx-vals='{"value": {{ forloop.counter }}}'
+          hx-target="#rating-widget-{{ node.shortcode }}"
+          hx-swap="outerHTML"
+          aria-label="Rate {{ forloop.counter }}"
+          class="text-2xl leading-none transition hover:scale-110 {% if user_rating and forloop.counter <= user_rating %}text-yellow-400{% else %}text-gray-300 dark:text-gray-600 hover:text-yellow-400{% endif %}">
+          ★
+        </button>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% include '_stars.html' with value=rating_avg count=rating_count %}
+  {% endif %}
+
+  <p class="text-sm text-gray-600 dark:text-gray-400">
+    {% if rating_avg %}{{ rating_avg|floatformat:1 }} avg · {% endif %}{{ rating_count }} rating{{ rating_count|pluralize }}{% if user_rating %} · your rating: {{ user_rating }}★{% endif %}
+  </p>
+</div>

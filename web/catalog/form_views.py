@@ -207,7 +207,16 @@ def edit_item(request, shortcode, slug=None):
         node_form = NodeForm(request.POST, instance=node)
         item_form = ItemForm(request.POST, instance=node.item)
 
-        if node_form.is_valid() and item_form.is_valid():
+        publishing = request.POST.get("publish") != "draft"
+        catalog_needs_manufacturer = (
+            node.kind == NodeKind.CATALOG_ITEM
+            and publishing
+            and item_form.is_valid()
+            and not item_form.cleaned_data.get("manufacturer")
+        )
+        if catalog_needs_manufacturer:
+            messages.error(request, "A catalog item needs a manufacturer before publishing.")
+        elif node_form.is_valid() and item_form.is_valid():
 
             with transaction.atomic():
                 node = node_form.save(commit=False)

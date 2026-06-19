@@ -69,15 +69,15 @@
     </div>
   </section>
 
-  <!-- Latest Catalog Items Section -->
+  <!-- Latest Inventory Section -->
   <section class="mb-16">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Recently Added Gear</h2>
-        <p class="text-gray-600 dark:text-gray-400">Fresh items from the catalog</p>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">From the Community</h2>
+        <p class="text-gray-600 dark:text-gray-400">Recently shared gear</p>
       </div>
-      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
-        View Catalog
+      <a href="{% url 'feed' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+        View Feed
         <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
         </svg>
@@ -98,7 +98,7 @@
         <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Recently Added Gear</h2>
         <p class="text-gray-600 dark:text-gray-400">Fresh items from the catalog</p>
       </div>
-      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+      <a href="{% url 'catalog-list' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
         View Catalog
         <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -120,7 +120,7 @@
         <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Browse by Category</h2>
         <p class="text-gray-600 dark:text-gray-400">Explore gear organized by type</p>
       </div>
-      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+      <a href="{% url 'category-list' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
         View All
         <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -142,7 +142,7 @@
         <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Manufacturers</h2>
         <p class="text-gray-600 dark:text-gray-400">Best gear from trusted manufacturers</p>
       </div>
-      <a href="#" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
+      <a href="{% url 'manufacturer-list' %}" class="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold flex items-center">
         View All
         <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -179,7 +179,7 @@
       </a>
 
       <a
-        href="#"
+        href="{% url 'welcome' %}"
         class="inline-flex items-center px-8 py-4 bg-transparent border border-zinc-500/60 text-zinc-200 font-semibold text-lg rounded-lg hover:border-zinc-300 hover:text-white transition"
       >
         Learn More

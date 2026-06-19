@@ -12,6 +12,8 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.urls import reverse
 
 from engagement.models import Post
+from engagement.services import RatingService
+from engagement.selectors import RatingSelector
 from nodes.models import Node, NodeKind, Visibility
 from media.services import PhotoService
 
@@ -82,16 +84,21 @@ def htmx_redirect(request, obj):
 @require_http_methods(["GET", "POST"])
 def new_post(request):
 
+    initial = {}
+    parent_id = request.GET.get("parent")
+    if parent_id:
+        initial["parent"] = parent_id
+
     context = {
-        "node_form": NodeForm(),
+        "node_form": NodeForm(initial=initial),
         "post_form": PostForm(),
         "title": 'New Post',
         "post": None,
         "new": True,
+        "rating": None,
     }
 
     if request.method == "GET":
-        print('RESPOSTA DO GET')
         return render(request, "engagement/post_editor.html", context)
 
     node_form = NodeForm(request.POST)
@@ -102,6 +109,17 @@ def new_post(request):
         context["post_form"] = post_form
         print(node_form.errors)
         print(post_form.errors)
+        return render(request, "engagement/post_editor.html", context)
+
+    # A post under a catalog item is a Review and carries a star rating.
+    parent = node_form.cleaned_data.get("parent")
+    is_review = bool(parent and parent.kind == NodeKind.CATALOG_ITEM)
+    publishing = request.POST.get("publish") != "draft"
+    rating_val = request.POST.get("rating")
+    if is_review and publishing and not rating_val:
+        messages.error(request, "A review needs a star rating before publishing.")
+        context["node_form"] = node_form
+        context["post_form"] = post_form
         return render(request, "engagement/post_editor.html", context)
 
     with transaction.atomic():
@@ -123,6 +141,10 @@ def new_post(request):
         post = post_form.save(commit=False)
         post.node = node
         post.save()
+
+        RatingService.cast_review(
+            user=request.user, parent_node=node.parent, value=rating_val
+        )
 
     return htmx_redirect(request, post)
 
@@ -180,6 +202,12 @@ def edit_post(request, shortcode):
                     request_files=request.FILES.getlist("photos")
                 )
 
+                RatingService.cast_review(
+                    user=request.user,
+                    parent_node=node.parent,
+                    value=request.POST.get("rating"),
+                )
+
             return htmx_redirect(request, post)
 
 
@@ -193,5 +221,6 @@ def edit_post(request, shortcode):
             "photos": PhotoService.json_photos(node),
             "title": f'Edit { node.get_kind_display() }',
             "new": node.is_draft,
+            "rating": RatingSelector.user_rating(node.parent, request.user),
         },
     )

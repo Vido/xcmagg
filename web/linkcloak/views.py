@@ -11,4 +11,4 @@ from linkcloak.models import Link
 def go_link(request, slug):
     link = get_object_or_404(Link, slug=slug, cloak=True)
     record_click(request, link)
-    return redirect(link.target_url)
+    return redirect(link.get_target_url())

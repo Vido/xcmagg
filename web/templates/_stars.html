@@ -1,0 +1,12 @@
+{% comment %}
+Read-only star display. Usage:
+  {% include '_stars.html' with value=4.3 count=12 %}
+value: number 0..5 (filled = floor of value). count: optional review count.
+{% endcomment %}
+<span class="inline-flex items-center gap-1">
+  <span class="text-yellow-400" aria-hidden="true">
+    {% for i in "12345"|make_list %}{% if forloop.counter <= value %}★{% else %}<span class="text-gray-300 dark:text-gray-600">★</span>{% endif %}{% endfor %}
+  </span>
+  {% if value %}<span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ value|floatformat:1 }}</span>{% endif %}
+  {% if count %}<span class="text-sm text-gray-500 dark:text-gray-400">({{ count }})</span>{% endif %}
+</span>

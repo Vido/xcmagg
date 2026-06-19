@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin, urlparse, urlunparse, parse_qsl
 
 from django.conf import settings
 from django.db import models
@@ -23,6 +23,13 @@ class Link(models.Model):
     rel_sponsored = models.BooleanField(default=False)
     rel_nofollow = models.BooleanField(default=True)
     rel_ugc = models.BooleanField(default=False)
+
+    # Optional UTM params appended to the destination (not the cloak path).
+    utm_source = models.CharField(max_length=128, blank=True)
+    utm_medium = models.CharField(max_length=128, blank=True)
+    utm_campaign = models.CharField(max_length=128, blank=True)
+    utm_term = models.CharField(max_length=128, blank=True)
+    utm_content = models.CharField(max_length=128, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -56,9 +63,29 @@ class Link(models.Model):
             tokens.append("ugc")
         return " ".join(tokens)
 
+    def get_target_url(self):
+        """Destination with any configured UTM params merged into the query.
+
+        Existing query params are preserved; only the set utm_* keys are added
+        (overriding a same-named existing param)."""
+        utm = {
+            "utm_source": self.utm_source,
+            "utm_medium": self.utm_medium,
+            "utm_campaign": self.utm_campaign,
+            "utm_term": self.utm_term,
+            "utm_content": self.utm_content,
+        }
+        utm = {k: v for k, v in utm.items() if v}
+        if not utm:
+            return self.target_url
+        parts = urlparse(self.target_url)
+        query = dict(parse_qsl(parts.query, keep_blank_values=True))
+        query.update(utm)
+        return urlunparse(parts._replace(query=urlencode(query)))
+
     def get_redirect_url(self):
         if not self.cloak:
-            return self.target_url
+            return self.get_target_url()
         path = reverse("linkcloak:go", args=[self.slug])
         base = settings.LINKCLOAK_BASE_URL
         return urljoin(base, path) if base else path

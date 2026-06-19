@@ -1,5 +1,5 @@
-window.retailerLinks = function () {
-  return {
+document.addEventListener("alpine:init", () => {
+  Alpine.data("retailerLinks", () => ({
     links: [],
 
     init() {
@@ -17,6 +17,11 @@ window.retailerLinks = function () {
           rel_sponsored: !!l.rel_sponsored,
           rel_nofollow: l.rel_nofollow !== undefined ? !!l.rel_nofollow : true,
           rel_ugc: !!l.rel_ugc,
+          utm_source: l.utm_source || "",
+          utm_medium: l.utm_medium || "",
+          utm_campaign: l.utm_campaign || "",
+          utm_term: l.utm_term || "",
+          utm_content: l.utm_content || "",
         });
       }
     },
@@ -33,6 +38,11 @@ window.retailerLinks = function () {
         rel_sponsored: false,
         rel_nofollow: true,
         rel_ugc: false,
+        utm_source: "",
+        utm_medium: "",
+        utm_campaign: "",
+        utm_term: "",
+        utm_content: "",
       });
     },
 
@@ -58,11 +68,16 @@ window.retailerLinks = function () {
             rel_sponsored: l.rel_sponsored,
             rel_nofollow: l.rel_nofollow,
             rel_ugc: l.rel_ugc,
+            utm_source: l.utm_source,
+            utm_medium: l.utm_medium,
+            utm_campaign: l.utm_campaign,
+            utm_term: l.utm_term,
+            utm_content: l.utm_content,
           };
           if (typeof l.id === "number") out.id = l.id;
           return out;
         })
       );
     },
-  };
-};
+  }));
+});

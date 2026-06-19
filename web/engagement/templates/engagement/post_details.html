@@ -34,6 +34,13 @@
       <!-- Photo Gallery -->
       {% include "media/_photo_gallery.html" with node=post.node owner=post.owner %}
 
+      {% if post.parent.kind == 'catalog_item' %}
+        <div class="mt-3 flex items-center gap-3">
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">Review</span>
+          {% if author_rating %}{% include '_stars.html' with value=author_rating %}{% endif %}
+        </div>
+      {% endif %}
+
       <div class="prose prose-gray dark:prose-invert max-w-none
                   break-words overflow-hidden
                   [&_img]:max-w-full [&_img]:h-auto

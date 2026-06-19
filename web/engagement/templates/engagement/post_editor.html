@@ -93,6 +93,29 @@
     </section>
     {% endif %}
 
+    {% if new or post.parent.kind == 'catalog_item' %}
+    <!-- STAR RATING (reviews of a catalog item) -->
+    <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-3"
+             x-data="{ rating: {{ rating|default:0 }} }">
+      <h2 class="font-semibold text-gray-800 dark:text-gray-200">
+        Star Rating
+        <span class="text-xs font-normal text-gray-500 dark:text-gray-400">— required when reviewing a product</span>
+      </h2>
+      <input type="hidden" name="rating" :value="rating || ''">
+      <div class="flex gap-1">
+        {% for i in "12345"|make_list %}
+          <button type="button" @click="rating = {{ forloop.counter }}"
+            aria-label="{{ forloop.counter }} stars"
+            class="text-3xl leading-none transition hover:scale-110"
+            :class="rating >= {{ forloop.counter }} ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'">★</button>
+        {% endfor %}
+        <button type="button" x-show="rating" @click="rating = 0"
+          class="ml-3 text-xs text-gray-500 dark:text-gray-400 hover:underline">clear</button>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400">Only saved when the parent is a catalog item.</p>
+    </section>
+    {% endif %}
+
     {% if not post.is_comment %}
     <!-- VISIBILITY -->
     <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
