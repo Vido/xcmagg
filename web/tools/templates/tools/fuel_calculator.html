@@ -10,11 +10,7 @@
 {% block og_image %}https://racefeed.com.br/og-fuelplan.webp{% endblock %}
 
 {% block extra-head %}
-  {# Parallel build: old /fuelplan.html stays the indexed page until cutover. #}
-  <meta name="robots" content="noindex,follow" />
   <link rel="canonical" href="https://racefeed.com.br/tools/cycling-nutrition-calculator/" />
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
 
   <script type="application/ld+json">
   {
@@ -57,6 +53,27 @@
   </script>
 
   <style>
+    /* BS5 form-range look: full grey track + blue dot thumb (no left fill) */
+    #fuelplan-app input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; background: transparent; cursor: pointer;
+    }
+    #fuelplan-app input[type=range]::-webkit-slider-runnable-track {
+      height: .25rem; border-radius: 1rem; background: #dee2e6;
+    }
+    #fuelplan-app input[type=range]::-moz-range-track {
+      height: .25rem; border-radius: 1rem; background: #dee2e6;
+    }
+    #fuelplan-app input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; margin-top: -.375rem;
+      width: 1rem; height: 1rem; border-radius: 50%; background: #0d6efd; border: 0;
+    }
+    #fuelplan-app input[type=range]::-moz-range-thumb {
+      width: 1rem; height: 1rem; border-radius: 50%; background: #0d6efd; border: 0;
+    }
+    .dark #fuelplan-app input[type=range]::-webkit-slider-runnable-track { background: #3f3f46; }
+    .dark #fuelplan-app input[type=range]::-moz-range-track { background: #3f3f46; }
+
     #fuelplan-app .raw-value { font-size: 2.8rem; font-weight: 700; line-height: 1.1; }
     #fuelplan-app .raw-unit { font-size: 1rem; color: #6c757d; }
     @media (max-width: 768px) {
@@ -97,11 +114,17 @@
 
 {% block content %}
 <div id="fuelplan-app"
-     class="max-w-5xl mx-auto px-4 py-6 text-gray-900 dark:text-gray-100">
+     class="text-gray-900 dark:text-gray-100">
 
-  <!-- Card helper classes via Tailwind:
-       card  = rounded border + surface
-       these are written inline below -->
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Cycling Nutrition Calculator &amp; Fuel Plan</h1>
+    <p class="text-gray-600 dark:text-gray-400 max-w-3xl">
+      Plan your ride nutrition in seconds. Estimate how many <strong>carbs</strong>, how much
+      <strong>water</strong>, and how much <strong>sodium</strong> you need per hour from your ride
+      duration, intensity, temperature and body weight — then get a practical, ready-to-pack fuel plan.
+    </p>
+  </header>
+
 
   <!-- Parameters Card -->
   <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 mb-4 overflow-hidden">
@@ -310,7 +333,7 @@
     </div>
   </section>
 
-  <!-- Related gear -->
+  <!-- Catalog items from Nutrition & Hydration -->
   {% if related_items %}
   <section class="mb-10">
     <div class="flex items-end justify-between mb-4">
@@ -330,13 +353,12 @@
 
   <!-- H1 + FAQ -->
   <section class="py-8" aria-label="Frequently Asked Questions">
-    <h1 class="text-lg font-semibold mb-1">Free Cycling Nutrition Plan Calculator — Carbs, Hydration &amp; Sodium</h1>
     <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions — Cycling Nutrition &amp; Fueling</h2>
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>How many carbs should I eat per hour while cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How many carbs should I eat per hour while cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -352,8 +374,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What is glycogen and how much do cyclists store?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is glycogen and how much do cyclists store?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -362,8 +384,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What happens if you don't eat on a long bike ride?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What happens if you don't eat on a long bike ride?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -372,8 +394,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>How much water should I drink while cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much water should I drink while cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -382,8 +404,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What are electrolytes and why do cyclists need them?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are electrolytes and why do cyclists need them?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -399,8 +421,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>Do I need to replenish electrolytes when cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Do I need to replenish electrolytes when cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -409,8 +431,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What should I eat on a 3-hour bike ride?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What should I eat on a 3-hour bike ride?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -420,8 +442,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>How do I stay hydrated when cycling in hot weather?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I stay hydrated when cycling in hot weather?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -430,8 +452,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>Should I eat before or during a bike ride?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Should I eat before or during a bike ride?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -442,8 +464,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>Can I drink too much water while cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Can I drink too much water while cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -452,8 +474,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What are the side effects of too many or too few electrolytes?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are the side effects of too many or too few electrolytes?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -475,8 +497,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What causes cramps during cycling and how do I prevent them?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What causes cramps during cycling and how do I prevent them?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -486,8 +508,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>How much sodium do I need when cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much sodium do I need when cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -497,8 +519,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What is osmolarity and does it matter for sports drinks?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is osmolarity and does it matter for sports drinks?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -514,8 +536,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What is the optimal glucose-to-fructose ratio for cycling?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is the optimal glucose-to-fructose ratio for cycling?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -531,8 +553,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>Is it faster to carry a hydration pack or stop at aid stations?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Is it faster to carry a hydration pack or stop at aid stations?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -543,8 +565,8 @@
       </details>
 
       <details class="group">
-        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800">
-          <span>What do the Peba, Bruto and Galático modes mean?</span>
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What do the Peba, Bruto and Galático modes mean?</h3>
           <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
@@ -562,6 +584,7 @@
 {% endblock content %}
 
 {% block extra-scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   // Tailwind class sets for the segmented mode buttons (replaces Bootstrap btn classes).
   const MODE_BTN_BASE   = 'px-3 py-1.5 text-sm font-medium rounded-lg border border-blue-600 transition-colors';

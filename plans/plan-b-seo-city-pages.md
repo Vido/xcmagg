@@ -1,5 +1,10 @@
 # Plan B: SEO City Landing Pages
 
+> ⚠️ **Approach superseded.** Apex `/` is now Django (no `index.html`); the calendar is moving into a
+> Django `events` app (see `migrate-calendar-to-django.md`). City pages will be **Django SSR in that
+> app**, not a separate Flask micro-server. Sitemap is Django-generated (`web/config/sitemaps.py`).
+> Kept for the still-valid city-selection / population-ranking logic below.
+
 ## Context
 
 RaceFeed serves a single static `index.html`. Goal: city-specific landing pages (e.g. `/cidade/sao-paulo-sp/`) with full meta tags (title, og:*, twitter:*, canonical) for social sharing and crawlers — without generating 100s of HTML files.
@@ -125,7 +130,8 @@ ssh root@164.92.148.125 "systemctl restart city-server"
 
 ### 7. Sitemap
 
-Generate city URLs in `update.sh` or small script — query distinct slugs from `data.jsonl`, append to `sitemap.xml`.
+Add a `CitySitemap` class to `web/config/sitemaps.py` (sitemap is Django-generated now) yielding the
+city slugs — no static XML, no `update.sh` step.
 
 ## City selection
 

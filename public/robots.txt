@@ -5,8 +5,11 @@ Allow: /sitemap.xml
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /gearftp.html
+Allow: /tools/cycling-nutrition-calculator/
 Allow: /fuelplan.html
 Allow: /calendar.html
+Allow: /events/
+Allow: /data.jsonl
 Allow: /gear-matrix.html
 Allow: /stem-comparison.html
 

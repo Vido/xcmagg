@@ -1,0 +1,186 @@
+# RaceFeed
+
+> RaceFeed is a free suite of cycling tools for road cyclists, mountain bikers, and triathletes: a unified race calendar plus interactive calculators for gearing, nutrition, and bike fit. This file inlines the full educational content from each tool.
+
+---
+
+## Cycling Race Calendar
+
+URL: https://racefeed.com.br/events/
+
+A unified calendar of cycling and MTB events and races (Brazil-focused, Portuguese). Enable location to get distances to each event. Weekly email digest of available events available via signup. Event links include a `utm_source` parameter to identify traffic originating from RaceFeed.
+
+---
+
+## Gear Ratio & FTP Calculator
+
+URL: https://racefeed.com.br/gearftp.html
+
+Interactive calculator to visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain. For mountain bikers, road cyclists, and triathletes. Models speed vs. power for an exact rider/bike setup using sliders for weight, CdA, Crr, gradient, and cadence.
+
+### FAQ — Gear Ratio, Power & Speed
+
+**Does a bigger gear make me faster?**
+Not directly — depends on whether you are already at your cadence ceiling. If you are spinning out (hitting the top of your cadence range in the current gear), a bigger gear is the only way to go faster. Bigger gears are also slightly more mechanically efficient: the chain bends less sharply around larger sprockets, reducing friction. This matters most at the small end — cogs smaller than 13 teeth are disproportionately inefficient because the chain articulation angle becomes severe.
+
+**What are the benefits of lower gears?**
+Lower gears let you pedal with less force per stroke — the foundation of endurance riding. Grinding a big gear at 60–70 RPM recruits fast-twitch fibres that fatigue quickly; spinning a lower gear at 85–95 RPM relies more on slow-twitch fibres that recover continuously. Over a 3–5 hour ride this difference compounds dramatically. Lower gears also preserve joints.
+
+**What makes the biggest difference to cycling speed?**
+Highest-impact improvements in order: 1) Aerodynamics — reducing CdA (position, clothing, equipment) cuts drag, which scales with the square of speed and accounts for 80–90% of resistance above 30 km/h. 2) Tires — lower rolling resistance (lower Crr) saves watts at any speed, for free. 3) Weight — losing body weight (~80% of system mass) reduces gravity and rolling resistance on climbs; negligible on flat ground.
+
+**How much faster is a 1 kg lighter bike?**
+On flat ground at 30 km/h, saving 1 kg gives ~0.05 km/h — essentially nothing. On an 8% climb at 10 km/h, ~0.3 km/h. The bike is only ~20% of system weight, the rider ~80%; losing 1 kg of body weight has the same physics effect and is far more achievable.
+
+**Do better tires actually make you faster?**
+Yes — significantly. Crr measures energy wasted per meter rolled. Upgrading from a typical training tire (Crr ≈ 0.006) to a race tire (Crr ≈ 0.003) saves ~5–10 W at 30 km/h, ~1–2 km/h of free speed. Tire pressure is equally important and free: too low wastes energy in deformation, too high bounces over imperfections.
+
+**Aerodynamics or weight — what matters more?**
+Aerodynamics on virtually any terrain above ~15 km/h. Air drag scales with the cube of speed. At 30 km/h on flat ground, a 10% CdA reduction saves ~15–20 W; dropping 2 kg of bike weight saves less than 1 W. Weight only wins on long steep climbs — crossover roughly above 7–8% gradient below 15 km/h.
+
+**How much power to ride at 40 km/h (25 mph)?**
+For a 75 kg rider, 8 kg bike, CdA 0.35, Crr 0.006, flat, no wind: ~65 W at 20 km/h, ~350 W at 40 km/h. Double the speed, ~5–6× the power, almost entirely aerodynamic drag (cube of speed). Aero is ~57% of resistance at 20 km/h, over 85% at 40 km/h.
+
+**Are smaller cranks faster?**
+Not directly — for the same gear and cadence, speed is identical. Gains are indirect: a shorter crank reduces hip flexion, unlocking a lower, more aero position; for XC MTB it reduces pedal strikes on technical terrain.
+
+**What is gain ratio?**
+A dimensionless number expressing the complete mechanical advantage of the drivetrain — chainring, cog, and crank length in one figure. Gain ratio 4.0 means every mm your foot travels around the pedal arc produces 4 mm of forward wheel movement. Unlike gear ratio (teeth only) or gear inches, it is directly comparable across any bike, wheel size, or crank length.
+
+**Does a higher cadence make me faster?**
+Only if you also increase power. Speed = cadence × gear ratio × wheel circumference. Spinning faster in the same gear needs more power. Cadence matters for efficiency and fatigue — higher cadence shifts effort from muscles to the cardiovascular system, which recovers faster. Most trained cyclists target 80–100 RPM.
+
+**Ideal cadence?**
+No universal value — the right number minimizes total fatigue at a given power, and is individual. Low cadence = fewer, more forceful strokes (muscular); high cadence = more strokes at lower force (cardiovascular). Marsh & Martin (1997): cyclists are more economical at their freely chosen cadence than at imposed ones. Cadence guidance: Road flat/rolling 80–100 RPM; Road climbing 65–80 RPM; XC MTB smooth 70–90 RPM; XC MTB loose/steep 55–75 RPM; Sprinting 110–130+ RPM.
+
+**How much harder is a 20% climb vs a 10% climb?**
+Roughly twice the power — gradient is near-linear. A 70 kg rider + 8 kg bike at 280 W climbs 10% at ~12 km/h, 20% at ~6.5 km/h. Mass works the same way: 10% heavier ≈ 10% more climbing power. Neither relationship compounds.
+
+**What is FTP and why does it matter?**
+FTP (Functional Threshold Power) is the max power sustainable for ~1 hour — the ceiling on sustainable speed. A 250 W FTP rider cruises ~35 km/h on flat; 300 W ~38 km/h (same aero). Often expressed as W/kg to compare riders and predict climbing (250 W at 75 kg = 3.3 W/kg). Raising FTP is the only long-term speed lever.
+
+**What does CdA mean?**
+The product of drag coefficient (Cd) and frontal area (A) — the single number capturing how aerodynamic a rider-bike system is. Typical: ~0.45 upright MTB, ~0.35 road drops, ~0.20–0.25 TT bars.
+
+**How do I find my tire's Crr?**
+Look up your tire on BicycleRollingResistance.com — results published in Watts (not Crr), at multiple pressures. That wattage maps to the BRR value in the calculator's rolling resistance slider.
+
+**How do I find my CdA?** Four approaches by cost/precision: (1) Estimate from position (free) using slider defaults — accurate enough for most decisions. (2) Virtual Elevation / Chung method (free) — ride a flat loop with power + GPS, back-calculate in Golden Cheetah or Aerotune. (3) Aero sensor (mid cost) like Notio or AeroSensor. (4) Wind tunnel (high cost) — gold standard, ~€500–2000/session.
+
+**Hydration pack or aid stations?**
+A full 2 L bladder + pack weighs ~2.5 kg, ~3% of an 83 kg system; the penalty shrinks as you drink. Aid stations only save time if you grab a bottle without stopping; any stop at zero speed usually costs more than the weight. The pack wins once the race is long enough to need more than a frame bottle; under ~60–75 min a single bottle suffices.
+
+---
+
+## Cycling Nutrition Plan Calculator — Carbs, Hydration & Sodium
+
+URL: https://racefeed.com.br/tools/cycling-nutrition-calculator/
+
+Estimate carbs, hydration, and sodium needs based on ride conditions, with practical fueling strategies. Hydration model: water starts at carried volume (bottles + pack), drops at a sweat rate driven by temperature (Sawka et al., ACSM 2007).
+
+### FAQ — Nutrition & Fueling
+
+**How many carbs per hour while cycling?**
+Driven by power/intensity. ~1 g carb per 4 kcal; carb fraction rises from ~20% (easy) to ~100% (race pace): 100 W ~30 g/h, 150 W ~70 g/h, 200 W ~120 g/h, 250 W ~190 g/h. Gut absorbs ~60 g/h from one carb source, ~90 g/h with glucose+fructose (SGLT1 + GLUT5). Above that, absorption doesn't improve.
+
+**What is glycogen and how much do cyclists store?**
+The storage form of glucose in muscles and liver. A trained cyclist stores 300–600 g (1200–2400 kcal). Muscle glycogen fuels working muscles; liver glycogen maintains blood glucose. At race pace, stores deplete in 60–90 min without exogenous carbs.
+
+**What happens if you don't eat on a long ride?**
+Glycogen depletes and you bonk — a sudden, severe collapse: legs stop responding, thinking foggy, easy pace feels impossible. Most riders hit this within 90–120 min at moderate-to-high intensity. Preventable by fueling from the start, before hunger.
+
+**How much water while cycling?**
+Sweat rate ranges ~0.4–0.6 L/h (cool/easy) to 1.5–1.8 L/h (hot/hard). Avoid losing more than 2% body weight in fluid; for a 70 kg rider that's a ~1.4 L ceiling. Start at 700–1000 mL/h and adjust.
+
+**What are electrolytes and why do cyclists need them?**
+Minerals carrying electrical charge that enable muscle contraction, nerve signaling, fluid balance. Sodium (Na⁺) — dominant sweat loss, most critical; prevents hyponatremia; ACSM 500–700 mg/h. Potassium (K⁺) — muscle/nerve repolarization, heart rhythm; ACSM 200–300 mg/h. Magnesium (Mg²⁺) — ATP release and muscle relaxation; small sweat loss. Calcium (Ca²⁺) — muscle contraction; minimal in-ride concern.
+
+**Do I need to replenish electrolytes?**
+For rides over 1 hour, yes. Replacing fluid without electrolytes lowers sodium, contributing to cramping, nausea, confusion. Plain water alone dilutes sodium further. Essential for long/hot rides.
+
+**What should I eat on a 3-hour ride?**
+Depends on power, not duration. Fat dominates at easy pace (~100–150 W, 30–70 g/h carb burn); at tempo/threshold (200–250 W, 120–190 g/h) carb burn exceeds gut capacity. Performance riders fuel at the gut ceiling: 60 g/h single source, up to 90 g/h with glucose+fructose. Start within 20–30 min, before hunger.
+
+**Hydration in hot weather?**
+Going 15°C → 35°C adds ~0.5–0.7 L/h sweat (50–80% increase). Raises fluid and sodium needs; carb needs roughly unchanged but high core temp reduces gut tolerance for solids — prefer liquids/gels. Prioritize electrolytes, increase fluid gradually, don't drink more than you sweat.
+
+**Eat before or during?**
+Performance riders: carb-rich meal 2–3 h before; carb-load in days prior for stage racing. Casual riders: a light snack suffices. During-ride fueling depends on intensity/duration — at high intensity start within 20–30 min regardless of pre-ride intake.
+
+**Can I drink too much water?**
+Yes. Excess plain water on very long efforts (>4 h) can cause exercise-associated hyponatremia (EAH): nausea, headache, confusion. Match intake to sweat rate; always include sodium.
+
+**Side effects of too many/too few electrolytes?**
+Too little (realistic risk): Sodium → hyponatremia (nausea, headache, confusion, seizures); Potassium → weakness, cramps, arrhythmia; Magnesium → fatigue, cramps. Too much (chronic dietary): Sodium >2,300 mg/day → hypertension; Potassium >4,700 mg/day → hyperkalemia; Magnesium >350 mg/day supplements → diarrhea; Calcium >2,500 mg/day → hypercalcemia.
+
+**What causes cramps and how to prevent?**
+Cause of exercise-associated muscle cramps (EAMC) is unsettled. Dehydration/electrolyte loss is poorly supported by evidence. Leading hypothesis is neuromuscular: fatigue disrupts excitatory/inhibitory balance to motor neurons. Going harder/longer than fitness supports is the most reliable predictor.
+
+**How much sodium?**
+Primary sweat electrolyte; sweat sodium varies widely (~200–1,500 mg/L) by genetics, fitness, heat acclimatization. ACSM: 500–700 mg/h starting point. Higher needs with longer duration, higher intensity, heat, salty sweaters (white residue on kit). Sources: electrolyte tabs (200–500 mg), sports drinks, salty food.
+
+**What is osmolarity / does it matter?**
+Concentration of dissolved particles (mOsm/L); blood ~285–295. Hypotonic (<270) — dilute, empties/absorbs fastest, best when hydration is priority, <4% carb. Isotonic (270–330) — matches blood, balances fluid and carb delivery, standard sports drinks 4–8% carb. Hypertonic (>330) — concentrated, slows gastric emptying, can worsen hydration until absorbed (gels, concentrated mixes).
+
+**Optimal glucose-to-fructose ratio?**
+Depends on grams/hour. SGLT1 absorbs glucose/maltodextrin; GLUT5 absorbs fructose. Up to ~60 g/h glucose alone saturates SGLT1. Above that, fructose opens the second transporter, raising oxidation up to 50%. 80 g/h ≈ 60 glucose + 20 fructose (3:1); 90 g/h ≈ 60 + 30 (2:1, practical ceiling); 100 g/h ≈ 60 + 40 (3:2).
+
+**What do Peba, Bruto and Galático modes mean?**
+Named after a viral Brazilian cycling meme ranking athletes/gear on a three-tier scale: Peba (basic/budget), Bruto (raw/powerful), Galático (elite). 🐢 Peba — casual riders fueling on whatever's at the aid station; capped at 6 h, 60 g/h carbs, zone 4. (Bruto and Galático scale up duration, carb intake, and intensity.)
+
+---
+
+## Gear Range Calculator — Drivetrain Visualizer
+
+URL: https://racefeed.com.br/gear-matrix.html
+
+Interactive gear range visualizer: see every cassette and chainring combination on a speed/development axis. Compare two drivetrains side by side.
+
+### FAQ
+
+**How do I read the gear range chart?**
+Each row is one chainring. Dots show each gear combination (chainring × cog) on a shared speed/development axis — left = easier, right = harder. The number inside each dot is the cog size. Gaps indicate large jumps between gears (bigger cadence change when shifting); clustered dots mean fine, smooth steps.
+
+**What is gear development?**
+Distance (m/rev) the bike travels per full pedal revolution = gear ratio × wheel circumference. 5.0 m/rev means one crank revolution moves the bike 5 m. Best single number for comparing gearing across wheel sizes; in SI units, unlike gear inches.
+
+**What are gear inches?**
+The Anglo-Saxon equivalent of development: diameter (inches) of a hypothetical direct-drive wheel giving the same mechanical advantage. = (chainring ÷ cog) × wheel diameter in inches. Still common in road and track.
+
+**How do I compare two drivetrains?**
+Click + Compare for a second setup (B). Both plot on the same axis — blue rows A, red rows B. See immediately which has wider range, smaller steps, or more overlap. Useful for 1x vs 2x or before/after a cassette swap.
+
+**How do I choose a cassette for climbing?**
+Read the Speed display at your minimum sustainable cadence (e.g. 60 rpm) and look at the leftmost dot. If still faster than you'd ride the steepest climb, you need a larger cog or smaller chainring. Rule: for every 1% gradient increase, ~6% more gear reduction to hold cadence and power.
+
+**1x vs 2x: which is better?**
+1x — simpler shifting, lighter front end, no front derailleur; modern wide-range cassettes (10–52) give adequate range for most MTB. 2x — tighter mid-range gear steps, less total cog jump, more overlap; favored where fine cadence control matters (road/gravel).
+
+---
+
+## Stem Comparison Tool — Reach & Rise Calculator
+
+URL: https://racefeed.com.br/stem-comparison.html
+
+Compare bicycle stem dimensions side by side: visualize reach and rise for any stem length and angle. Find the best stem for your bike fit.
+
+### FAQ
+
+**What is stem reach?**
+Horizontal distance from steerer clamp center to handlebar clamp center. Determines how far forward your hands sit. Longer = more stretched; shorter = more upright. The most influential stem dimension for fit.
+
+**What is stem rise?**
+Vertical distance from steerer clamp center to handlebar clamp center. Positive lifts bars above the headset; negative (most road stems) drops them below. Affects torso angle and lower-back load. Does not include spacers — add those separately.
+
+**What does "flip the stem" mean?**
+Most threadless stems mount upside-down on the steerer, inverting the angle: a −6° becomes +6°, raising bars and slightly reducing reach. Free adjustment, just an allen key. Use the flip toggle to compare orientations.
+
+**How do I use this tool for bike fitting?**
+Enter your current stem in Setup A, click + Compare to add a candidate in Setup B. Both overlay to the same scale from the same origin; the delta table shows exact change in reach and rise (e.g., 100mm −6° → 110mm −6° = +10.0mm reach, −1.0mm rise).
+
+**How much reach change is meaningful?**
+Most riders feel ≥5mm of reach; 10mm is significant. Under 3mm is typically undetectable in normal riding (matters only for precision fitting). Rise changes are less sensitive than equivalent reach changes.
+
+---
+
+© 2025 RaceFeed. All rights reserved.

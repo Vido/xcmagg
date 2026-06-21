@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # Required allauth
+    'django.contrib.sitemaps',
 
     # Forms
     'django_extensions',
@@ -123,11 +124,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = DATA_DIR / 'static'  # nginx serves this via /static/ (host: /var/www/xcmagg/data/static)
 MEDIA_ROOT = DATA_DIR / 'uploads'
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 DEFAULT_FROM_EMAIL = "EDCX <no-reply@edcx.club>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL

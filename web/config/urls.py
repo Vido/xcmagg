@@ -10,6 +10,13 @@ urlpatterns = [
     # path('accounts/', include('allauth.urls')),
     path('', include('linkcloak.urls')),
     path('tools/', include('tools.urls')),
+    path('events/', include('tools.events_urls')),
+]
+
+from django.contrib.sitemaps.views import sitemap
+from config.sitemaps import SITEMAPS
+urlpatterns += [
+    path('sitemap.xml', sitemap, {'sitemaps': SITEMAPS}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 from django.views.generic import TemplateView

@@ -137,7 +137,7 @@
         <!-- Desktop Navigation -->
         <div class="hidden md:flex md:items-center md:space-x-6">
           <!-- Public links (always visible) -->
-          <a href="/calendar.html" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+          <a href="{% url 'events:calendar' %}" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
             Calendário
           </a>
           <div class="relative" x-data="{ toolsOpen: false }">
@@ -158,7 +158,7 @@
                  x-transition:leave-end="transform opacity-0 scale-95"
                  class="absolute left-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
               <a href="/gearftp.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear vs FTP</a>
-              <a href="/fuelplan.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Fuel Plan</a>
+              <a href="{% url 'tools:fuel-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Fuel Plan</a>
               <a href="/gear-matrix.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Matrix</a>
               <a href="/stem-comparison.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Stem Compare</a>
             </div>
@@ -280,7 +280,7 @@
          class="md:hidden bg-gray-800 dark:bg-gray-900 border-t border-gray-700 dark:border-gray-600">
       <div class="px-2 pt-2 pb-3 space-y-1">
         <!-- Public links -->
-        <a href="/calendar.html" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
+        <a href="{% url 'events:calendar' %}" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
           Calendário
         </a>
         <div x-data="{ mobileToolsOpen: false }">
@@ -293,7 +293,7 @@
           </button>
           <div x-show="mobileToolsOpen" class="pl-4">
             <a href="/gearftp.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear vs FTP</a>
-            <a href="/fuelplan.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Fuel Plan</a>
+            <a href="{% url 'tools:fuel-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Fuel Plan</a>
             <a href="/gear-matrix.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Matrix</a>
             <a href="/stem-comparison.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Stem Compare</a>
           </div>

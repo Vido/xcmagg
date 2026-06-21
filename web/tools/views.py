@@ -12,3 +12,8 @@ def fuel_calculator(request):
     for node in nodes:
         related_items += list(CategorySelectors.catalog_items(node)[:4])
     return render(request, "tools/fuel_calculator.html", {"related_items": related_items})
+
+
+def calendar(request):
+    # Events still client-fetched from /data.jsonl (lift to Django for slug + base.html shell).
+    return render(request, "tools/calendar.html")

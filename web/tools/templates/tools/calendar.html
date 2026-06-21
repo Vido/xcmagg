@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block title %}Calendário de Provas de Ciclismo e MTB | RaceFeed{% endblock %}
+
+{% block meta_description %}Calendário unificado de provas de ciclismo de estrada e mountain bike no Brasil. Encontre eventos perto de você, filtre por modalidade e busque por cidade.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Calendário de Provas de Ciclismo e MTB | RaceFeed{% endblock %}
+{% block og_description %}Calendário unificado de provas de ciclismo de estrada e MTB no Brasil. Encontre eventos perto de você.{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/events/" />
+{% endblock extra-head %}
+
+{% block content %}
+<div id="calendar-app" class="text-gray-900 dark:text-gray-100">
+
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-1">Calendário de Provas de Ciclismo e MTB</h1>
+    <p class="text-gray-600 dark:text-gray-400 max-w-3xl">
+      Eventos de ciclismo de estrada e mountain bike no Brasil. Ative a localização para ver provas
+      perto de você, filtre por modalidade ou busque por cidade.
+    </p>
+  </header>
+
+  <div class="grid gap-6 md:grid-cols-[16rem_1fr]">
+    <aside class="space-y-3 md:sticky md:top-4 self-start">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Ative a localização para obter as distâncias</p>
+      <button id="nearMeBtn"
+        class="w-full rounded-lg px-3 py-2 text-sm font-medium border transition-colors disabled:opacity-60 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950">
+        📍 Perto de mim
+      </button>
+      <select id="sortSelect"
+        class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm">
+        <option value="date">Ordenar por data</option>
+        <option value="distance">Ordenar por Distância</option>
+      </select>
+      <select id="sportSelect"
+        class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm">
+        <option value="">Todas modalidades</option>
+      </select>
+      <input type="search" id="searchInput" placeholder="Buscar evento ou cidade..."
+        class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm">
+      <div class="text-sm text-gray-500 dark:text-gray-400"><span id="event-count"></span></div>
+    </aside>
+
+    <div>
+      <div id="event-list" class="space-y-3"></div>
+      <div class="text-center mt-4">
+        <button id="load-more-btn" style="display:none"
+          class="rounded-lg border border-gray-300 dark:border-neutral-600 px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-neutral-800">
+          Carregar mais
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <section class="text-center mt-12 mb-4 max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold text-green-600 mb-2">Inscreva-se para receber Atualizações!</h2>
+    <p class="text-gray-600 dark:text-gray-400 mb-4">Enviamos semanalmente os eventos disponíveis.</p>
+    <a href="https://forms.gle/oo9s7hdqg29Wznkz7"
+       class="inline-block bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg">
+      Quero Atualizações!
+    </a>
+  </section>
+
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>
+  const MONTHS_PT = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  const PAGE_SIZE = 20;
+  const RADIUS_KM = 250;
+
+  // nearMe button class states (replaces Bootstrap btn-outline-success / btn-success swap)
+  const NEARME_BASE = 'w-full rounded-lg px-3 py-2 text-sm font-medium border transition-colors disabled:opacity-60';
+  const NEARME_OFF  = NEARME_BASE + ' border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950';
+  const NEARME_ON   = NEARME_BASE + ' bg-green-600 border-green-600 text-white';
+
+  let allEvents = [];
+  let filtered = [];
+  let displayed = 0;
+  let searchQuery = '';
+  let sportFilter = '';
+  let nearMeActive = false;
+  let userLat = null, userLon = null;
+
+  function parseEuDate(str) {
+    const [d, m, y] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function calcDistances() {
+    if (userLat === null) return;
+    allEvents.forEach(e => {
+      e.distance = (e.latitude != null && e.longitude != null)
+        ? haversine(userLat, userLon, e.latitude, e.longitude)
+        : null;
+    });
+  }
+
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 +
+      Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+      Math.sin(dLon/2)**2;
+    return R * 2 * Math.asin(Math.sqrt(a));
+  }
+
+  function applyFilters() {
+    const q = searchQuery.toLowerCase();
+    const today = new Date(); today.setHours(0,0,0,0);
+    filtered = allEvents.filter(item => {
+      if (item._ts < today) return false;
+      if (q && !(item.title || '').toLowerCase().includes(q) &&
+        !(item.city || '').toLowerCase().includes(q) &&
+        !(item.uf || '').toLowerCase().includes(q)) return false;
+      if (sportFilter && item.sport !== sportFilter) return false;
+      if (nearMeActive && userLat !== null) {
+        if (item.latitude == null || item.longitude == null) return false;
+        if (item.distance > RADIUS_KM) return false;
+      }
+      return true;
+    });
+    const sort = document.getElementById('sortSelect').value;
+    if (sort === 'distance') {
+      filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+    } else {
+      filtered.sort((a, b) => a._ts - b._ts);
+    }
+    displayed = 0;
+    document.getElementById('event-list').innerHTML = '';
+    updateCounter();
+    renderBatch();
+  }
+
+  function updateCounter() {
+    const el = document.getElementById('event-count');
+    el.textContent = filtered.length + ' evento' + (filtered.length !== 1 ? 's' : '');
+  }
+
+  function renderBatch() {
+    const container = document.getElementById('event-list');
+    const batch = filtered.slice(displayed, displayed + PAGE_SIZE);
+
+    if (displayed === 0 && batch.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'text-center text-gray-500 dark:text-gray-400 py-8';
+      empty.textContent = 'Nenhum evento encontrado.';
+      container.appendChild(empty);
+      document.getElementById('load-more-btn').style.display = 'none';
+      return;
+    }
+
+    batch.forEach(item => {
+      const [d, m, y] = item.start_date.split('-').map(Number);
+
+      const card = document.createElement('div');
+      card.className = 'flex gap-4 items-stretch rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3 hover:shadow-sm transition';
+
+      const badge = document.createElement('div');
+      badge.className = 'flex flex-col items-center justify-center shrink-0 w-16 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 py-2';
+      badge.innerHTML =
+        '<span class="text-xl font-bold leading-none">' + d + '</span>' +
+        '<span class="text-xs font-semibold">' + MONTHS_PT[m - 1] + '</span>' +
+        '<span class="text-[10px] text-gray-500 dark:text-gray-400">' + y + '</span>';
+
+      const body = document.createElement('div');
+      body.className = 'flex flex-col justify-center min-w-0';
+
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.className = 'font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 hover:underline';
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = item.title;
+
+      const loc = document.createElement('div');
+      loc.className = 'text-sm text-gray-500 dark:text-gray-400 mt-0.5';
+      let locText = (item.uf || '') + ' · ' + (item.city || '');
+      if (nearMeActive && item.distance != null) {
+        locText += ' · ~' + Math.round(item.distance) + ' km';
+      }
+      loc.textContent = locText;
+
+      if (item.sport) {
+        const sportTag = document.createElement('span');
+        sportTag.className = 'ml-2 inline-block rounded-full bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs';
+        sportTag.textContent = item.sport;
+        loc.appendChild(sportTag);
+      }
+      body.appendChild(link);
+      body.appendChild(loc);
+      card.appendChild(badge);
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+
+    displayed += batch.length;
+    document.getElementById('load-more-btn').style.display =
+      displayed >= filtered.length ? 'none' : 'block';
+  }
+
+  function readUrlParams() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.has('sport')) {
+      sportFilter = p.get('sport');
+      const sel = document.getElementById('sportSelect');
+      if ([...sel.options].some(o => o.value === sportFilter)) {
+        sel.value = sportFilter;
+      }
+    }
+    if (p.has('q')) {
+      searchQuery = p.get('q');
+      document.getElementById('searchInput').value = searchQuery;
+    }
+  }
+
+  function updateUrl() {
+    const p = new URLSearchParams();
+    if (sportFilter) p.set('sport', sportFilter);
+    if (searchQuery) p.set('q', searchQuery);
+    const qs = p.toString();
+    history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
+  }
+
+  // Fetch and initialize
+  fetch('/data.jsonl')
+    .then(r => r.text())
+    .then(text => {
+      allEvents = text.trim().split('\n').filter(Boolean).map(l => {
+          const e = JSON.parse(l);
+          e._ts = parseEuDate(e.start_date);
+          return e;
+        });
+      const sports = [...new Set(allEvents.map(e => e.sport))].filter(Boolean).sort();
+      const sel = document.getElementById('sportSelect');
+      sports.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+      });
+      readUrlParams();
+      applyFilters();
+    })
+    .catch(err => console.error('Erro:', err));
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    searchQuery = this.value.trim();
+    updateUrl();
+    applyFilters();
+  });
+
+  document.getElementById('load-more-btn').addEventListener('click', renderBatch);
+
+  // Near me
+  const nearMeBtn = document.getElementById('nearMeBtn');
+
+  function requestLocation(onSuccess, onDeny, activateFilter = true) {
+    nearMeBtn.innerHTML = '📍 Buscando... <span class="inline-block w-4 h-4 align-[-2px] border-2 border-current border-t-transparent rounded-full animate-spin"></span>';
+    nearMeBtn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        userLat = pos.coords.latitude;
+        userLon = pos.coords.longitude;
+        calcDistances();
+        nearMeBtn.disabled = false;
+        if (activateFilter) {
+          nearMeActive = true;
+          nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
+          nearMeBtn.className = NEARME_ON;
+        } else {
+          nearMeBtn.textContent = '📍 Perto de mim';
+          nearMeBtn.className = NEARME_OFF;
+        }
+        onSuccess();
+      },
+      () => {
+        nearMeBtn.textContent = '📍 Perto de mim';
+        nearMeBtn.className = NEARME_OFF;
+        nearMeBtn.disabled = false;
+        alert('Não foi possível obter sua localização.');
+        if (onDeny) onDeny();
+      }
+    );
+  }
+
+  document.getElementById('sortSelect').addEventListener('change', function() {
+    if (this.value === 'distance' && userLat === null) {
+      requestLocation(applyFilters, () => {
+        document.getElementById('sortSelect').value = 'date';
+      }, false);
+      return;
+    }
+    applyFilters();
+  });
+  document.getElementById('sportSelect').addEventListener('change', function() {
+    sportFilter = this.value;
+    updateUrl();
+    applyFilters();
+  });
+
+  nearMeBtn.addEventListener('click', function() {
+    if (nearMeActive) {
+      nearMeActive = false;
+      nearMeBtn.textContent = '📍 Perto de mim';
+      nearMeBtn.className = NEARME_OFF;
+      applyFilters();
+      return;
+    }
+    if (userLat !== null) {
+      nearMeActive = true;
+      nearMeBtn.textContent = '📍 ≤ ' + RADIUS_KM + 'km';
+      nearMeBtn.className = NEARME_ON;
+      applyFilters();
+      return;
+    }
+    requestLocation(applyFilters);
+  });
+</script>
+{% endblock extra-scripts %}
