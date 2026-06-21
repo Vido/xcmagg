@@ -156,12 +156,10 @@ def inventory_page(request, username):
         order_by='-node__published_at',
     )
 
-    reviews_qs = PostSelector.posts_under_parent(
-        [
-            NodeKind.CATALOG_ITEM,
-            NodeKind.INVENTORY_ITEM,
-            NodeKind.MANUFACTURER
-        ]
+    reviews_qs = PostSelector.visible_reviews_for(
+        viewer=request.user,
+        owner=owner,
+        order_by='-node__published_at',
     )
     return render(
         request,

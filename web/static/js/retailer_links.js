@@ -1,5 +1,7 @@
-document.addEventListener("alpine:init", () => {
-  Alpine.data("retailerLinks", () => ({
+// Global factory (same pattern as photoUploader) so x-data="retailerLinks()"
+// resolves regardless of script/Alpine load order or htmx re-renders.
+window.retailerLinks = function () {
+  return {
     links: [],
 
     init() {
@@ -79,5 +81,5 @@ document.addEventListener("alpine:init", () => {
         })
       );
     },
-  }));
-});
+  };
+};

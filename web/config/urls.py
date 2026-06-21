@@ -9,6 +9,7 @@ urlpatterns = [
     path('accounts/', include('profiles.urls')),
     # path('accounts/', include('allauth.urls')),
     path('', include('linkcloak.urls')),
+    path('tools/', include('tools.urls')),
 ]
 
 from django.views.generic import TemplateView

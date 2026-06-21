@@ -50,6 +50,33 @@ class ItemForm(forms.ModelForm):
             "price",
         ]
 
+    # Fields meaningful only for a user's inventory item (ownership + marketplace),
+    # never for a canonical catalog item.
+    INVENTORY_ONLY_FIELDS = [
+        "catalog_node",   # catalog item is the reference itself
+        "acquired_at",    # portfolio tracking
+        "cost",
+        "is_listed",      # marketplace
+        "accepts_trade",
+        "price",
+    ]
+
+    def __init__(self, *args, is_catalog=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_catalog = is_catalog
+        # Drop inventory-only fields for catalog items (also blocks them on POST).
+        if is_catalog:
+            for name in self.INVENTORY_ONLY_FIELDS:
+                self.fields.pop(name, None)
+
+    def clean(self):
+        cleaned = super().clean()
+        # Catalog URLs are namespaced under the brand slug — fall back to the
+        # seeded "Unbranded" manufacturer so a catalog item stays routable.
+        if self.is_catalog and not cleaned.get("manufacturer"):
+            cleaned["manufacturer"] = Manufacturer.objects.get(node__slug="unbranded")
+        return cleaned
+
 def htmx_redirect(request, obj):
     url = obj.get_absolute_url()
     if obj.is_draft:
@@ -58,10 +85,6 @@ def htmx_redirect(request, obj):
     else:
         messages.success(request, "Nice Gear! Thank you.")
 
-    #return HttpResponse(
-    #    "Redirecting...",
-    #   headers={"HX-Redirect": url},
-    #)
     return redirect(url)
 
 @login_required
@@ -127,7 +150,7 @@ def new_catalog_item(request):
 
     context = {
         "node_form": NodeForm(),
-        "item_form": ItemForm(initial=initial),
+        "item_form": ItemForm(initial=initial, is_catalog=True),
         "title": "New Catalog Item",
         "item": None,
         "new": True,
@@ -138,7 +161,7 @@ def new_catalog_item(request):
         return render(request, "catalog/item_editor.html", context)
 
     node_form = NodeForm(request.POST)
-    item_form = ItemForm(request.POST)
+    item_form = ItemForm(request.POST, is_catalog=True)
     context["node_form"] = node_form
     context["item_form"] = item_form
 
@@ -146,9 +169,6 @@ def new_catalog_item(request):
         return render(request, "catalog/item_editor.html", context)
 
     publishing = request.POST.get("publish") != "draft"
-    if publishing and not item_form.cleaned_data.get("manufacturer"):
-        messages.error(request, "A catalog item needs a manufacturer before publishing.")
-        return render(request, "catalog/item_editor.html", context)
 
     with transaction.atomic():
         node = node_form.save(commit=False)
@@ -200,23 +220,15 @@ def edit_item(request, shortcode, slug=None):
                     },
             )
 
+    is_catalog = node.kind == NodeKind.CATALOG_ITEM
     node_form = NodeForm(instance=node)
-    item_form = ItemForm(instance=node.item)
+    item_form = ItemForm(instance=node.item, is_catalog=is_catalog)
 
     if request.method == "POST":
         node_form = NodeForm(request.POST, instance=node)
-        item_form = ItemForm(request.POST, instance=node.item)
+        item_form = ItemForm(request.POST, instance=node.item, is_catalog=is_catalog)
 
-        publishing = request.POST.get("publish") != "draft"
-        catalog_needs_manufacturer = (
-            node.kind == NodeKind.CATALOG_ITEM
-            and publishing
-            and item_form.is_valid()
-            and not item_form.cleaned_data.get("manufacturer")
-        )
-        if catalog_needs_manufacturer:
-            messages.error(request, "A catalog item needs a manufacturer before publishing.")
-        elif node_form.is_valid() and item_form.is_valid():
+        if node_form.is_valid() and item_form.is_valid():
 
             with transaction.atomic():
                 node = node_form.save(commit=False)

@@ -6,6 +6,15 @@ from nodes.models import NodeKind, Visibility
 from engagement.models import Post, Vote, VoteMap, Rating
 
 
+# A post is a "review" when its parent is a catalog/inventory/manufacturer node.
+# Top-level community posts ("pocket dumps") have no such parent.
+REVIEW_PARENT_KINDS = [
+    NodeKind.CATALOG_ITEM,
+    NodeKind.INVENTORY_ITEM,
+    NodeKind.MANUFACTURER,
+]
+
+
 class PostSelector:
 
     @staticmethod
@@ -86,12 +95,34 @@ class PostSelector:
 
     @staticmethod
     def visible_posts_for(*, viewer, owner, order_by=None):
+        # Top-level community posts only — exclude reviews (posts attached to a
+        # catalog/inventory/manufacturer node), which have their own section.
         qs = (
             Post.visible.to(viewer, owner)
             .filter(
                 node__kind=NodeKind.POST,
-                node__owner=owner
+                node__owner=owner,
             )
+            .exclude(node__parent__kind__in=REVIEW_PARENT_KINDS)
+        )
+
+        if order_by:
+            qs = qs.order_by(order_by)
+
+        return qs
+
+    @staticmethod
+    def visible_reviews_for(*, viewer, owner, order_by=None):
+        # The owner's own reviews — posts attached to a catalog/inventory/
+        # manufacturer node, scoped to the owner and the viewer's visibility.
+        qs = (
+            Post.visible.to(viewer, owner)
+            .filter(
+                node__kind=NodeKind.POST,
+                node__owner=owner,
+                node__parent__kind__in=REVIEW_PARENT_KINDS,
+            )
+            .select_related("node__parent")
         )
 
         if order_by:

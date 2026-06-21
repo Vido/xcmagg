@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'catalog',
     'media',
     'linkcloak',
+    'tools',
     # TODO: static_sitemaps
 ]
 

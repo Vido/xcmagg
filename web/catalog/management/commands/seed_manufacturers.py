@@ -4,6 +4,9 @@ from catalog.models import Manufacturer
 
 
 SEED_MANUFACTURERS = [
+    # Fallback brand for catalog items with no real manufacturer — keeps the
+    # item routable (catalog URLs are namespaced under the brand slug).
+    ("Unbranded", ""),
     ("Silca", "https://silca.cc"),
     ("Muc-Off", "https://muc-off.com"),
     ("Topeak", "https://www.topeak.com"),

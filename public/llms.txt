@@ -6,7 +6,7 @@
 
 - [Cycling Race Calendar](https://racefeed.com.br/calendar.html): Unified calendar of cycling and MTB events and races.
 - [Gear Ratio & FTP Calculator](https://racefeed.com.br/gearftp.html): Visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain.
-- [Cycling Nutrition Plan Calculator](https://racefeed.com.br/fuelplan.html): Estimate carbs, hydration, and sodium needs based on ride conditions, with practical fueling strategies.
+- [Cycling Nutrition Calculator & Fuel Plan](https://racefeed.com.br/fuelplan.html): Estimate carbs, hydration, and sodium needs based on ride conditions, with practical fueling strategies.
 - [Gear Range Calculator](https://racefeed.com.br/gear-matrix.html): Drivetrain visualizer showing every cassette and chainring combination on a speed/development axis; compare two drivetrains side by side.
 - [Stem Comparison Tool](https://racefeed.com.br/stem-comparison.html): Compare bicycle stem dimensions side by side; visualize reach and rise for any stem length and angle.
 

@@ -106,6 +106,7 @@
       </div>
 
       <!-- Catalog Node -->
+      {% if item_form.catalog_node %}
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catalog Reference</label>
         <input
@@ -119,9 +120,11 @@
         {{ item_form.catalog_node }}
         <div id="catalog-results" class="mt-2 space-y-1"></div>
       </div>
+      {% endif %}
     </section>
 
     <!-- MARKETPLACE -->
+    {% if item_form.is_listed %}
     <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="font-semibold text-gray-800 dark:text-gray-200">Marketplace</h2>
@@ -145,8 +148,10 @@
         </label>
       </div>
     </section>
+    {% endif %}
 
     <!-- PORTFOLIO TRACKING (PRIVATE) -->
+    {% if item_form.acquired_at %}
     <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="font-semibold text-gray-800 dark:text-gray-200">Portfolio Tracking</h2>
@@ -173,6 +178,7 @@
         </div>
       </div>
     </section>
+    {% endif %}
 
     <!-- VISIBILITY -->
     <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-4">
