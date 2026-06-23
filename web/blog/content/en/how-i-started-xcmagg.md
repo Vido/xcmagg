@@ -29,7 +29,7 @@ Saturday, but on the other side of a state line. No tool lets me say "show me wh
 within reasonable driving distance," because none of them know where the events
 *are*, only which state dropdown they were filed under.
 
-I decide to scrap them!
+I decide to scrape them!
 
 ## What XCMAGG is
 
@@ -53,12 +53,12 @@ A scraper writing a flat file, costs roughly the same whether it serves 200 peop
 Here's the architectural decision I'm proudest of, and it sounds like laziness
 until you live with it:
 
-> Serverless - 100% filebased
+> Serverless - 100% file-based.
 > The entire product is a scraper that writes a **JSONL file**,
 > plus a **static HTML page** that reads it.
+> The "database" is JSON, CSV, and DuckDB files.
 
-Serverless I mean truly serverless - not what AWS call 'cloud-hosted database';
-O banco de dados são arquivos JSON, CSV e DuckDB.
+By serverless I mean truly serverless - not what AWS calls "cloud-hosted database".
 
 No API. No SPA framework. No database-backed backend sitting in the request path.
 The page you load is a flat HTML file that `fetch()`es one `data.jsonl` and
@@ -71,11 +71,11 @@ This was an opinionated decision against slop. So many developers have pre-conce
 An a previous consultancy on a startup - they had a API plugged into a Redis (which was the persistencey database). There was a nasty home-made ORM. Developers were unprepared do deal with a NoSQL. This was complex and caused many many bugs. The solution was cut the useless abstraction - call the Redis primitives - no wrapper, no abstraction - the API layer was the abstraction it self.
 Using the wrong abstraction will cost a lot. 
 
-Data scrapping is complex - it seen chaotic at times.
-The crucial decision is where;when to apply abstraction;
-ab -> sufix meaning 'away from'
+Data scraping is complex - it can seem chaotic at times.
+The crucial decision is where/when to apply abstraction.
+ab -> prefix meaning 'away from'
 traction -> to draw, pull
-scraper = pull away form?
+scraper = pull away from?
 
 The complexity lives in the pipeline that *produces* the file — not in serving it.
 The scraper follows a medallion architecture. Data moves through three layers,
@@ -95,7 +95,7 @@ impersonate a real browser's TLS fingerprint.
 
 And sometimes sources die. My crawler list has commented-out lines — sources that shut down,
 or changed so much they weren't worth chasing anymore. Maintaining an aggregator
-means accepting that your sources are cat and mouse game.
+means accepting that your sources are a cat-and-mouse game.
 
 ### Silver — normalization
 
@@ -144,7 +144,7 @@ Every architectural choice is really a choice about how much operational weight
 I'm willing to carry. I build this alone. Just like a bike: the lighter, the better.
 
 - I can trigger this pipeline from my local PC - No cost
-- LLM costs are kept to a minium - LLM is called only on edge cases
+- LLM costs are kept to a minimum - LLM is called only on edge cases
 - Server costs are near zero.
 - Deploy is like its the 2000's
 

@@ -13,17 +13,14 @@ Cards are gated by `profile`; the engine writes only what is rendered.{% endcomm
   md:grid-cols-2 only when the chart is shown (galático); otherwise plan goes full width.{% endcomment %}
   <div id="nutriGrid" class="grid grid-cols-1">
     <div class="p-4 lg:col-span-4">
-      <div id="bonkWarning" class="rounded bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800 py-2 px-3 mb-3 text-sm" style="display:none">
-        ⚠️ <strong>Bonking risk</strong><span id="bonkContext"></span> — glycogen may run out around <strong><span id="bonkTime">—</span></strong>. Increase carb target, or decrease intensity.
-      </div>
+      {% include "tools/_bonk_warning.html" with margin="mb-3" %}
       <ul class="plan-list" id="planList"></ul>
     </div>
 
     <!-- Carbs Depletion Chart — Galático only -->
     <div id="depletionCard" class="p-4 border-t md:border-t-0 md:border-l border-gray-200 dark:border-neutral-700 lg:col-span-8" style="display:none">
       <div class="font-semibold mb-2">📉 Glycogen Depletion</div>
-      <canvas id="depletionChart" height="180"></canvas>
-      <p class="text-gray-500 dark:text-gray-400 text-sm mb-0 mt-2" id="depletionNote"></p>
+      {% include "tools/_depletion_chart.html" %}
     </div>
   </div>
 </div>
@@ -66,16 +63,13 @@ Cards are gated by `profile`; the engine writes only what is rendered.{% endcomm
 </div>
 
 {% if profile == 'full' %}
-<div id="bonkWarning" class="rounded bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800 py-2 px-3 mb-4 text-sm" style="display:none">
-  ⚠️ <strong>Bonking risk</strong><span id="bonkContext"></span> — glycogen may run out around <strong><span id="bonkTime">—</span></strong>. Increase carb target, or decrease intensity.
-</div>
+{% include "tools/_bonk_warning.html" with margin="mb-4" %}
 
 <!-- Carbs Depletion Chart — Galático only -->
 <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 mb-4 overflow-hidden" id="depletionCard" style="display:none">
   <div class="px-4 py-3 border-b border-gray-200 dark:border-neutral-700 font-semibold">📉 Glycogen Depletion</div>
   <div class="p-4">
-    <canvas id="depletionChart" height="180"></canvas>
-    <p class="text-gray-500 dark:text-gray-400 text-sm mb-0 mt-2" id="depletionNote"></p>
+    {% include "tools/_depletion_chart.html" %}
   </div>
 </div>
 {% endif %}
@@ -100,14 +94,14 @@ Cards are gated by `profile`; the engine writes only what is rendered.{% endcomm
           <label class="block text-sm font-medium mb-1">
             🍶 Bottles: <strong><span id="bottlesValue">1.50</span> L</strong>
           </label>
-          <input type="range" class="w-full accent-blue-600 mb-1" id="bottlesSlider" min="500" max="3000" step="250" value="1500">
+          <input type="range" class="w-full mb-1" id="bottlesSlider" min="500" max="3000" step="250" value="1500">
           <span class="block text-xs text-gray-500 dark:text-gray-400" id="bottlesLabel">2 × 750 ml</span>
         </div>
         <div class="mb-3">
           <label class="block text-sm font-medium mb-1">
             🎒 Hydration pack: <strong><span id="packValue">—</span> L</strong>
           </label>
-          <input type="range" class="w-full accent-blue-600 mb-1" id="packSlider" min="0" max="3000" step="500" value="0">
+          <input type="range" class="w-full mb-1" id="packSlider" min="0" max="3000" step="500" value="0">
           <span class="block text-xs text-gray-500 dark:text-gray-400" id="packLabel">None</span>
         </div>
         <div id="stopsBody"></div>

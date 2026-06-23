@@ -12,8 +12,9 @@ class Durability(models.TextChoices):
 
 
 class Audience(models.TextChoices):
-    BIKE = "bike", "For the Bike"
-    RIDER = "rider", "For the Rider"
+    BIKE = "bike", "Bicycle"
+    PARTS = "parts", "Parts & Accessories"
+    RIDER = "rider", "Rider Gear"
 
 
 class Category(NodeBoundModel, models.Model):

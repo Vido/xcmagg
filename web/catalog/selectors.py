@@ -51,9 +51,10 @@ class CategorySelectors:
         most-stocked categories surface first (via _featured_feed ordering)."""
         cats = list(_featured_feed(model=Category))  # evaluate once; reuse item_count
         shelves = [
+            ("Showroom", Audience.BIKE, Durability.DURABLE),
             ("Fuel Your Ride", Audience.RIDER, Durability.CONSUMABLE),
-            ("Keep It Rolling", Audience.BIKE, Durability.CONSUMABLE),
-            ("Upgrade Your Bike", Audience.BIKE, Durability.DURABLE),
+            ("Keep It Rolling", Audience.PARTS, Durability.CONSUMABLE),
+            ("Upgrade Your Bike", Audience.PARTS, Durability.DURABLE),
             ("Gear Up", Audience.RIDER, Durability.DURABLE),
         ]
         result = []

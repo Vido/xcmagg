@@ -41,7 +41,9 @@
   #fuelplan-app .totals-chip { display: flex; flex-direction: column; background: white; border: 1px solid lightgray; border-radius: 6px; padding: 6px 10px; min-width: 72px; }
   #fuelplan-app .totals-chip-value { font-size: 1rem; font-weight: 700; line-height: 1.2; }
   #fuelplan-app .totals-chip-label { font-size: 0.7rem; color: gray; }
-  #fuelplan-app .plan-alt-divider { font-size: 0.75rem; font-style: italic; color: #adb5bd; padding: 2px 0; border-bottom: none !important; text-align: center; }
+  /* Nutrition results split (toggled by setMode); kept in CSS so it survives a Tailwind purge. */
+  @media (min-width: 768px)  { #fuelplan-app #nutriGrid.nut-split { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { #fuelplan-app #nutriGrid.nut-split { grid-template-columns: repeat(12, minmax(0, 1fr)); } }
   #fuelplan-app .bottle-recipe { border-left: 3px solid #0d6efd; border-radius: 0 6px 6px 0; padding: 6px 10px; }
   #fuelplan-app .bottle-recipe__label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #0d6efd; margin-bottom: 5px; }
   #fuelplan-app .bottle-recipe__chips { display: flex; flex-wrap: wrap; gap: 6px; }

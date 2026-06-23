@@ -4,7 +4,7 @@ The page sets `window.FUEL_PROFILE` (nutrition|hydration|full) before this
 include; the profile-gated input/output partials decide which DOM exists.
 The engine is null-tolerant: it reads/writes only the elements present, so a
 page that omits (say) the carbs slider or the water chart simply skips them.{% endcomment %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   const PROFILE = window.FUEL_PROFILE || 'full';
 
@@ -218,9 +218,11 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
     setCls('planCol', (isPeba || !has('bottlesCol')) ? 'md:col-span-3' : 'md:col-span-2');
     show('depletionCard',  isGalatico);
     // Nutrition combined card: plan | chart columns only when the chart shows.
-    // md = 50/50; lg = 33/67 (12-col grid, plan spans 4, chart spans 8).
+    // md = 50/50; lg = 33/67 (plan lg:col-span-4 | chart lg:col-span-8, both static
+    // in markup). Grid columns live in scoped CSS (.nut-split) so they survive a
+    // Tailwind purge — runtime-only utility classes would get stripped.
     const _ng = document.getElementById('nutriGrid');
-    if (_ng) ['md:grid-cols-2', 'lg:grid-cols-12'].forEach(c => _ng.classList.toggle(c, isGalatico));
+    if (_ng) _ng.classList.toggle('nut-split', isGalatico);
     show('waterChartCard', !isPeba);
 
     update();
@@ -436,7 +438,7 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
         section = sectionOf(it.divider);
         return keepSection(section);
       }
-      if (it.totals || it.note || it.text || it.alt) return true;
+      if (it.totals || it.note || it.text) return true;
       return keepSection(section);
     });
   }
@@ -727,7 +729,6 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
     const items = filterPlanItems(plan.items);
     setHTML('planList', items.map(item => {
       if (item.divider) return `<li class="plan-section-divider">${item.divider}</li>`;
-      if (item.alt)     return `<li class="plan-alt-divider">${item.alt}</li>`;
       if (item.note)    return `<li class="italic text-gray-500 dark:text-gray-400">${item.note}</li>`;
       if (item.text)    return `<li>${item.text}</li>`;
       if (item.totals) {
@@ -746,12 +747,18 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
       </li>`;
     }).join(''));
 
-    const pct = plan.potassium_target > 0
-      ? Math.round((plan.potassium_covered / plan.potassium_target) * 100)
-      : 100;
-    const pColor = pct >= 60 ? '#198754' : pct >= 30 ? '#c87000' : '#dc3545';
-    setHTML('potassiumCoverageOut',
-      `plan covers <strong style="color:${pColor}">${pct}%</strong> of loss (${Math.round(plan.potassium_covered)} mg)`);
+    if (planMode === 'galatico') {
+      // Galático is a precision Na/carb bottle plan and does not model potassium —
+      // show a neutral note instead of a misleading red 0% deficit.
+      setText('potassiumCoverageOut', 'replenish from food — not in bottle mix');
+    } else {
+      const pct = plan.potassium_target > 0
+        ? Math.round((plan.potassium_covered / plan.potassium_target) * 100)
+        : 100;
+      const pColor = pct >= 60 ? '#198754' : pct >= 30 ? '#c87000' : '#dc3545';
+      setHTML('potassiumCoverageOut',
+        `plan covers <strong style="color:${pColor}">${pct}%</strong> of loss (${Math.round(plan.potassium_covered)} mg)`);
+    }
 
     if (planMode === 'peba' || planMode === 'bruto') {
       const net       = CARB_BURN_ZONE[r.zone] - r.carbsph;
@@ -882,9 +889,15 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
   Object.entries(PARAM_MAP).forEach(([key, id]) => {
     if (params.has(key)) clampToSlider(id, params.get(key));
   });
-  if (!has('btnGalatico'))
-    setMode('galatico'); // no toggle (race-day) → always galático
-  else if (params.has('mode') && ['peba','bruto','galatico'].includes(params.get('mode')))
-    setMode(params.get('mode'));
-  else setMode(planMode);
+  // Boot draws the charts, so it must wait for the deferred Chart.js to load.
+  // Deferred scripts run before DOMContentLoaded, so Chart is defined by then.
+  function boot() {
+    if (!has('btnGalatico'))
+      setMode('galatico'); // no toggle (race-day) → always galático
+    else if (params.has('mode') && ['peba','bruto','galatico'].includes(params.get('mode')))
+      setMode(params.get('mode'));
+    else setMode(planMode);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 </script>

@@ -87,6 +87,42 @@
 </div>
 {% endblock %}
 
+{% block inventory_empty %}
+<section class="mb-16">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">@{{ owner.username }}'s Gear</h2>
+      <p class="text-gray-600 dark:text-gray-400">Gear owned by @{{ owner.username }}</p>
+    </div>
+    {% if owner == request.user %}
+    <a href="{% url 'new-item' %}" class="inline-flex items-center px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition focus:ring-4 focus:ring-violet-300">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Gear
+    </a>
+    {% endif %}
+  </div>
+  <div class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+    <svg class="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+    </svg>
+    {% if owner == request.user %}
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Your gear shelf is empty</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-sm mx-auto">Show off your everyday carry. Add your first piece of gear with photos and details.</p>
+    <a href="{% url 'new-item' %}" class="inline-flex items-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition focus:ring-4 focus:ring-violet-300">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Your First Item
+    </a>
+    {% else %}
+    <p class="text-gray-500 dark:text-gray-400">@{{ owner.username }} hasn't added any gear yet.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock inventory_empty %}
+
 {% block empty_title %}
   {% if owner == request.user %}Your gear shelf is empty{% else %}No gear yet{% endif %}
 {% endblock %}

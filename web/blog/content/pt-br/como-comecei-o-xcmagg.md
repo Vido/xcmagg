@@ -10,7 +10,7 @@ tags: ["xcmagg", "web-scraping", "python", "duckdb", "indie-hacking"]
 author: "Lucas Vido"
 ---
 
-Porque eu resolvi fazer: eu não sabia onde encontrar provas de MTB!
+Porque eu resolvi fazer o sisteminha? eu não sabia onde entrar provas de MTB!
 BTW — eu estava na minha fase de hiperfoco em ciclismo.
 
 ## Duas dores
@@ -32,7 +32,7 @@ Nenhuma ferramenta deixa eu dizer "mostra o que está a uma distância razoável
 carro", porque nenhuma delas sabe *onde* os eventos estão — só em qual dropdown de
 estado foram cadastrados.
 
-Resolvi scrapar!
+Resolvi scrapear!
 
 ## O que é o XCMAGG
 
@@ -43,8 +43,8 @@ Assim eu tenho quando e onde cada prova acontece.
 
 ## A tese do "sem firula"
 
-Na semana antes de eu começar esse projeto — um parceiro de negócios recebeu
- uma oferta pra adquirir uma startup, e eu fui chamado pra due diligence.
+Na semana antes de eu começar esse projeto - um parceiro de negócios recebeu
+uma oferta pra adquirir uma startup, e eu fui chamado pra due diligence.
 A coisa estava absurdamente superengenheirada pro estágio do negócio:
 cerca de **200 clientes** e por volta de **R$17 mil/mês** de infraestrutura.
 O custo escalava com cada novo cliente de um jeito tão bizarro que eles
@@ -61,12 +61,12 @@ ferramenta gratuita seguir gratuita e um maker solo seguir lançando.
 Aqui está a decisão de arquitetura da qual mais me orgulho, e ela soa como preguiça
 até você conviver com ela:
 
-> Serverless - 100% baseado em arquivo
+> Serverless - 100% baseado em arquivo.
 > O produto inteiro é um scraper que escreve um **arquivo JSONL**,
 > mais uma **página HTML estática** que o lê.
+> O "banco de dados" são arquivos JSON, CSV e DuckDB.
 
-Serverless quero dizer verdadeiramente serverless - e não o 'cloud-hosted database' da AWS;
-O banco de dados são arquivos JSON, CSV e DuckDB.
+Serverless quero dizer verdadeiramente serverless - e não o "cloud-hosted database" da AWS.
 
 Sem API. Sem framework de SPA. Sem backend com banco de dados no caminho da
 requisição. A página que você abre é um arquivo HTML plano que dá `fetch()` num
@@ -164,7 +164,7 @@ eu quero carregar. Assim como uma bike, quanto menos peso, melhor
 
 Veja o resultado do meu [calendário de eventos](https://racefeed.com.br/events/)
 
-## Proximos Passos
+## Próximos Passos
 
 A base de código agregador continua crescendo — mais fontes, filtragem por proximidade mais
 inteligente, e eventualmente um calendário público que qualquer um pode abrir pra

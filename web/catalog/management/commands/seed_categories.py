@@ -5,6 +5,7 @@ from catalog.models import Category, Durability, Audience
 CONSUMABLE = Durability.CONSUMABLE
 DURABLE = Durability.DURABLE
 BIKE = Audience.BIKE
+PARTS = Audience.PARTS
 RIDER = Audience.RIDER
 
 SEED_CATEGORIES = [
@@ -21,97 +22,116 @@ SEED_CATEGORIES = [
         "durability": CONSUMABLE,
         "audience": RIDER,
     },
+    # ----- Bicycles -----
+    {
+        "title": "Road Bikes",
+        "description": "Road bikes for tarmac riding, racing, and endurance.",
+        "durability": DURABLE,
+        "audience": BIKE,
+    },
+    {
+        "title": "Gravel Bikes",
+        "description": "Gravel and adventure bikes for mixed-surface riding.",
+        "durability": DURABLE,
+        "audience": BIKE,
+    },
+    {
+        "title": "Mountain Bikes",
+        "description": "MTBs for trail, enduro, XC, and downhill riding.",
+        "durability": DURABLE,
+        "audience": BIKE,
+    },
     # ----- Bike consumables -----
     {
         "title": "Chains",
         "description": "Drivetrain chains and quick links across speeds.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Brake Pads",
         "description": "Disc and rim brake pads for road, gravel, and MTB.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Tires",
         "description": "Clincher, tubeless, and tubular tires.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Tubes",
         "description": "Inner tubes, including TPU and butyl.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Tubeless & Sealant",
         "description": "Tubeless valves, sealant, plugs, and conversion kits.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Lubes & Cleaning",
         "description": "Chain lubricants, degreasers, cleaners, and drivetrain care.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Bar Tape & Grips",
         "description": "Handlebar tape and grips for road and off-road bikes.",
         "durability": CONSUMABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     # ----- Bike durables -----
     {
         "title": "Pumps & Inflators",
         "description": "Floor, mini, and electric pumps plus CO2 inflators.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Workshop Tools",
         "description": "Stand-mounted and bench tools for home maintenance.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Bottles & Cages",
         "description": "Bidons and cages for the bike.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Bags & Storage",
         "description": "Saddle bags, frame bags, top tube bags, and bikepacking storage.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Lights & Radar",
         "description": "Front/rear lights and rear-facing radar units.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Computers & Sensors",
         "description": "GPS head units, power meters, and speed/cadence/HR sensors.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Saddles",
         "description": "Road, gravel, and MTB saddles for comfort and performance.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     {
         "title": "Pedals & Cleats",
         "description": "Clipless and flat pedals plus replacement cleats.",
         "durability": DURABLE,
-        "audience": BIKE,
+        "audience": PARTS,
     },
     # ----- Rider durables -----
     {

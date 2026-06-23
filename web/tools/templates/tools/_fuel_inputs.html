@@ -21,7 +21,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           🍌 Carbs target: <strong><span id="carbsValue">40</span> g/h</strong>
           — <span class="font-semibold text-blue-600 dark:text-blue-400" id="carbsLabel">Moderate</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="carbsSlider" min="0" max="120" step="10" value="40">
+        <input type="range" class="w-full" id="carbsSlider" min="0" max="120" step="10" value="40">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="carbsHint">Suitable for most athletes in races over 2h</span>
       </div>
 
@@ -30,7 +30,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           🔋 Glycogen stores: <strong><span id="glycogenValue">400</span> g</strong>
           — <span id="glycogenLabel">Moderately loaded</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="glycogenSlider" min="200" max="800" step="50" value="400">
+        <input type="range" class="w-full" id="glycogenSlider" min="200" max="800" step="50" value="400">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="glycogenHint">Pre-ride muscle + liver glycogen</span>
       </div>
       {% endif %}
@@ -40,7 +40,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
         <label class="block text-sm font-medium mb-1">
           🏋️ Body weight: <strong><span id="weightValue">70</span> kg</strong>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="weightSlider" min="40" max="120" step="1" value="70">
+        <input type="range" class="w-full" id="weightSlider" min="40" max="120" step="1" value="70">
       </div>
       {% endif %}
 
@@ -48,7 +48,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
         <label class="block text-sm font-medium mb-1">
           🔥 Intensity: <strong><span id="zoneValue">Z3 — Tempo</span></strong>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="zoneSlider" min="1" max="5" step="1" value="3">
+        <input type="range" class="w-full" id="zoneSlider" min="1" max="5" step="1" value="3">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="zoneHint">Sustained effort, group ride pace</span>
       </div>
 
@@ -56,7 +56,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
         <label class="block text-sm font-medium mb-1">
           ⚡ FTP: <strong><span id="ftpValue">250</span> W</strong>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="ftpSlider" min="100" max="500" step="10" value="210">
+        <input type="range" class="w-full" id="ftpSlider" min="100" max="500" step="10" value="250">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="ftpHint">Your Functional Threshold Power</span>
       </div>
 
@@ -65,7 +65,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           🎯 Intensity: <strong><span id="ftpPctValue">75</span>% FTP</strong>
           — <span id="ftpPctLabel">Z3 — Tempo</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="ftpPctSlider" min="50" max="105" step="5" value="75">
+        <input type="range" class="w-full" id="ftpPctSlider" min="50" max="105" step="5" value="75">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="ftpPctHint">Sustained effort, group ride pace</span>
       </div>
 
@@ -75,7 +75,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           🌡️ Temperature: <strong><span id="tempValue">25</span>°C</strong>
           — <span id="tempLabel">Warm</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="tempSlider" min="0" max="40" step="1" value="25">
+        <input type="range" class="w-full" id="tempSlider" min="0" max="40" step="1" value="25">
       </div>
       {% endif %}
 
@@ -83,7 +83,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
         <label class="block text-sm font-medium mb-1">
           ⏱️ Duration (Moving Time): <strong><span id="durationValue">3</span>h</strong>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="durationSlider" min="1" max="16" step="0.5" value="3">
+        <input type="range" class="w-full" id="durationSlider" min="1" max="16" step="0.5" value="3">
       </div>
 
       {% comment %}Ride-length notes pinned to the right column of the parameters grid.{% endcomment %}
@@ -102,7 +102,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           🧂 Sweat saltiness: <strong><span id="saltinessValue">700</span> mg/L</strong>
           — <span id="saltinessLabel">Average — Most athletes</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="saltinessSlider" min="300" max="1600" step="100" value="700">
+        <input type="range" class="w-full" id="saltinessSlider" min="300" max="1600" step="100" value="700">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="saltinessHint">Look for white marks on skin or kit after a ride — that's a sign of salty sweat.</span>
       </div>
 
@@ -111,7 +111,7 @@ the engine reads only the sliders that are rendered.{% endcomment %}
           💧 Dehydration tolerance: <strong><span id="lossValue">1.0</span>% BW</strong>
           — <span id="lossLabel">Optimal</span>
         </label>
-        <input type="range" class="w-full accent-blue-600" id="lossSlider" min="0" max="3" step="0.5" value="1">
+        <input type="range" class="w-full" id="lossSlider" min="0" max="3" step="0.5" value="1">
         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="lossHint">ACSM recommendation: no performance impact</span>
       </div>
       {% endif %}
