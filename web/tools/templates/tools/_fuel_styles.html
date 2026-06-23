@@ -1,0 +1,59 @@
+{% comment %}Scoped component styles shared by the nutrition / hydration / fuel-plan pages.{% endcomment %}
+<style>
+  /* BS5 form-range look: full grey track + blue dot thumb (no left fill) */
+  #fuelplan-app input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; background: transparent; cursor: pointer;
+  }
+  #fuelplan-app input[type=range]::-webkit-slider-runnable-track {
+    height: .25rem; border-radius: 1rem; background: #dee2e6;
+  }
+  #fuelplan-app input[type=range]::-moz-range-track {
+    height: .25rem; border-radius: 1rem; background: #dee2e6;
+  }
+  #fuelplan-app input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; margin-top: -.375rem;
+    width: 1rem; height: 1rem; border-radius: 50%; background: #0d6efd; border: 0;
+  }
+  #fuelplan-app input[type=range]::-moz-range-thumb {
+    width: 1rem; height: 1rem; border-radius: 50%; background: #0d6efd; border: 0;
+  }
+  .dark #fuelplan-app input[type=range]::-webkit-slider-runnable-track { background: #3f3f46; }
+  .dark #fuelplan-app input[type=range]::-moz-range-track { background: #3f3f46; }
+
+  #fuelplan-app .raw-value { font-size: 2.8rem; font-weight: 700; line-height: 1.1; }
+  #fuelplan-app .raw-unit { font-size: 1rem; color: #6c757d; }
+  @media (max-width: 768px) {
+    #fuelplan-app .raw-value { font-size: 1.8rem; }
+    #fuelplan-app .raw-unit { font-size: .85rem; }
+  }
+  #fuelplan-app .plan-list { list-style: none; padding: 0; margin: 0; }
+  #fuelplan-app .plan-list li { padding: 6px 0; font-size: 1.05rem; border-bottom: 1px solid #f0f0f0; }
+  #fuelplan-app .plan-list li:last-child { border-bottom: none; }
+  #fuelplan-app .plan-list li:has(+ .plan-totals-row) { border-bottom: none; }
+  #fuelplan-app .plan-totals-row + li { padding-top: 14px; }
+  #fuelplan-app .plan-item-qty { font-weight: 700; font-size: 1.2rem; }
+  #fuelplan-app .stops-big { font-size: 3rem; font-weight: 700; line-height: 1; }
+  #fuelplan-app .plan-section-divider { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #adb5bd; padding: 8px 0 2px; border-bottom: none !important; }
+  #fuelplan-app .plan-totals-row { background: whitesmoke; margin: 6px -12px -8px; padding: 10px 12px !important; border-top: 2px solid lightgray !important; border-bottom: none !important; border-radius: 0 0 6px 6px; }
+  #fuelplan-app .totals-heading { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: gray; margin-bottom: 8px; }
+  #fuelplan-app .totals-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  #fuelplan-app .totals-chip { display: flex; flex-direction: column; background: white; border: 1px solid lightgray; border-radius: 6px; padding: 6px 10px; min-width: 72px; }
+  #fuelplan-app .totals-chip-value { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+  #fuelplan-app .totals-chip-label { font-size: 0.7rem; color: gray; }
+  #fuelplan-app .plan-alt-divider { font-size: 0.75rem; font-style: italic; color: #adb5bd; padding: 2px 0; border-bottom: none !important; text-align: center; }
+  #fuelplan-app .bottle-recipe { border-left: 3px solid #0d6efd; border-radius: 0 6px 6px 0; padding: 6px 10px; }
+  #fuelplan-app .bottle-recipe__label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #0d6efd; margin-bottom: 5px; }
+  #fuelplan-app .bottle-recipe__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  #fuelplan-app .recipe-chip { display: inline-flex; align-items: baseline; gap: 3px; font-size: 1rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  #fuelplan-app .recipe-chip__label { font-size: 0.7rem; font-weight: 500; opacity: 0.85; }
+  #fuelplan-app .recipe-chip--malto    { background: #dbeafe; color: #1d4ed8; }
+  #fuelplan-app .recipe-chip--fructose { background: #fed7aa; color: #7c2d12; }
+  #fuelplan-app .recipe-chip--citrate  { background: #d1fae5; color: #065f46; }
+  /* Dark-mode softening for the bespoke components */
+  .dark #fuelplan-app .plan-list li { border-bottom-color: #3f3f46; }
+  .dark #fuelplan-app .plan-totals-row { background: #27272a; border-top-color: #52525b !important; }
+  .dark #fuelplan-app .totals-chip { background: #18181b; border-color: #3f3f46; }
+  .dark #fuelplan-app .totals-heading,
+  .dark #fuelplan-app .totals-chip-label { color: #a1a1aa; }
+</style>

@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+
+{% block title %}Gear Range Calculator — Cassette & Chainring Visualizer | RaceFeed{% endblock %}
+
+{% block meta_description %}Interactive cycling gear range visualizer: see every cassette and chainring combination on a speed/development axis. Compare two drivetrains side by side.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Gear Range Calculator | RaceFeed{% endblock %}
+{% block og_description %}Visualize every cassette × chainring combination on a speed axis. Compare two setups.{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/tools/gear-range-calculator/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Gear Range Calculator",
+    "url": "https://racefeed.com.br/tools/gear-range-calculator/",
+    "description": "Interactive cycling gear range visualizer: cassette × chainring combinations on a speed/development axis.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": { "@type": "Person", "name": "Lucas Vido" }
+  }
+  </script>
+  <style>
+    #gear-app .setup-label { display:inline-block; width:22px; height:22px; border-radius:50%; font-size:0.78rem; font-weight:700; line-height:22px; text-align:center; color:#fff; margin-right:6px; }
+    #gear-app .label-a { background:#1565C0; }
+    #gear-app .label-b { background:#C62828; }
+    #gear-app .mode-btn, #gear-app .unit-btn { padding:.3rem .6rem; font-size:.8rem; border:1px solid #d1d5db; background:#fff; color:#374151; cursor:pointer; }
+    .dark #gear-app .mode-btn, .dark #gear-app .unit-btn { background:#27272a; color:#d4d4d8; border-color:#3f3f46; }
+    #gear-app .mode-btn.active { background:#333 !important; color:#fff !important; border-color:#333 !important; }
+    #gear-app .unit-btn.active { background:#2e7d32 !important; color:#fff !important; border-color:#2e7d32 !important; }
+    #gear-app #cadenceValue { min-width:4em; display:inline-block; text-align:right; }
+    #gear-app .custom-input-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    #gear-app .custom-input-row input[type=text] { max-width:260px; }
+    #gear-app #gearChart { overflow-x:auto; }
+    #gear-app #gearChart svg { min-width:420px; }
+    #gear-app .gear-dot { cursor:pointer; }
+    #gear-app .gear-dot circle { transition:r 0.1s; }
+    #gear-app .gear-dot:hover circle { r:7; }
+    #tooltip { position:fixed; display:none; background:rgba(0,0,0,0.82); color:#fff; font-size:0.78rem; padding:4px 10px; border-radius:6px; pointer-events:none; z-index:9999; white-space:nowrap; }
+  </style>
+{% endblock extra-head %}
+
+{% block content %}
+<div id="gear-app" class="text-gray-900 dark:text-gray-100">
+  <div id="tooltip"></div>
+
+  {% comment %} Reusable field classes inline {% endcomment %}
+  <!-- Setup A -->
+  <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 mb-3 overflow-hidden" id="setupCardA">
+    <div class="flex items-center justify-between flex-wrap gap-2 px-4 py-3 border-b border-gray-200 dark:border-neutral-700">
+      <span class="font-semibold"><span class="setup-label label-a">A</span> Drivetrain Setup</span>
+      <div class="flex gap-2 flex-wrap items-center">
+        <button id="compareBtn" class="text-sm rounded-lg border border-red-500 text-red-600 dark:text-red-400 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-950">+ Compare</button>
+        <button id="shareLinkBtn" class="text-sm rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-1 hover:bg-gray-50 dark:hover:bg-neutral-700">🔗 Share</button>
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-semibold mb-1">🔗 Cassette</label>
+          <select id="cassettePresetA" class="w-full mb-2 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <option value="">— select preset —</option>
+          </select>
+          <div class="custom-input-row">
+            <input type="text" id="cassetteA" placeholder="e.g. 10,12,14,16,18,21,24,28,32,36,42,52"
+              class="flex-1 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">cogs</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">⭕ Chainring(s)</label>
+          <select id="chainringPresetA" class="w-full mb-2 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <option value="">— select preset —</option>
+          </select>
+          <div class="custom-input-row">
+            <input type="text" id="chainringA" placeholder="e.g. 32  or  32,50"
+              class="flex-1 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">teeth</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">🚲 Wheel Size</label>
+          <select id="wheelA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">🔄 Cadence: <span id="cadenceValue">80</span> rpm</label>
+          <input type="range" class="w-full accent-blue-600" id="cadenceSlider" min="40" max="130" step="1" value="80">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold mb-1">📊 Display</label>
+          <div class="flex flex-wrap gap-2">
+            <div class="inline-flex rounded-lg overflow-hidden" id="modeGroup">
+              <button class="mode-btn active" data-mode="speed">Speed</button>
+              <button class="mode-btn" data-mode="ratio">Ratio</button>
+              <button class="mode-btn" data-mode="gi">Gear In.</button>
+              <button class="mode-btn" data-mode="dev">Dev.</button>
+            </div>
+            <div class="inline-flex rounded-lg overflow-hidden" id="unitGroup">
+              <button class="unit-btn active" data-unit="kmh">km/h</button>
+              <button class="unit-btn" data-unit="mph">mph</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup B (hidden until Compare) -->
+  <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 mb-3 overflow-hidden hidden" id="setupCardB">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-neutral-700">
+      <span class="font-semibold"><span class="setup-label label-b">B</span> Compare Setup</span>
+      <button id="removeCompareBtn" class="text-sm rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-1 hover:bg-gray-50 dark:hover:bg-neutral-700">✕ Remove</button>
+    </div>
+    <div class="p-4">
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-semibold mb-1">🔗 Cassette</label>
+          <select id="cassettePresetB" class="w-full mb-2 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <option value="">— select preset —</option>
+          </select>
+          <div class="custom-input-row">
+            <input type="text" id="cassetteB" placeholder="e.g. 11,13,15,17,19,21,24,28,33,39,45,51"
+              class="flex-1 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">cogs</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">⭕ Chainring(s)</label>
+          <select id="chainringPresetB" class="w-full mb-2 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <option value="">— select preset —</option>
+          </select>
+          <div class="custom-input-row">
+            <input type="text" id="chainringB" placeholder="e.g. 32  or  32,50"
+              class="flex-1 rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">teeth</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">🚲 Wheel Size</label>
+          <select id="wheelB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-neutral-700">
+      <span class="font-semibold" id="chartTitle">📊 Gear Range</span>
+    </div>
+    <div class="p-3"><div id="gearChart"></div></div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="py-8" aria-label="Frequently Asked Questions">
+    <h1 class="text-lg font-semibold mb-1">Gear Range Calculator — Drivetrain Visualizer</h1>
+    <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I read the gear range chart?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Each row represents one chainring. Dots along the row show each gear combination (chainring × cog) plotted on a shared speed/development axis. Dots to the left are easier gears; dots to the right are harder. The number inside each dot is the cog size.<br><br>
+          Gaps between dots indicate large jumps between gears — you'll feel a bigger cadence change when shifting there. Clustered dots mean fine steps and smooth progression.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is gear development?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Development (m/rev) is the distance the bike travels per full pedal revolution. It equals the gear ratio × wheel circumference. A development of 5.0 m/rev means one complete crank revolution moves the bike forward 5 metres. This is the most practical single number for comparing gearing across different wheel sizes — unlike gear inches, development is in SI units and directly tells you ground distance per stroke.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are gear inches?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Gear inches is the traditional Anglo-Saxon equivalent of development: the diameter (in inches) of a hypothetical direct-drive wheel that would give the same mechanical advantage. Gear inches = (chainring ÷ cog) × wheel diameter in inches. Still widely used in road and track cycling contexts.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I compare two drivetrains?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Click <strong>+ Compare</strong> to reveal a second setup (B). Both setups are plotted on the same axis — blue rows for A, red rows for B. You can immediately see if one setup has wider range, smaller steps, or more overlap with the other. Useful for deciding between 1x vs 2x, or comparing before/after a cassette swap.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I choose a cassette for climbing?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Use the Speed display at your minimum sustainable cadence (e.g. 60 rpm) and look at the leftmost dot. If the speed is still higher than you'd comfortably ride on the steepest climb, you need a larger cog or smaller chainring.<br><br>
+          A practical rule: for every 1% of gradient increase, you need roughly 6% more gear reduction to maintain the same cadence and power.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">1x vs 2x: which is better?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>1x advantages:</strong> simpler shifting, lighter front end, no front derailleur. Modern wide-range cassettes (10-52) give adequate range for most MTB use.<br><br>
+          <strong>2x advantages:</strong> tighter gear steps in the mid-range, less total cog range needed, more torque efficiency on mid-range cogs. Road cyclists typically prefer 2x for fine-grained cadence control.<br><br>
+          Use the Compare feature to load a 1x vs 2x setup and see the step distribution directly.
+        </div>
+      </details>
+
+    </div>
+  </section>
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script src="/cassette-database.js"></script>
+<script>
+  const DEFAULT_DIAM = 2328;
+
+  let state = {
+    cogsA: [], ringsA: [], diamA: DEFAULT_DIAM,
+    cogsB: [], ringsB: [], diamB: DEFAULT_DIAM,
+    cadence: 80,
+    mode: 'speed',
+    unit: 'kmh',
+    compare: false
+  };
+
+  const tooltip = document.getElementById('tooltip');
+
+  function computeVal(ring, cog, dMm, cadence, mode, unit) {
+    const ratio = ring / cog;
+    if (mode === 'ratio') return ratio;
+    if (mode === 'gi')    return ratio * (dMm / Math.PI) / 25.4;
+    if (mode === 'dev')   return ratio * dMm / 1000;
+    let v = ratio * dMm / 1000 * cadence * 60 / 1000;
+    return unit === 'mph' ? v * 0.621371 : v;
+  }
+
+  function unitLabel() {
+    if (state.mode === 'ratio') return '';
+    if (state.mode === 'gi')   return 'in';
+    if (state.mode === 'dev')  return 'm/rev';
+    return state.unit === 'mph' ? 'mph' : 'km/h';
+  }
+
+  function niceTicks(min, max, target = 8) {
+    const range = max - min;
+    if (range <= 0) return [min];
+    const rough = range / target;
+    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => range / s <= target * 1.4) || mag * 10;
+    const ticks = [];
+    for (let t = Math.ceil(min / step) * step; t <= max + 1e-9; t = +(t + step).toFixed(10))
+      ticks.push(+t.toFixed(8));
+    return ticks;
+  }
+
+  const PALETTES = {
+    A: ['#1565C0', '#1976D2', '#1E88E5', '#42A5F5'],
+    B: ['#B71C1C', '#C62828', '#E53935', '#EF5350']
+  };
+
+  function buildChart() {
+    const { cogsA, ringsA, diamA, cogsB, ringsB, diamB, cadence, mode, unit, compare } = state;
+
+    const setups = [];
+    if (ringsA.length && cogsA.length) setups.push({ rings: ringsA, cogs: cogsA, diam: diamA, key: 'A' });
+    if (compare && ringsB.length && cogsB.length) setups.push({ rings: ringsB, cogs: cogsB, diam: diamB, key: 'B' });
+
+    if (!setups.length) {
+      document.getElementById('gearChart').innerHTML =
+        '<p class="text-gray-500 dark:text-gray-400 text-sm py-3 mb-0 text-center">Enter at least one cog and one chainring.</p>';
+      return;
+    }
+
+    const allVals = [];
+    for (const s of setups)
+      for (const ring of s.rings)
+        for (const cog of s.cogs)
+          allVals.push(computeVal(ring, cog, s.diam, cadence, mode, unit));
+
+    const vMin = Math.min(...allVals);
+    const vMax = Math.max(...allVals);
+    const pad = (vMax - vMin) * 0.04 || 1;
+    const axMin = vMin - pad, axMax = vMax + pad;
+
+    const VW = 900, ROW_H = 54, AXIS_H = 38, LEFT = 68, RIGHT = 20, TOP = 14;
+    const totalRows = setups.reduce((n, s) => n + s.rings.length, 0);
+    const VH = TOP + totalRows * ROW_H + AXIS_H;
+    const plotW = VW - LEFT - RIGHT;
+    const xOf = v => LEFT + (v - axMin) / (axMax - axMin) * plotW;
+
+    const chartH = TOP + totalRows * ROW_H;
+    let svg = `<svg viewBox="0 0 ${VW} ${VH}" width="100%" style="overflow:visible;font-family:system-ui,sans-serif">`;
+
+    niceTicks(axMin, axMax, 9).forEach(t => {
+      const x = xOf(t);
+      if (x < LEFT - 2 || x > LEFT + plotW + 2) return;
+      svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${chartH}" stroke="#e8e8e8" stroke-width="1"/>`;
+    });
+
+    let rowIdx = 0;
+    for (const s of setups) {
+      const palette = PALETTES[s.key];
+      const sortedRings = [...s.rings].sort((a, b) => a - b);
+      const label = setups.length > 1 ? ` (${s.key})` : '';
+
+      sortedRings.forEach((ring, ri) => {
+        const cy = TOP + rowIdx * ROW_H + ROW_H / 2;
+        const color = palette[ri % palette.length];
+
+        svg += `<text x="${LEFT - 8}" y="${cy + 4}" text-anchor="end" font-size="12" fill="#444">${ring}t${label}</text>`;
+        svg += `<line x1="${LEFT}" y1="${cy}" x2="${LEFT + plotW}" y2="${cy}" stroke="#e0e0e0" stroke-width="1.5"/>`;
+
+        const sortedCogs = [...s.cogs].sort((a, b) => a - b);
+        sortedCogs.forEach(cog => {
+          const v = computeVal(ring, cog, s.diam, cadence, mode, unit);
+          const cx = xOf(v);
+          const dispVal = mode === 'ratio' ? v.toFixed(2) : v.toFixed(1);
+          const tip = `${ring}t × ${cog}t = ${dispVal}${unitLabel() ? ' ' + unitLabel() : ''}`;
+
+          svg += `<g class="gear-dot" data-tip="${tip}">`;
+          svg += `<line x1="${cx}" y1="${cy - 16}" x2="${cx}" y2="${cy - 1}" stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+          svg += `<circle cx="${cx}" cy="${cy - 16}" r="10" fill="${color}" opacity="0.88"/>`;
+          svg += `<text x="${cx}" y="${cy - 12}" text-anchor="middle" font-size="9" fill="white" font-weight="700">${cog}</text>`;
+          svg += `</g>`;
+        });
+
+        rowIdx++;
+      });
+
+      if (s.key === 'A' && compare) {
+        const sepY = TOP + rowIdx * ROW_H - ROW_H * 0.28;
+        svg += `<line x1="${LEFT}" y1="${sepY}" x2="${LEFT + plotW}" y2="${sepY}" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>`;
+      }
+    }
+
+    const axY = TOP + totalRows * ROW_H + 6;
+    svg += `<line x1="${LEFT}" y1="${axY}" x2="${LEFT + plotW}" y2="${axY}" stroke="#555" stroke-width="1.5"/>`;
+
+    niceTicks(axMin, axMax, 9).forEach(t => {
+      const x = xOf(t);
+      if (x < LEFT - 2 || x > LEFT + plotW + 2) return;
+      svg += `<line x1="${x}" y1="${axY}" x2="${x}" y2="${axY + 5}" stroke="#555" stroke-width="1.5"/>`;
+      svg += `<text x="${x}" y="${axY + 18}" text-anchor="middle" font-size="11" fill="#555">${mode === 'ratio' ? t.toFixed(2) : t}</text>`;
+    });
+
+    const ul = unitLabel();
+    if (ul) svg += `<text x="${LEFT + plotW / 2}" y="${axY + 34}" text-anchor="middle" font-size="11" fill="#999">${ul}</text>`;
+
+    svg += '</svg>';
+
+    const container = document.getElementById('gearChart');
+    container.innerHTML = svg;
+
+    container.querySelectorAll('.gear-dot').forEach(g => {
+      g.addEventListener('mouseenter', () => {
+        tooltip.textContent = g.dataset.tip;
+        tooltip.style.display = 'block';
+      });
+      g.addEventListener('mousemove', e => {
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top  = (e.clientY - 32) + 'px';
+      });
+      g.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    });
+
+    const modeLabel = { speed: 'Speed', ratio: 'Ratio', gi: 'Gear Inches', dev: 'Development' }[mode];
+    const cadStr = mode === 'speed' ? ` @ ${cadence} rpm` : '';
+    document.getElementById('chartTitle').textContent = `📊 Gear Range — ${modeLabel}${cadStr}`;
+  }
+
+  function parseInts(str) {
+    return str.split(',').map(s => parseInt(s.trim(), 10)).filter(n => n > 0 && isFinite(n));
+  }
+
+  function readSetupA() {
+    state.cogsA  = parseInts(document.getElementById('cassetteA').value);
+    state.ringsA = parseInts(document.getElementById('chainringA').value);
+    state.diamA  = parseInt(document.getElementById('wheelA').value, 10);
+  }
+
+  function readSetupB() {
+    state.cogsB  = parseInts(document.getElementById('cassetteB').value);
+    state.ringsB = parseInts(document.getElementById('chainringB').value);
+    state.diamB  = parseInt(document.getElementById('wheelB').value, 10);
+  }
+
+  function render() { readSetupA(); if (state.compare) readSetupB(); buildChart(); syncURL(); }
+
+  function syncURL() {
+    const p = new URLSearchParams();
+    p.set('cogs',  state.cogsA.join(','));
+    p.set('rings', state.ringsA.join(','));
+    p.set('wheel', state.diamA);
+    p.set('rpm',   state.cadence);
+    p.set('mode',  state.mode);
+    p.set('unit',  state.unit);
+    if (state.compare) {
+      p.set('cogsB',  state.cogsB.join(','));
+      p.set('ringsB', state.ringsB.join(','));
+      p.set('wheelB', state.diamB);
+    }
+    history.replaceState(null, '', '?' + p.toString());
+  }
+
+  function loadFromURL() {
+    const p = new URLSearchParams(location.search);
+    const set = (id, key) => { if (p.has(key)) document.getElementById(id).value = p.get(key); };
+    set('cassetteA', 'cogs'); set('chainringA', 'rings');
+    set('cassetteB', 'cogsB'); set('chainringB', 'ringsB');
+    if (p.has('wheel'))  setWheelValue('wheelA', p.get('wheel'));
+    if (p.has('wheelB')) setWheelValue('wheelB', p.get('wheelB'));
+    if (p.has('rpm')) {
+      const rpm = parseInt(p.get('rpm'), 10);
+      document.getElementById('cadenceSlider').value = rpm;
+      document.getElementById('cadenceValue').textContent = rpm;
+      state.cadence = rpm;
+    }
+    if (p.has('mode')) setMode(p.get('mode'));
+    if (p.has('unit')) setUnit(p.get('unit'));
+    if (p.has('cogsB')) {
+      state.compare = true;
+      document.getElementById('setupCardB').classList.remove('hidden');
+      document.getElementById('compareBtn').textContent = '− Compare';
+    }
+  }
+
+  function setWheelValue(id, val) {
+    const sel = document.getElementById(id);
+    const opt = [...sel.options].find(o => o.value === val);
+    if (opt) sel.value = val;
+  }
+
+  function setMode(m) {
+    state.mode = m;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  }
+  function setUnit(u) {
+    state.unit = u;
+    document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === u));
+  }
+
+  function populateDropdowns(db) {
+    function fillCassette(selId) {
+      const sel = document.getElementById(selId);
+      const groups = {};
+      db.cassettes.forEach(c => { (groups[c.group] = groups[c.group] || []).push(c); });
+      for (const [grp, items] of Object.entries(groups)) {
+        const og = document.createElement('optgroup'); og.label = grp;
+        items.forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.cogs.join(','); o.textContent = c.label; og.appendChild(o);
+        });
+        sel.appendChild(og);
+      }
+    }
+    function fillChainring(selId) {
+      const sel = document.getElementById(selId);
+      const groups = {};
+      db.chainrings.forEach(c => { (groups[c.group] = groups[c.group] || []).push(c); });
+      for (const [grp, items] of Object.entries(groups)) {
+        const og = document.createElement('optgroup'); og.label = grp;
+        items.forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.rings.join(','); o.textContent = c.label; og.appendChild(o);
+        });
+        sel.appendChild(og);
+      }
+    }
+    function fillWheel(selId) {
+      const sel = document.getElementById(selId);
+      db.wheelSizes.forEach(w => {
+        const o = document.createElement('option');
+        o.value = w.diameterMm; o.textContent = w.label;
+        if (w.diameterMm === DEFAULT_DIAM) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+    fillCassette('cassettePresetA'); fillCassette('cassettePresetB');
+    fillChainring('chainringPresetA'); fillChainring('chainringPresetB');
+    fillWheel('wheelA'); fillWheel('wheelB');
+  }
+
+  function applyDefaultPreset(db) {
+    const cassette  = db.cassettes.find(c => c.label.includes('Eagle 10-52'));
+    const chainring = db.chainrings.find(c => c.label === '1x 32t');
+    if (cassette)  document.getElementById('cassetteA').value  = cassette.cogs.join(',');
+    if (chainring) document.getElementById('chainringA').value = chainring.rings.join(',');
+  }
+
+  function wireEvents() {
+    document.getElementById('cassettePresetA').addEventListener('change', function() {
+      if (this.value) { document.getElementById('cassetteA').value = this.value; render(); }
+    });
+    document.getElementById('chainringPresetA').addEventListener('change', function() {
+      if (this.value) { document.getElementById('chainringA').value = this.value; render(); }
+    });
+    document.getElementById('cassettePresetB').addEventListener('change', function() {
+      if (this.value) { document.getElementById('cassetteB').value = this.value; render(); }
+    });
+    document.getElementById('chainringPresetB').addEventListener('change', function() {
+      if (this.value) { document.getElementById('chainringB').value = this.value; render(); }
+    });
+
+    ['wheelA','wheelB','cassetteA','chainringA','cassetteB','chainringB'].forEach(id => {
+      document.getElementById(id).addEventListener('change', render);
+    });
+
+    document.getElementById('cadenceSlider').addEventListener('input', function() {
+      state.cadence = parseInt(this.value, 10);
+      document.getElementById('cadenceValue').textContent = state.cadence;
+      render();
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', function() { setMode(this.dataset.mode); render(); });
+    });
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+      btn.addEventListener('click', function() { setUnit(this.dataset.unit); if (state.mode === 'speed') render(); });
+    });
+
+    document.getElementById('compareBtn').addEventListener('click', function() {
+      state.compare = !state.compare;
+      document.getElementById('setupCardB').classList.toggle('hidden', !state.compare);
+      this.textContent = state.compare ? '− Compare' : '+ Compare';
+      render();
+    });
+    document.getElementById('removeCompareBtn').addEventListener('click', function() {
+      state.compare = false;
+      document.getElementById('setupCardB').classList.add('hidden');
+      document.getElementById('compareBtn').textContent = '+ Compare';
+      render();
+    });
+
+    document.getElementById('shareLinkBtn').addEventListener('click', function() {
+      syncURL();
+      navigator.clipboard.writeText(location.href).then(() => {
+        this.textContent = '✅ Copied!';
+        setTimeout(() => { this.textContent = '🔗 Share'; }, 2000);
+      });
+    });
+  }
+
+  (function(db) {
+    populateDropdowns(db);
+    const hasURL = new URLSearchParams(location.search).has('cogs');
+    if (hasURL) {
+      loadFromURL();
+    } else {
+      applyDefaultPreset(db);
+    }
+    wireEvents();
+    render();
+  })(CASSETTE_DB);
+</script>
+{% endblock extra-scripts %}

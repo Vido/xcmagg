@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Cycling Hydration Calculator (Sweat Rate, Water & Sodium){% endblock %}
+
+{% block meta_description %}Free cycling hydration calculator. Estimate your sweat rate, water and sodium needs per hour from temperature, intensity and body weight — plus a bottle and electrolyte plan.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Cycling Hydration Calculator (Sweat Rate, Water & Sodium){% endblock %}
+{% block og_description %}Free cycling hydration calculator. Estimate sweat rate, water and sodium needs per hour, plus a bottle and electrolyte plan.{% endblock %}
+{% block og_image %}https://racefeed.com.br/og-fuelplan.webp{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/tools/cycling-hydration-calculator/" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Cycling Hydration Calculator",
+    "alternateName": ["Sweat Rate Calculator", "Cycling Electrolyte Calculator"],
+    "url": "https://racefeed.com.br/tools/cycling-hydration-calculator/",
+    "description": "Estimate sweat rate, water and sodium needs per hour for any ride based on temperature, intensity and body weight — with a bottle and electrolyte plan.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": { "@type": "Person", "name": "Lucas Vido" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How much water should I drink while cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Sweat rate ranges from roughly 0.4–0.6 L/h in cool, easy conditions to 1.5–1.8 L/h in hot weather at high intensity. A practical guideline: drink enough to avoid losing more than 2% of your body weight in fluid — performance measurably declines beyond this. For a 70 kg rider, that's a ~1.4 L ceiling. Aim for 700–1000 mL per hour as a starting point and adjust based on your sweat rate and effort level." } },
+      { "@type": "Question", "name": "What are electrolytes and why do cyclists need them?", "acceptedAnswer": { "@type": "Answer", "text": "Electrolytes are minerals that dissolve in body fluids and carry an electrical charge, enabling muscle contractions, nerve signalling, and fluid balance. Sodium (Na⁺) is the dominant sweat loss and the most critical to replace. Potassium (K⁺) supports muscle and nerve repolarization. Magnesium (Mg²⁺) is involved in ATP energy release. The ACSM recommends 500–700 mg of sodium per hour and 200–300 mg of potassium per hour during prolonged endurance exercise." } },
+      { "@type": "Question", "name": "Do I need to replenish electrolytes when cycling?", "acceptedAnswer": { "@type": "Answer", "text": "For rides over 1 hour, electrolyte replenishment becomes a factor. Every time you sweat you lose sodium and potassium alongside water — and replacing fluid without replacing electrolytes lowers sodium levels, contributing to cramping, nausea, and confusion. Drinking plain water alone is not ideal — it further dilutes sodium concentration. If you plan to ride long, especially in hot weather, electrolyte replenishment is essential." } },
+      { "@type": "Question", "name": "How do I stay hydrated when cycling in hot weather?", "acceptedAnswer": { "@type": "Answer", "text": "Heat significantly increases sweat rate. Going from 15°C to 35°C adds roughly 0.5–0.7 L/h on top of the base rate — a 50–80% increase depending on intensity. This raises both fluid and sodium needs substantially. Carbohydrate requirements stay roughly the same, but high core temperature can reduce gut motility, making liquids and gels preferable. In hot weather, prioritize electrolytes and increase fluid intake gradually — but avoid drinking more than you sweat." } },
+      { "@type": "Question", "name": "Can I drink too much water while cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Drinking excessive plain water during very long events (>4 hours) can dilute blood sodium to dangerously low levels, a condition called exercise-associated hyponatremia (EAH). Symptoms include nausea, headache, confusion, and in severe cases, seizures. To avoid it: match fluid intake to your actual sweat rate (don't drink more than you sweat), and always include sodium on long rides." } },
+      { "@type": "Question", "name": "What are the side effects of too many or too few electrolytes?", "acceptedAnswer": { "@type": "Answer", "text": "Too little: Low sodium during exercise causes hyponatremia — nausea, headache, confusion, and in severe cases seizures. Low potassium causes muscle weakness, cramps, and heart rhythm irregularities. Too much: Excess sodium chronically causes hypertension and fluid retention; excess potassium causes hyperkalemia. In a cycling context, the realistic risk is almost always too little, not too much — especially sodium and potassium during long or hot rides." } },
+      { "@type": "Question", "name": "What causes cramps during cycling and how do I prevent them?", "acceptedAnswer": { "@type": "Answer", "text": "The cause of exercise-associated muscle cramps (EAMC) is not fully settled. The popular dehydration/electrolyte explanation is not well-supported by evidence. The leading current hypothesis is neuromuscular: fatigue disrupts the balance between excitatory and inhibitory signals to motor neurons, triggering involuntary sustained muscle firing. Going harder or longer than your fitness supports is the most reliable predictor. Prevention: train specifically for the demands of your target ride, pace appropriately, and don't exceed your conditioning." } },
+      { "@type": "Question", "name": "How much sodium do I need when cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Sodium is the primary electrolyte lost in sweat, but individual sweat sodium concentration varies widely — from roughly 200 to 1,500 mg per litre. The ACSM recommends 500–700 mg/hour as a starting point for prolonged exercise. Key factors that raise sodium needs: longer duration, higher intensity, hot weather, and being a naturally salty sweater — visible white residue on skin or kit after a ride is a reliable indicator." } },
+      { "@type": "Question", "name": "What is osmolarity and does it matter for sports drinks?", "acceptedAnswer": { "@type": "Answer", "text": "Osmolarity measures the concentration of dissolved particles in a fluid (mOsm/L). Blood sits at roughly 285–295 mOsm/L. Hypotonic (below ~270) empties from the stomach fastest, best when hydration is the priority. Isotonic (270–330) matches blood and balances fluid with carbohydrate delivery — suitable for most rides. Hypertonic (above ~330) slows gastric emptying; gels and concentrated drinks are hypertonic and must be followed by plain water." } },
+      { "@type": "Question", "name": "Is it faster to carry a hydration pack or stop at aid stations?", "acceptedAnswer": { "@type": "Answer", "text": "A 2 L bladder with a pack weighs roughly 2.5 kg when full — about 3% of a typical 83 kg system. On a climb, 3% extra mass means roughly 3% more power. That penalty shrinks as you drink. Aid stations only save time if you can grab a bottle without stopping. The pack always wins once the race is long enough to need more than a frame bottle. For races under 60–75 minutes, a single bottle is usually sufficient." } }
+    ]
+  }
+  </script>
+
+  {% include "tools/_fuel_styles.html" %}
+{% endblock extra-head %}
+
+{% block content %}
+<div id="fuelplan-app" class="text-gray-900 dark:text-gray-100">
+
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Cycling Hydration Calculator</h1>
+    <p class="text-gray-600 dark:text-gray-400 max-w-3xl">
+      Estimate your <strong>sweat rate</strong>, how much <strong>water</strong> and how much
+      <strong>sodium</strong> you need per hour from temperature, intensity and body weight — then
+      get a practical bottle and electrolyte plan plus a water-depletion chart for any ride.
+      Need carbs and a full fuelling plan? Use the
+      <a href="{% url 'tools:nutrition-calculator' %}" class="text-blue-600 dark:text-blue-400 hover:underline">nutrition calculator</a>
+      or the combined <a href="{% url 'tools:fuel-plan' %}" class="text-blue-600 dark:text-blue-400 hover:underline">race-day fuel plan</a>.
+    </p>
+  </header>
+
+  {% with profile="hydration" %}
+    {% include "tools/_fuel_inputs.html" %}
+    {% include "tools/_fuel_outputs.html" %}
+  {% endwith %}
+
+  {% if related_items %}
+  <section class="mb-10">
+    <div class="flex items-end justify-between mb-4">
+      <h2 class="text-2xl font-bold">Hydration gear</h2>
+      <a href="{% url 'category-profile' 'hydration' %}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">Hydration →</a>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in related_items %}
+        {% include "media/_simple_gallery.html" with node=item.node %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- FAQ -->
+  <section class="py-8" aria-label="Frequently Asked Questions">
+    <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions — Cycling Hydration &amp; Electrolytes</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much water should I drink while cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sweat rate ranges from roughly <strong>0.4–0.6 L/h</strong> in cool, easy conditions to <strong>1.5–1.8 L/h</strong> in hot weather at high intensity. A practical guideline: drink enough to avoid losing more than <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/17277604/" target="_blank" rel="noopener"><strong>2% of your body weight</strong></a> in fluid — performance measurably declines beyond this. For a 70 kg rider, that's a ~1.4 L ceiling. Aim for <strong>700–1000 mL per hour</strong> as a starting point and adjust based on your sweat rate and effort level.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are electrolytes and why do cyclists need them?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Electrolytes are minerals that dissolve in body fluids and carry an electrical charge, enabling muscle contractions, nerve signalling, and fluid balance. The ones that matter most during cycling:
+          <ul class="list-disc pl-5 mt-2 mb-1">
+            <li><strong>Sodium (Na⁺)</strong> — the dominant sweat loss and the most critical to replace. Prevents hyponatremia and maintains fluid absorption. ACSM recommends <strong>500–700 mg/h</strong> during prolonged exercise.</li>
+            <li><strong>Potassium (K⁺)</strong> — supports muscle and nerve repolarization and heart rhythm. ACSM target: <strong>200–300 mg/h</strong>. Abundant in everyday foods (bananas, potatoes, yogurt).</li>
+            <li><strong>Magnesium (Mg²⁺)</strong> — involved in ATP energy release and muscle relaxation. Sweat losses are small; adequate daily dietary intake is the main lever.</li>
+            <li><strong>Calcium (Ca²⁺)</strong> — triggers muscle contractions; sweat losses per ride are minimal and not a specific in-ride concern.</li>
+          </ul>
+          Without adequate sodium, drinking plain water worsens the imbalance — diluting blood sodium further and increasing hyponatremia risk. On rides over an hour, use electrolyte drinks, tabs, or salty food rather than water alone.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Do I need to replenish electrolytes when cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          For rides over 1 hour, electrolyte replenishment becomes a factor. Every time you sweat you lose sodium and potassium alongside water — and replacing fluid without replacing electrolytes lowers sodium levels, <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/28316971/" target="_blank" rel="noopener">contributing to cramping, nausea, and confusion</a>. <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/25551404/" target="_blank" rel="noopener">Drinking plain water alone is not ideal</a> — it further dilutes sodium concentration. If you plan to ride long, especially in hot weather, electrolyte replenishment is essential.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I stay hydrated when cycling in hot weather?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Heat significantly increases sweat rate. Going from 15°C to 35°C adds roughly <strong>0.5–0.7 L/h</strong> on top of the base rate — a <strong>50–80% increase</strong> depending on intensity. This raises both fluid and sodium needs substantially. Carbohydrate requirements stay roughly the same, but high core temperature reduces gut motility and tolerance for solid foods, making liquids and gels preferable. Prioritize electrolytes and increase fluid intake gradually — but avoid drinking more than you sweat.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Can I drink too much water while cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Yes. Drinking excessive plain water during very long efforts (&gt;4 hours) can dilute blood sodium to dangerously low levels — a condition called <strong>exercise-associated hyponatremia (EAH)</strong>. Symptoms include nausea, headache, and confusion. To avoid it: match fluid intake to your sweat rate (don't drink more than you sweat), and always include sodium from electrolyte drinks, tabs, or salty food on long rides.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are the side effects of too many or too few electrolytes?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>Too little (the realistic risk for cyclists):</strong>
+          <ul class="list-disc pl-5 mt-1 mb-2">
+            <li><strong>Sodium</strong> — hyponatremia: nausea, headache, confusion, and in severe cases seizures</li>
+            <li><strong>Potassium</strong> — muscle weakness, cramps, and heart rhythm irregularities</li>
+            <li><strong>Magnesium</strong> — muscle fatigue and cramps on long efforts</li>
+          </ul>
+          <strong>Too much (mainly a chronic dietary concern, not a mid-ride risk):</strong>
+          <ul class="list-disc pl-5 mt-1 mb-2">
+            <li><strong>Sodium</strong> (&gt;2,300 mg/day habitually) — hypertension, fluid retention, kidney strain</li>
+            <li><strong>Potassium</strong> (&gt;4,700 mg/day) — hyperkalemia: palpitations, arrhythmias, muscle weakness, GI distress</li>
+            <li><strong>Magnesium</strong> (&gt;350 mg/day from supplements) — diarrhea, low blood pressure, nausea</li>
+            <li><strong>Calcium</strong> (&gt;2,500 mg/day) — hypercalcemia: nausea, confusion, kidney stones</li>
+          </ul>
+          In practice, mid-ride over-supplementation is almost impossible with standard electrolyte products — the real danger is always the deficiency side, especially sodium and potassium on long or hot rides.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What causes cramps during cycling and how do I prevent them?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          The cause of <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/18981039/" target="_blank" rel="noopener">exercise-associated muscle cramps (EAMC)</a> is not fully settled. The popular explanation — dehydration and electrolyte loss — is not well-supported by experimental evidence; <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/23222192/" target="_blank" rel="noopener">studies consistently find no significant difference</a> in electrolyte levels or hydration status between athletes who cramp and those who don't. The leading current hypothesis is <strong>neuromuscular</strong>: fatigue disrupts the balance between excitatory and inhibitory signals to motor neurons, triggering involuntary sustained muscle firing. Going harder or longer than your fitness supports is the most reliable predictor of cramping.<br><br>
+          Prevention follows from the cause: <strong>train specifically</strong> for the demands of your target ride, pace appropriately, and don't exceed your conditioning. Sodium and electrolyte replacement remain worthwhile — while likely not the primary driver, sodium depletion can <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/34185846/" target="_blank" rel="noopener">lower the cramping threshold</a> and replacing it carries no downside. If you cramp mid-ride, stretch the affected muscle and reduce intensity — there is no reliable instant fix.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much sodium do I need when cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sodium is the primary electrolyte lost in sweat, but <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/41901164/" target="_blank" rel="noopener">individual sweat sodium concentration varies widely</a> — from roughly 200 to 1,500 mg per litre — depending on genetics, fitness level, and heat acclimatization. This makes blanket recommendations imprecise. The <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/17277604/" target="_blank" rel="noopener">ACSM recommends 500–700 mg/hour</a> as a starting point for prolonged exercise.<br><br>
+          Key factors that raise sodium needs: longer duration, higher intensity, hot weather, and being a naturally salty sweater — visible white residue on skin or kit after a ride is a reliable indicator. Practical sources: electrolyte tablets (200–500 mg per tab), sports drinks, or salty whole foods. If you ride long and sweat heavily, erring on the higher end of the range is sensible.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is osmolarity and does it matter for sports drinks?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Osmolarity measures the concentration of dissolved particles in a fluid, expressed in milliosmoles per litre (mOsm/L). Blood sits at roughly <strong>285–295 mOsm/L</strong>. Sports drinks are classified by how they compare to that reference:
+          <ul class="list-disc pl-5 mt-2 mb-2">
+            <li><strong>Hypotonic (&lt;270 mOsm/L)</strong> — more dilute than blood. Empties from the stomach fastest and absorbs the quickest, best when <strong>hydration is the priority</strong>. Typically &lt;4% carbohydrate (&lt;40 g/L).</li>
+            <li><strong>Isotonic (270–330 mOsm/L)</strong> — matches blood concentration. Absorbed at a moderate rate and balances fluid with carbohydrate delivery. Standard sports drinks fall here at roughly 4–8% carbohydrate (40–80 g/L). Suitable for most training and racing.</li>
+            <li><strong>Hypertonic (&gt;330 mOsm/L)</strong> — more concentrated than blood. Slows gastric emptying and can <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/7931102/" target="_blank" rel="noopener">temporarily draw water from the gut wall</a>. Gels, concentrated maltodextrin/fructose mixes, and cola are hypertonic and <strong>must always be followed by plain water</strong>.</li>
+          </ul>
+          For most endurance athletes, targeting the <strong>270–330 mOsm/L isotonic window</strong> maximises the combined rate of fluid and carbohydrate absorption. Adding sodium (300–500 mg/L) further promotes intestinal water uptake via the SGLT1 co-transporter.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Is it faster to carry a hydration pack or stop at aid stations?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          A 2 L bladder with a pack weighs roughly <strong>2.5 kg when full</strong> — about <strong>3% of a typical 83 kg system</strong> (rider + bike + gear). On a climb, 3% extra mass means roughly 3% more power to hold the same speed. That penalty shrinks as you drink.<br><br>
+          <strong>Aid stations only save time if you can grab a bottle without stopping.</strong> If you have to stop, the time lost at zero speed exceeds any weight saving the pack would have cost you. The pack always wins once the race is long enough to need more than a frame bottle.<br><br>
+          For races under 60–75 minutes, a single bottle is usually sufficient. Beyond that, carry the pack. Use this hydration calculator to estimate exactly how much fluid you need before committing to a setup.
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>window.FUEL_PROFILE = "hydration";</script>
+{% include "tools/_fuel_engine.html" %}
+{% endblock extra-scripts %}

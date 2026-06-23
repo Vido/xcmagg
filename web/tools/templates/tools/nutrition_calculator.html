@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Cycling Nutrition Calculator (Carbs per Hour & Fuel Plan){% endblock %}
+
+{% block meta_description %}Free cycling nutrition calculator. Estimate carbs per hour from your ride duration, intensity and weight — and get a practical, ready-to-pack fuelling plan.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Cycling Nutrition Calculator (Carbs per Hour & Fuel Plan){% endblock %}
+{% block og_description %}Free cycling nutrition calculator. Estimate carbs per hour and get a practical, ready-to-pack fuelling plan.{% endblock %}
+{% block og_image %}https://racefeed.com.br/og-fuelplan.webp{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/tools/cycling-nutrition-calculator/" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Cycling Nutrition Calculator",
+    "alternateName": ["Cycling Fuel Calculator", "Carbs per Hour Calculator"],
+    "url": "https://racefeed.com.br/tools/cycling-nutrition-calculator/",
+    "description": "Estimate carbohydrate needs per hour for any ride based on duration, intensity and body weight — with a practical fuelling plan.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": { "@type": "Person", "name": "Lucas Vido" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How many carbs should I eat per hour while cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Carbohydrate needs are driven by intensity and power output. Your body burns ~1 g of carbohydrate per 4 kcal of carb energy used, and the carb fraction of total fuel rises sharply with intensity — from ~20% at easy effort to nearly 100% at race pace. 100 W (easy spin): ~30 g/h carb burn; 150 W (endurance pace): ~70 g/h; 200 W (tempo): ~120 g/h; 250 W (threshold): ~190 g/h. The catch: the gut can typically absorb ~60 g/h from a single carb source, or ~90 g/h with a glucose+fructose mix (SGLT1 + GLUT5 dual transporters). Above that ceiling, absorption doesn't improve." } },
+      { "@type": "Question", "name": "What is glycogen and how much do cyclists store?", "acceptedAnswer": { "@type": "Answer", "text": "Glycogen is the storage form of glucose in muscles and the liver. A typical trained cyclist stores 300–600 g of glycogen (1200–2400 kcal). Muscle glycogen fuels working muscles directly; liver glycogen maintains blood glucose for the brain. At race pace, these stores can be fully depleted in 60–90 minutes without exogenous carbohydrate intake." } },
+      { "@type": "Question", "name": "What happens if you don't eat on a long bike ride?", "acceptedAnswer": { "@type": "Answer", "text": "If you don't fuel consistently, your glycogen stores deplete and you bonk (hit the wall) — a sudden and severe performance collapse caused by complete glycogen depletion. Without carbohydrate intake, most cyclists reach this point within 90–120 minutes at moderate-to-high intensity. It is entirely preventable by fueling from the start, before hunger sets in." } },
+      { "@type": "Question", "name": "What should I eat on a 3-hour bike ride?", "acceptedAnswer": { "@type": "Answer", "text": "How much you need depends on power output, not duration. At easy endurance pace (100–150 W), fat carries most of the load and carb burn is only 30–70 g/hr. At tempo or threshold (200–250 W), carb burn rises to 120–190 g/hr. Performance riders should fuel at the gut's absorption ceiling: 60 g/hr from a single carb source, up to 90 g/hr with a glucose+fructose mix. Start eating in the first 20–30 minutes, before hunger appears." } },
+      { "@type": "Question", "name": "Should I eat before or during a bike ride?", "acceptedAnswer": { "@type": "Answer", "text": "Performance riders should eat a carbohydrate-rich meal 2–3 hours before to top up glycogen stores. Casual riders have more flexibility; a normal meal or light snack beforehand is sufficient. At high intensity, glycogen depletes fast — start eating within the first 20–30 minutes. For any ride beyond 90 minutes at meaningful effort, in-ride fueling is non-negotiable." } },
+      { "@type": "Question", "name": "What is the optimal glucose-to-fructose ratio for cycling?", "acceptedAnswer": { "@type": "Answer", "text": "There is no single optimal ratio — it depends on how many grams per hour you consume. SGLT1 absorbs glucose (and maltodextrin); GLUT5 absorbs fructose. Up to ~60 g/h, glucose alone saturates SGLT1 and no fructose is needed. Above that, adding fructose opens the second transporter, raising oxidation by up to 50%. Keep glucose at 60–70 g/h, then add fructose to cover the remainder. Gut adaptation through high-carb training is required above 90 g/h." } },
+      { "@type": "Question", "name": "What do the Peba, Bruto and Galático modes mean?", "acceptedAnswer": { "@type": "Answer", "text": "The three modes take their names from a viral Brazilian cycling meme that ranks athletes and gear on a three-tier scale: Peba (basic/budget), Bruto (raw and powerful), and Galático (elite, otherworldly). Peba mode is for casual riders using real foods. Bruto is for athletes who train with gels and sports nutrition. Galático is the max-performance tier: it takes your FTP and target intensity and builds a precision plan using maltodextrin and fructose dissolved in bottles." } }
+    ]
+  }
+  </script>
+
+  {% include "tools/_fuel_styles.html" %}
+{% endblock extra-head %}
+
+{% block content %}
+<div id="fuelplan-app" class="text-gray-900 dark:text-gray-100">
+
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Cycling Nutrition Calculator</h1>
+    <p class="text-gray-600 dark:text-gray-400 max-w-3xl">
+      Plan your ride fuelling in seconds. Estimate how many <strong>carbs per hour</strong> you need
+      from your ride duration, intensity and body weight — then get a practical, ready-to-pack
+      <strong>fuel plan</strong> built from gels, real food or precision bottle mixes.
+      Need fluid and sodium numbers too? Use the
+      <a href="{% url 'tools:hydration-calculator' %}" class="text-blue-600 dark:text-blue-400 hover:underline">hydration calculator</a>
+      or the combined <a href="{% url 'tools:fuel-plan' %}" class="text-blue-600 dark:text-blue-400 hover:underline">race-day fuel plan</a>.
+    </p>
+  </header>
+
+  {% with profile="nutrition" %}
+    {% include "tools/_fuel_inputs.html" %}
+    {% include "tools/_fuel_outputs.html" %}
+  {% endwith %}
+
+  {% if related_items %}
+  <section class="mb-10">
+    <div class="flex items-end justify-between mb-4">
+      <h2 class="text-2xl font-bold">Nutrition gear</h2>
+      <a href="{% url 'category-profile' 'nutrition' %}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">Nutrition →</a>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in related_items %}
+        {% include "media/_simple_gallery.html" with node=item.node %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- FAQ -->
+  <section class="py-8" aria-label="Frequently Asked Questions">
+    <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions — Cycling Nutrition &amp; Fuelling</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How many carbs should I eat per hour while cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Carbohydrate needs are driven by <strong>power output</strong>, intensity and power output. Your body burns ~1 g of carb per 4 kcal of carb energy used, and the carb fraction of total fuel rises sharply with intensity — from ~20% at easy effort to nearly 100% at race pace:
+          <ul class="list-disc pl-5 mt-2 mb-1">
+            <li><strong>100 W (easy spin):</strong> ~30 g/h carb burn</li>
+            <li><strong>150 W (endurance pace):</strong> ~70 g/h</li>
+            <li><strong>200 W (tempo):</strong> ~120 g/h</li>
+            <li><strong>250 W (threshold):</strong> ~190 g/h</li>
+          </ul>
+          The catch: the gut can typically absorb <strong>~60 g/h</strong> from a single carb source, or <strong>~90 g/h</strong> with a glucose+fructose mix (SGLT1 + GLUT5 dual transporters). Above that ceiling, absorption doesn't improve. <strong>For performance:</strong> fueling at the maximum tolerable rate is still essential, because at high power your burn rate far exceeds absorption and glycogen is always being drawn down. The deficit can be managed, not eliminated.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is glycogen and how much do cyclists store?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Glycogen is the storage form of glucose in muscles and the liver. A typical trained cyclist stores <strong>300–600 g of glycogen</strong> (1200–2400 kcal). Muscle glycogen fuels working muscles directly; liver glycogen maintains blood glucose for the brain. At race pace, these stores can be fully depleted in <strong>60–90 minutes</strong> without exogenous carbohydrate intake.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What happens if you don't eat on a long bike ride?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          If you don't fuel consistently, your glycogen stores deplete and you <strong>bonk</strong> (hit the wall) — a sudden and severe performance collapse caused by <strong>complete glycogen depletion</strong>. Unlike normal fatigue, it comes on rapidly: legs stop responding, thinking becomes foggy, and maintaining even an easy pace feels impossible. Without carbohydrate intake, most cyclists reach this point within <strong>90–120 minutes</strong> at moderate-to-high intensity. It is entirely preventable by fueling from the start, before hunger sets in.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What should I eat on a 3-hour bike ride?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          The right amount depends on <strong>power output</strong>, not duration. <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/8214047/" target="_blank" rel="noopener">Fat carries most of the load at easy pace</a> (~100–150 W), where carb burn is only 30–70 g/hr. At tempo or threshold (200–250 W), carb burn rises to 120–190 g/hr — well above gut absorption capacity. Individual gut tolerance, heat, and habitual training with carbs all shift the numbers further.<br><br>
+          <strong>Performance riders</strong> should fuel at the gut's ceiling: <strong>60 g/hr</strong> from a single carb source, up to <strong>90 g/hr</strong> with a <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/20574242/" target="_blank" rel="noopener">glucose+fructose mix</a> (dual SGLT1+GLUT5 transport). Start eating in the first 20–30 minutes — before hunger appears. <strong>Casual and recreational riders</strong> at lower outputs burn 30–50 g/hr: real food, café stops, and relaxed timing work fine — targeting 90 g/hr at easy pace causes GI distress with no benefit.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Should I eat before or during a bike ride?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Pre-ride nutrition depends on your goal. <strong>Performance riders</strong> should eat a carbohydrate-rich meal 2–3 hours before to top up glycogen stores — for multi-day events or stage racing, deliberate <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/24787031/" target="_blank" rel="noopener">carb-loading in the days prior</a> is standard practice. Casual and recreational riders have much more flexibility; a light snack beforehand is sufficient.<br><br>
+          Whether to fuel during the ride depends on intensity and duration. At high intensity, glycogen depletes fast — start eating within the first 20–30 minutes regardless of pre-ride intake. At easy pace, the urgency is lower and real food with relaxed timing works fine. For any ride beyond 90 minutes at meaningful effort, in-ride fueling is non-negotiable.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is the optimal glucose-to-fructose ratio for cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>There is no single optimal ratio</strong> — the right ratio depends entirely on how many grams per hour you are consuming. The intestine has two separate carbohydrate transporters: <strong>SGLT1</strong> absorbs glucose (and glucose-releasing sources like maltodextrin), while <strong>GLUT5</strong> absorbs fructose. At intakes up to ~60 g/h, glucose alone saturates SGLT1 and no fructose is needed. Above that ceiling, adding fructose opens the second transporter, raising total oxidation rates by <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/18202582/" target="_blank" rel="noopener">up to 50% compared with glucose alone</a>.
+          <ul class="list-disc pl-5 mt-2 mb-2">
+            <li><strong>80 g/h:</strong> ~60 g glucose + 20 g fructose (3:1 ratio)</li>
+            <li><strong>90 g/h:</strong> ~60 g glucose + 30 g fructose (2:1 ratio) — practical ceiling for most athletes</li>
+            <li><strong>100 g/h:</strong> ~60 g glucose + 40 g fructose (3:2 ratio)</li>
+          </ul>
+          The practical rule: keep glucose at <strong>60–70 g/h</strong> to saturate SGLT1, then add fructose to reach your carb target. Gut adaptation through consistent high-carb training is required to tolerate intakes above 90 g/h.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What do the Peba, Bruto and Galático modes mean?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          The three modes take their names from a viral Brazilian cycling meme that ranks athletes, gear and approaches on a three-tier scale: <strong>Peba</strong> (basic/budget), <strong>Bruto</strong> (raw and powerful), and <strong>Galático</strong> (elite, otherworldly).<br><br>
+          <strong>🐢 Peba</strong> — designed for casual riders who fuel with whatever is at the aid station: Gatorade, banana, Coca-Cola, paçoca. Duration is capped at 6 hours and carbs at 60 g/h (the single-transporter limit).<br><br>
+          <strong>🐴 Bruto</strong> — for athletes who train with gels and packaged sports nutrition. Extends duration to 16 hours and carbs to 120 g/h (dual-transporter glucose + fructose).<br><br>
+          <strong>👽 Galático</strong> — the max-performance tier. Takes your FTP and target % FTP as inputs, adds a glycogen depletion chart, and builds a precision plan using maltodextrin and fructose dissolved directly in your bottles.
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>window.FUEL_PROFILE = "nutrition";</script>
+{% include "tools/_fuel_engine.html" %}
+{% endblock extra-scripts %}

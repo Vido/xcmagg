@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Race Day Fuel Plan (Cycling Nutrition + Hydration Calculator){% endblock %}
+
+{% block meta_description %}Free cycling fuel plan calculator. Combine carbs, water and sodium into one ready-to-pack race-day plan — gels, real food or precision bottle mixes — for any ride.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Race Day Fuel Plan (Cycling Nutrition + Hydration Calculator){% endblock %}
+{% block og_description %}Free cycling fuel plan. Combine carbs, water and sodium into one ready-to-pack race-day plan for any ride.{% endblock %}
+{% block og_image %}https://racefeed.com.br/og-fuelplan.webp{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/tools/race-day-fuel-plan/" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Race Day Fuel Plan",
+    "alternateName": ["Cycling Fuel Plan", "Cycling Race Nutrition Plan", "Cycling Fuel Calculator"],
+    "url": "https://racefeed.com.br/tools/race-day-fuel-plan/",
+    "description": "Combine carbs, water and sodium into one ready-to-pack race-day fuel plan based on your ride conditions, with practical fuelling strategies.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": { "@type": "Person", "name": "Lucas Vido" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How many carbs should I eat per hour while cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Carbohydrate needs are driven by intensity and power output. The carb fraction of total fuel rises sharply with intensity — from ~20% at easy effort to nearly 100% at race pace. The gut can typically absorb ~60 g/h from a single carb source, or ~90 g/h with a glucose+fructose mix (SGLT1 + GLUT5 dual transporters). Above that ceiling, absorption doesn't improve." } },
+      { "@type": "Question", "name": "How much water should I drink while cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Sweat rate ranges from roughly 0.4–0.6 L/h in cool conditions to 1.5–1.8 L/h in hot weather at high intensity. Drink enough to avoid losing more than 2% of your body weight in fluid. Aim for 700–1000 mL per hour as a starting point and adjust based on your sweat rate and effort." } },
+      { "@type": "Question", "name": "How much sodium do I need when cycling?", "acceptedAnswer": { "@type": "Answer", "text": "Sodium is the primary electrolyte lost in sweat, but individual sweat sodium concentration varies widely — from roughly 200 to 1,500 mg per litre. The ACSM recommends 500–700 mg/hour as a starting point for prolonged exercise. Longer duration, higher intensity, hot weather and salty sweat all raise sodium needs." } },
+      { "@type": "Question", "name": "What is the optimal glucose-to-fructose ratio for cycling?", "acceptedAnswer": { "@type": "Answer", "text": "There is no single optimal ratio — it depends on grams per hour. Up to ~60 g/h, glucose alone saturates SGLT1 and no fructose is needed. Above that, adding fructose opens the GLUT5 transporter, raising oxidation by up to 50%. Keep glucose at 60–70 g/h, then add fructose to cover the remainder." } },
+      { "@type": "Question", "name": "How much sodium is in sodium bicarbonate?", "acceptedAnswer": { "@type": "Answer", "text": "Sodium bicarbonate (NaHCO3, baking soda) is 27.4% sodium by mass: molar mass 84 g/mol, of which sodium is 23 g/mol (23 ÷ 84 = 0.274). So every 1 g delivers about 274 mg of sodium. A typical pre-race load of 0.3 g/kg (about 21 g for a 70 kg rider) adds roughly 5,750 mg sodium — far beyond hydration needs, so the bicarb dose doubles as a large part of your sodium strategy. For comparison: table salt is about 393 mg Na/g and sodium citrate about 267 mg Na/g." } },
+      { "@type": "Question", "name": "What does a sodium bicarbonate pre-load do, and how do I take it?", "acceptedAnswer": { "@type": "Answer", "text": "Sodium bicarbonate is a blood buffer: it raises plasma bicarbonate, helping neutralise the hydrogen ions that accumulate during hard efforts and delaying fatigue in high-intensity work (roughly 1–10 minute bouts repeated through a race). A common protocol is 0.3 g/kg body weight, split into doses with food and water starting about 90 minutes before the effort. GI tolerance varies widely — trial it in training first, and enteric-coated forms reduce stomach upset." } },
+      { "@type": "Question", "name": "Why dissolve carbs in your bottles — what is isotonic vs hypotonic?", "acceptedAnswer": { "@type": "Answer", "text": "Osmolality (mOsm/kg) is the concentration of dissolved particles in your drink and controls how fast it empties from the stomach and is absorbed. Hypotonic (under 275 mOsm) empties fastest — best when fluid replacement is the priority in hot conditions. Isotonic (about 275–295, matching blood) balances fluid and carb delivery. Hypertonic (over 295) would pack more carbs per sip but draws water into the gut, slows emptying and can worsen dehydration. Maltodextrin is a long polymer, so it contributes far fewer particles per gram than glucose or fructose, delivering more carbs at lower osmolality." } },
+      { "@type": "Question", "name": "Why should I avoid hypertonic mixtures?", "acceptedAnswer": { "@type": "Answer", "text": "A hypertonic drink (over 295 mOsm/kg) is more concentrated than blood, so by osmosis it pulls water out of your body into the gut instead of delivering it. That slows gastric emptying, can cause bloating, cramps and diarrhoea, and transiently worsens dehydration — the opposite of what you want in the heat. The fix is not less carbohydrate: keep the bottle hypotonic or isotonic for drinking, and take extra carbs as gels or chews washed down with plain water. Hypertonic mixes only make sense in cold weather at very high carb targets where sweat loss is low." } },
+      { "@type": "Question", "name": "Should I take a new supplement on race day?", "acceptedAnswer": { "@type": "Answer", "text": "No — nothing new on race day. Every gel, drink mix, electrolyte, caffeine dose and especially the sodium bicarbonate load must be tested in training first. New products on race day risk GI distress, cramping, an unexpected dose response or a flavour you cannot stomach mid-effort, and bicarbonate is a notorious gut-upsetter. Rehearse your full plan — carbs per hour, fluid, sodium and timing — in long training rides that mimic race intensity and heat, so race day only repeats what your gut already tolerates." } }
+    ]
+  }
+  </script>
+
+  {% include "tools/_fuel_styles.html" %}
+{% endblock extra-head %}
+
+{% block content %}
+<div id="fuelplan-app" class="text-gray-900 dark:text-gray-100">
+
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Race Day Fuel Plan</h1>
+    <p class="text-gray-600 dark:text-gray-400 max-w-3xl">
+      Build a complete race-day plan in seconds. Combine <strong>carbs</strong>, <strong>water</strong>
+      and <strong>sodium</strong> into one ready-to-pack strategy — from your ride duration, intensity,
+      temperature and body weight — as gels, real food or precision bottle mixes.
+      Want just one half? Try the
+      <a href="{% url 'tools:nutrition-calculator' %}" class="text-blue-600 dark:text-blue-400 hover:underline">nutrition calculator</a>
+      or the <a href="{% url 'tools:hydration-calculator' %}" class="text-blue-600 dark:text-blue-400 hover:underline">hydration calculator</a>.
+    </p>
+  </header>
+
+  {% with profile="full" %}
+    {% include "tools/_fuel_inputs.html" %}
+    {% include "tools/_fuel_outputs.html" %}
+  {% endwith %}
+
+  {% if related_items %}
+  <section class="mb-10">
+    <div class="flex items-end justify-between mb-4">
+      <h2 class="text-2xl font-bold">Fuel &amp; hydration gear</h2>
+      <div class="flex gap-3 text-sm font-medium">
+        <a href="{% url 'category-profile' 'nutrition' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Nutrition →</a>
+        <a href="{% url 'category-profile' 'hydration' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Hydration →</a>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in related_items %}
+        {% include "media/_simple_gallery.html" with node=item.node %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- FAQ -->
+  <section class="py-8" aria-label="Frequently Asked Questions">
+    <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions — Race Day Fuel Plan</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How many carbs should I eat per hour while cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Carbohydrate needs are driven by <strong>power output</strong> and intensity. The carb fraction of total fuel rises sharply with intensity — from ~20% at easy effort to nearly 100% at race pace (~30 g/h at 100 W up to ~190 g/h at 250 W). The gut can typically absorb <strong>~60 g/h</strong> from a single carb source, or <strong>~90 g/h</strong> with a glucose+fructose mix (SGLT1 + GLUT5 dual transporters). At high power your burn rate exceeds absorption — the deficit can be managed, not eliminated. See the dedicated <a class="text-blue-600 dark:text-blue-400 hover:underline" href="{% url 'tools:nutrition-calculator' %}">nutrition calculator</a> for carb-only planning.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much water should I drink while cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sweat rate ranges from roughly <strong>0.4–0.6 L/h</strong> in cool, easy conditions to <strong>1.5–1.8 L/h</strong> in hot weather at high intensity. Drink enough to avoid losing more than <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/17277604/" target="_blank" rel="noopener"><strong>2% of your body weight</strong></a> in fluid. Aim for <strong>700–1000 mL per hour</strong> and adjust to your sweat rate. The <a class="text-blue-600 dark:text-blue-400 hover:underline" href="{% url 'tools:hydration-calculator' %}">hydration calculator</a> models this in detail.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much sodium do I need when cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sodium is the primary electrolyte lost in sweat, but <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/41901164/" target="_blank" rel="noopener">individual sweat sodium concentration varies widely</a> — from roughly 200 to 1,500 mg per litre. The <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/17277604/" target="_blank" rel="noopener">ACSM recommends 500–700 mg/hour</a> as a starting point. Longer duration, higher intensity, hot weather and salty sweat (white residue on kit) all raise sodium needs.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is the optimal glucose-to-fructose ratio for cycling?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>There is no single optimal ratio</strong> — it depends on grams per hour. <strong>SGLT1</strong> absorbs glucose (and maltodextrin); <strong>GLUT5</strong> absorbs fructose. Up to ~60 g/h, glucose alone saturates SGLT1 and no fructose is needed. Above that, adding fructose opens the second transporter, raising oxidation by <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/18202582/" target="_blank" rel="noopener">up to 50%</a>. Keep glucose at 60–70 g/h, then add fructose to reach your target. Gut adaptation is required above 90 g/h.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How much sodium is in sodium bicarbonate?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sodium bicarbonate (NaHCO₃, baking soda) is <strong>27.4% sodium by mass</strong>: molar mass 84 g/mol, of which sodium is 23 g/mol (23 ÷ 84 = 0.274). So every <strong>1 g delivers ~274 mg of sodium</strong>. A typical pre-race load of 0.3 g/kg (≈21 g for a 70 kg rider) adds ~5,750 mg sodium — far beyond hydration needs, so the bicarb dose doubles as a big chunk of your sodium strategy. For comparison: table salt ~393 mg Na/g, sodium citrate ~267 mg Na/g.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What does a sodium bicarbonate pre-load do, and how do I take it?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Sodium bicarbonate is a <strong>blood buffer</strong>: it raises plasma bicarbonate, helping neutralise the hydrogen ions that accumulate during hard efforts and <a class="text-blue-600 dark:text-blue-400 hover:underline" href="https://pubmed.ncbi.nlm.nih.gov/33555824/" target="_blank" rel="noopener">delaying fatigue in high-intensity work</a> (~1–10 min bouts repeated through a race). Common protocol: <strong>0.3 g/kg body weight</strong>, split into doses with food and water starting ~90 min before the effort. The plan schedules 3 × ~0.1 g/kg every 30 min for shorter, intense races. GI tolerance varies a lot — trial it in training first; enteric-coated forms reduce stomach upset.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Why dissolve carbs in your bottles — what is isotonic vs hypotonic?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>Osmolality</strong> (mOsm/kg) is the concentration of dissolved particles in your drink, and it controls how fast the drink leaves the stomach and is absorbed. <strong>Hypotonic</strong> (&lt;275 mOsm) empties fastest — best when fluid replacement is the priority (hot, high sweat). <strong>Isotonic</strong> (~275–295, matching blood) balances fluid and carb delivery. <strong>Hypertonic</strong> (&gt;295) would pack more carbs per sip, but it draws water into the gut, slows emptying and can worsen dehydration. The galático bottle recipe reports the mix's mOsm/kg so you can tune it: <strong>maltodextrin</strong> is a long polymer, so it contributes far fewer particles per gram than glucose or fructose — more carbs at lower osmolality.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Why should I avoid hypertonic mixtures?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          A <strong>hypertonic</strong> drink (&gt;295 mOsm/kg) is more concentrated than blood, so by osmosis it <strong>pulls water out of your body into the gut</strong> instead of delivering it. That slows gastric emptying, can cause bloating, cramps and diarrhoea, and <strong>transiently worsens dehydration</strong> — the opposite of what you want in the heat. It's the wrong tool when fluid replacement is the priority. The fix isn't less carbohydrate: split your intake so the <strong>bottle stays hypotonic/isotonic</strong> for drinking, and take the extra carbs as <strong>gels or chews washed down with plain water</strong>, which dilute in the stomach. Hypertonic only makes sense in cold weather at very high carb targets where sweat loss is low.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Should I take a new supplement on race day?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          <strong>No — nothing new on race day.</strong> The single most important rule in race nutrition: every gel, drink mix, electrolyte, caffeine dose and especially the <strong>sodium bicarbonate load</strong> must be tested in training first. New products on race day risk GI distress, cramping, an unexpected dose response or a flavour you can't stomach mid-effort — bicarb is a notorious gut-upsetter. Rehearse your <strong>full</strong> plan (carbs/h, fluid, sodium, timing) in long training rides that mimic race intensity and heat, so race day only repeats what your gut already tolerates.
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>window.FUEL_PROFILE = "full";</script>
+{% include "tools/_fuel_engine.html" %}
+{% endblock extra-scripts %}
