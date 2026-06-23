@@ -1,6 +1,6 @@
 ---
 title: "Como o XCMAGG começou? O agregador de provas sem firula"
-description: "Por que juntei uma dúzia de plataformas de inscrição espalhadas num único calendário — e por que tudo isso é só um scraper que escreve um arquivo JSONL e uma página HTML estática que o lê."
+description: "Por que raspei dúzia de plataformas de inscrição num único calendário — e por que um arquivo JSONL e um HTML estático é o jeito certo."
 lang: pt-br
 publish_date: 2025-10-02
 updated_date: 2025-10-02
@@ -10,14 +10,14 @@ tags: ["xcmagg", "web-scraping", "python", "duckdb", "indie-hacking"]
 author: "Lucas Vido"
 ---
 
-Porque eu resolvi fazer: eu não conseguia achar provas de MTB!
+Porque eu resolvi fazer: eu não sabia onde encontrar provas de MTB!
 BTW — eu estava na minha fase de hiperfoco em ciclismo.
 
 ## Duas dores
 
 **Primeira: os eventos estão espalhados.** Se você pedala no Brasil e quer saber
-quais provas estão chegando, não existe um lugar único pra olhar. Cada evento mora
-na plataforma de inscrição que o organizador escolheu — e tem mais ou menos uma
+quais provas estão chegando, não existe um centralizado pra verificar. Cada evento está
+na plataforma de inscrição que o organizador escolheu — e tem mais ou menos duas
 dúzia delas. Não existe calendário compartilhado. O calendário das federações não
 linka pra página do evento. Muitos organizadores dependem da página no Instagram.
 Você descobre uma prova quando um amigo posta no grupo do WhatsApp três dias antes
@@ -61,8 +61,12 @@ ferramenta gratuita seguir gratuita e um maker solo seguir lançando.
 Aqui está a decisão de arquitetura da qual mais me orgulho, e ela soa como preguiça
 até você conviver com ela:
 
+> Serverless - 100% baseado em arquivo
 > O produto inteiro é um scraper que escreve um **arquivo JSONL**,
 > mais uma **página HTML estática** que o lê.
+
+Serverless quero dizer verdadeiramente serverless - e não o 'cloud-hosted database' da AWS;
+O banco de dados são arquivos JSON, CSV e DuckDB.
 
 Sem API. Sem framework de SPA. Sem backend com banco de dados no caminho da
 requisição. A página que você abre é um arquivo HTML plano que dá `fetch()` num
@@ -70,7 +74,7 @@ requisição. A página que você abre é um arquivo HTML plano que dá `fetch()
 
 Essa foi uma decisão *opinionated* contra slop. Muitos devs carregam práticas de
 cargo-cult, pré-concebidas. Isso cria complexidade desnecessária — e empaca as
-empresas. Temos que lutar contra a complexidade/slop;
+empresas.
 
 ## Por trás da construção: Arquitetura Medallion (Bronze → Silver → Gold)
 
@@ -119,7 +123,7 @@ Datas aparecem como intervalos, dias únicos, nomes de mês, formatos ambíguos.
 Localizações são piores — "Serra da Mantiqueira", um nome de local sem cidade, uma
 cidade escrita de três jeitos diferentes.
 
-Pros casos genuinamente bagunçados eu apoio em **agentes LLM** (tool-calling da
+Pros casos genuinamente zuados eu uso **agentes LLM** (tool-calling da
 OpenAI) pra transformar o texto livre num objeto estruturado `{city, uf, ...}` em que
 o resto do pipeline pode confiar.
 
@@ -127,19 +131,18 @@ o resto do pipeline pode confiar.
 
 TL;DR -> Como enriquecer e publicar os resultados.
 
-Gold é a recompensa. Uma query `COPY` do DuckDB achata tudo num único `data.jsonl`,
+O puro creme do milho verde; Gold é gold.
+Uma query `COPY` do DuckDB achata tudo num único `data.jsonl`,
 e na saída cada evento é **enriquecido geograficamente**: eu caso a cidade contra uma
 base de municípios do IBGE pra anexar um DDD mais latitude e longitude.
 
-Esse passo de geo é a resposta inteira pra coceira número dois. Uma vez que todo
+Esse passo de geo é o remédio para a dor número dois. Uma vez que todo
 evento tem lat/long de verdade, "o que está perto de Bragança Paulista" — incluindo
 provas lá no Sul de Minas — vira um cálculo de distância no navegador, em vez de um
 chute contra um dropdown de estado.
 
-Também tem trabalho de dedup aqui. Uma plataforma, por exemplo, manda o mesmo evento
-sob várias capitalizações de slug que compartilham o mesmo id no final, então eu
-dobro tudo numa URL canônica só. E todo link de saída ganha um `?utm_source=xcmagg`
-pra eu enxergar que o agregador de fato manda tráfego pros organizadores.
+E todo link de saída ganha um `?utm_source=xcmagg`
+pra indicar aos organizadores que o agregador de fato manda tráfego.
 
 Uma linha do `data.jsonl` final fica assim:
 
@@ -147,25 +150,23 @@ Uma linha do `data.jsonl` final fica assim:
 {"title":"Desafio Speed - Almenara 2026","url":"https://ticketing.example/e/desafio-speed-almenara-2026?utm_source=xcmagg","start_date":"22-08-2026","city":"Almenara","uf":"MG","ddd":"33","latitude":-16.1785,"longitude":-40.6942,"sport":"Corrida de Rua"}
 ```
 
-Essa única linha — limpa, localizada, atribuída — é a saída inteira de toda aquela
-maquinaria. Multiplique por algumas centenas e você tem o calendário.
+Essa única linha — limpa, localizada, atribuída — é a saída inteira de todo esse Databricks de pobre. Repita por algumas dezenas de linhas e você tem o calendário.
 
-## Por que esse formato vence pra quem trabalha sozinho
+## DevSolo luta contra a complexidade/slop
 
-Eu construo isso sozinho. Toda escolha de arquitetura é, no fundo, uma escolha sobre
-quanto peso operacional eu topo carregar.
+Toda escolha de arquitetura é, no fundo, uma escolha sobre quanto peso operacional
+eu quero carregar. Assim como uma bike, quanto menos peso, melhor
 
-- Eu consigo disparar esse pipeline do meu PC local — custo zero.
-- Os custos de LLM ficam no mínimo — o LLM só é chamado nos casos de borda.
+- Eu consigo rodar esse pipeline do meu PC — custo zero.
+- Os custos de LLM ficam no mínimo — o LLM só é chamado nos casos complicados.
 - Os custos de servidor são quase zero.
-- O deploy é como se fosse os anos 2000.
+- O deploy é como se estivéssemos nos anos 2000.
 
-## O que vem agora
+Veja o resultado do meu [calendário de eventos](https://racefeed.com.br/events/)
 
-O agregador continua crescendo — mais fontes, filtragem por proximidade mais
+## Proximos Passos
+
+A base de código agregador continua crescendo — mais fontes, filtragem por proximidade mais
 inteligente, e eventualmente um calendário público que qualquer um pode abrir pra
-achar a próxima prova. A parte difícil está feita: existe um arquivo limpo só que
-sabe o que está acontecendo e onde.
-
-E se você é maker — rouba a arquitetura. Um scraper, um arquivo JSONL e uma página
-estática te levam mais longe do que você imagina.
+achar a próxima prova. A parte difícil está feita: existe um arquivo limpo que
+sabe onde e quando as corridas estão acontecendo.

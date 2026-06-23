@@ -11,13 +11,13 @@ author: "Lucas Vido"
 ---
 
 This is where the project actually started: I could not find MTB races!
-By te way - I was in my cycling hyperfocus phase.
+By the way - I was in my cycling hyperfocus phase.
 
 ## Two itches
 
 **One: the data is scattered.** If you ride in Brazil and want to know what races
 are coming up, there is no single place to look. Every event lives on whichever
-ticketing platform the organizer happened to pick — and there are about a dozen of
+ticketing platform the organizer happened to pick — and there are about two dozen of
 them. There is no shared calendar. The federations calendar does not link to the event-page.
 Many organizers rely on Instagram page. You find out about a race when a friend posts it in a WhatsApp group three days before registration closes...
 
@@ -53,15 +53,18 @@ A scraper writing a flat file, costs roughly the same whether it serves 200 peop
 Here's the architectural decision I'm proudest of, and it sounds like laziness
 until you live with it:
 
+> Serverless - 100% filebased
 > The entire product is a scraper that writes a **JSONL file**,
 > plus a **static HTML page** that reads it.
+
+Serverless I mean truly serverless - not what AWS call 'cloud-hosted database';
+O banco de dados são arquivos JSON, CSV e DuckDB.
 
 No API. No SPA framework. No database-backed backend sitting in the request path.
 The page you load is a flat HTML file that `fetch()`es one `data.jsonl` and
 renders it in the browser.
 
 This was an opinionated decision against slop. So many developers have pre-conceived cargo-cult pratices. This creates unecessary complexity - and bogs the companies down.
-We must fight agains complexity/slop;
 
 ## Behind the build: Medallion Arch (Bronze → Silver → Gold)
 
@@ -113,18 +116,16 @@ agents** (OpenAI tool-calling) to parse free text into a structured
 
 TL;DR -> How to enrich and publish results
 
-Gold is the payoff. A DuckDB `COPY` query flattens everything into one
+Gold is gold. A DuckDB `COPY` query flattens everything into one
 `data.jsonl`, and on the way out each event gets **geo-enriched**: I match its city
 against an IBGE municipality database to attach a DDD (area code) plus latitude and
 longitude.
 
-That geo step is the whole answer to itch number two. Once every event has a real
+That geo step is the answer to itch number two. Once every event has a real
 lat/long, "what's near Bragança Paulista" — including races over in Sul de Minas —
 becomes a distance calculation in the browser instead of a guess against a state
 dropdown.
 
-There's also dedup work here. One platform, for instance, ships the same event under
-multiple slug casings that share a trailing id, so I fold them to one canonical URL.
 And every outbound link gets a `?utm_source=xcmagg` so I can see that the aggregator
 actually sends organizers traffic.
 
@@ -135,23 +136,22 @@ One line of the finished `data.jsonl` looks like this:
 ```
 
 That single line — clean, located, attributed — is the entire output of all that
-machinery. Multiply it by a few hundred and you have the calendar.
+poor man's Databricks. Multiply it by a few hundred and you have the calendar.
 
-## Why this shape wins for a solo maker
+## Solodev fights against complexity/slop
 
-I build this alone. Every architectural choice is really a choice about how much
-operational weight I'm willing to carry.
+Every architectural choice is really a choice about how much operational weight
+I'm willing to carry. I build this alone. Just like a bike: the lighter, the better.
 
 - I can trigger this pipeline from my local PC - No cost
 - LLM costs are kept to a minium - LLM is called only on edge cases
 - Server costs are near zero.
 - Deploy is like its the 2000's
 
+Check the end result of [event calendar](https://racefeed.com.br/events/)
+
 ## What's next
 
-The aggregator keeps growing — more sources, smarter proximity filtering, and
+The aggregator code-base keeps growing — more sources, smarter proximity filtering, and
 eventually a public calendar anyone can open to find their next race. The hard part
-is done: there's one clean file that knows what's happening and where.
-
-And if you're a maker — steal the architecture. A scraper, a JSONL file, and a
-static page will get you further than you'd think.
+is done: there's one clean file that knows where and when races happen.
