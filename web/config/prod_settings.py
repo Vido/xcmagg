@@ -23,12 +23,10 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=lambda v: v.split(","),
 )
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
-        # Defaults to the memcached service defined in infra/docker-compose.yaml
-        "LOCATION": config("MEMCACHED_LOCATION", default="memcached:11211"),
-    }
+CACHES["default"] = {
+    "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+    # Defaults to the memcached service defined in infra/docker-compose.yaml
+    "LOCATION": config("MEMCACHED_LOCATION", default="memcached:11211"),
 }
 
 TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY')

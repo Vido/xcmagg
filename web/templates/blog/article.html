@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block html_lang %}{{ lang }}{% endblock %}
+
+{% block title %}{{ post.title }} — RaceFeed{% endblock %}
+{% block meta_description %}{{ post.description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.description }}{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+  {% for l, s in siblings.items %}
+    <link rel="alternate" hreflang="{{ l }}" href="https://racefeed.com.br{% url 'blog-article' l s %}" />
+  {% endfor %}
+  {% if siblings.en %}<link rel="alternate" hreflang="x-default" href="https://racefeed.com.br{% url 'blog-article' 'en' siblings.en %}" />{% endif %}
+  <style>
+    .article-body { line-height: 1.7; }
+    .article-body > * + * { margin-top: 1.1rem; }
+    .article-body h2 { font-size: 1.6rem; font-weight: 700; margin-top: 2.4rem; margin-bottom: .4rem; }
+    .article-body h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.8rem; margin-bottom: .3rem; }
+    .article-body a { color: #e66b00; text-decoration: underline; }
+    .article-body ul { list-style: disc; padding-left: 1.4rem; }
+    .article-body ol { list-style: decimal; padding-left: 1.4rem; }
+    .article-body li + li { margin-top: .35rem; }
+    .article-body blockquote { border-left: 4px solid #e66b00; padding-left: 1rem; font-style: italic; color: inherit; opacity: .9; }
+    .article-body code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: rgba(127,127,127,.15); padding: .15em .35em; border-radius: .25rem; }
+    .article-body pre { background: #1e1e1e; color: #e6e6e6; padding: 1rem 1.1rem; border-radius: .5rem; overflow-x: auto; }
+    .article-body pre code { background: none; padding: 0; font-size: .85rem; }
+    .article-body img { border-radius: .5rem; max-width: 100%; height: auto; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-10">
+
+  <!-- Article -->
+  <article class="lg:col-span-3 min-w-0">
+    <header class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ post.title }}</h1>
+      <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+        {% if post.publish_date %}<time datetime="{{ post.publish_date|date:'Y-m-d' }}">{{ post.publish_date|date:"F j, Y" }}</time>{% endif %}
+        {% if post.is_updated %} · <span>updated {{ post.updated_date|date:"F j, Y" }}</span>{% endif %}
+        {% if post.author %} · {{ post.author }}{% endif %}
+      </p>
+
+      {% if siblings|length > 1 %}
+        <div class="mt-4 flex gap-2 text-sm">
+          {% for l, s in siblings.items %}
+            <a href="{% url 'blog-article' l s %}"
+               class="px-2.5 py-1 rounded-md uppercase text-xs font-medium transition
+                      {% if l == lang %}bg-gray-800 text-white dark:bg-white dark:text-gray-900{% else %}border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-500{% endif %}">{{ l }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </header>
+
+    <div class="article-body text-gray-800 dark:text-gray-200">
+      {{ body|safe }}
+    </div>
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="lg:col-span-1">
+    <div class="lg:sticky lg:top-6">
+      {% include "blog/_sidebar.html" with current_slug=post.slug %}
+    </div>
+  </aside>
+
+</div>
+{% endblock %}

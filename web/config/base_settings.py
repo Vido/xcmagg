@@ -40,8 +40,20 @@ INSTALLED_APPS = [
     'media',
     'linkcloak',
     'tools',
+    'blog',
     # TODO: static_sitemaps
 ]
+
+# Shared caches. The 'default' backend is set per environment (dev/prod add it).
+# 'blog' is an on-disk cache for rendered blog markdown — keeps it out of RAM;
+# keys embed file mtime so edits self-invalidate; the dir is regenerable (gitignored).
+CACHES = {
+    'blog': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': str(DATA_DIR / 'cache' / 'blog'),
+        'OPTIONS': {'MAX_ENTRIES': 1000},
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

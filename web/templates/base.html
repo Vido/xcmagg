@@ -1,6 +1,6 @@
-{% load url2 %}
+{% load url2 i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{% block html_lang %}en{% endblock %}">
 <head>
   <meta charset="UTF-8">
 
@@ -140,6 +140,9 @@
           <a href="{% url 'events:calendar' %}" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
             Calendário
           </a>
+          <a href="{% url 'new-post' %}" class="text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">
+            Community
+          </a>
           <div class="relative" x-data="{ toolsOpen: false }">
             <button @click="toolsOpen = !toolsOpen"
                     @click.away="toolsOpen = false"
@@ -158,9 +161,11 @@
                  x-transition:leave-end="transform opacity-0 scale-95"
                  class="absolute left-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
               <a href="/gearftp.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear vs FTP</a>
-              <a href="{% url 'tools:fuel-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Fuel Plan</a>
-              <a href="/gear-matrix.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Matrix</a>
-              <a href="/stem-comparison.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Stem Compare</a>
+              <a href="{% url 'tools:nutrition-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Nutrition Calculator</a>
+              <a href="{% url 'tools:hydration-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Hydration Calculator</a>
+              <a href="{% url 'tools:fuel-plan' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Race Day Fuel Plan</a>
+              <a href="{% url 'tools:gear-matrix' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Matrix</a>
+              <a href="{% url 'tools:stem-comparison' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Stem Compare</a>
             </div>
           </div>
 
@@ -283,6 +288,9 @@
         <a href="{% url 'events:calendar' %}" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
           Calendário
         </a>
+        <a href="{% url 'new-post' %}" class="block text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium">
+          Community
+        </a>
         <div x-data="{ mobileToolsOpen: false }">
           <button @click="mobileToolsOpen = !mobileToolsOpen"
                   class="w-full text-left text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 px-3 py-2 rounded-md text-base font-medium flex items-center justify-between">
@@ -293,9 +301,11 @@
           </button>
           <div x-show="mobileToolsOpen" class="pl-4">
             <a href="/gearftp.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear vs FTP</a>
-            <a href="{% url 'tools:fuel-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Fuel Plan</a>
-            <a href="/gear-matrix.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Matrix</a>
-            <a href="/stem-comparison.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Stem Compare</a>
+            <a href="{% url 'tools:nutrition-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Nutrition Calculator</a>
+            <a href="{% url 'tools:hydration-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Hydration Calculator</a>
+            <a href="{% url 'tools:fuel-plan' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Race Day Fuel Plan</a>
+            <a href="{% url 'tools:gear-matrix' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Matrix</a>
+            <a href="{% url 'tools:stem-comparison' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Stem Compare</a>
           </div>
         </div>
         <hr class="my-1 border-gray-700 dark:border-gray-600">
@@ -374,10 +384,31 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-neutral-800 border-t border-neutral-700 mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="text-center text-sm text-gray-400">
-        <p>&copy; 2025 RaceFeed.</p>
+  <footer class="bg-neutral-800 border-t border-neutral-700 mt-12 text-sm text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Left: legal -->
+        <nav class="flex flex-col items-center md:items-start gap-2">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{% trans "Legal" %}</h3>
+          <a href="#" class="hover:text-white transition">{% trans "Privacy" %}</a>
+          <a href="#" class="hover:text-white transition">{% trans "Terms" %}</a>
+        </nav>
+        <!-- Middle: brand -->
+        <div class="flex flex-col items-center justify-start text-center">
+          <span class="text-base font-extrabold tracking-tight text-white">RaceFeed</span>
+          <p class="mt-1 text-gray-500">{% trans "Race events, aggregated." %}</p>
+        </div>
+        <!-- Right: links -->
+        <nav class="flex flex-col items-center md:items-end gap-2">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{% trans "Explore" %}</h3>
+          <a href="{% url 'events:calendar' %}" class="hover:text-white transition">{% trans "Calendar" %}</a>
+          <a href="{% url 'blog-archive' 'en' %}" class="hover:text-white transition">{% trans "Blog" %}</a>
+        </nav>
+      </div>
+    </div>
+    <div class="border-t border-neutral-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-xs text-gray-500">
+        &copy; 2025 RaceFeed. {% trans "All rights reserved." %}
       </div>
     </div>
   </footer>

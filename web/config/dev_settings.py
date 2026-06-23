@@ -11,14 +11,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', # DEV - not PROD!
-        'LOCATION': 'magiclink-tokens',
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
-        }
-    }
+CACHES['default'] = {
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # DEV - not PROD!
+    'LOCATION': 'magiclink-tokens',
+    'OPTIONS': {
+        'MAX_ENTRIES': 1000,
+    },
 }
 
 # https://developers.cloudflare.com/turnstile/troubleshooting/testing/

@@ -23,3 +23,6 @@ web/.pytest_cache/
 # IDE
 .vscode
 *.sw*
+
+# blog filebased cache (regenerable)
+data/cache/

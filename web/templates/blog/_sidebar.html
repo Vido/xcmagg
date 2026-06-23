@@ -1,0 +1,14 @@
+{% comment %} Sidebar: history/article list for one language. Expects sidebar_posts, lang, current_slug. {% endcomment %}
+<nav aria-label="Articles" class="space-y-1">
+  <h2 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Articles</h2>
+  {% for p in sidebar_posts %}
+    <a href="{% url 'blog-article' lang p.slug %}"
+       class="block px-3 py-2 rounded-md text-sm transition
+              {% if p.slug == current_slug %}bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white{% endif %}">
+      <span class="block">{{ p.title }}</span>
+      {% if p.publish_date %}<span class="block text-xs text-gray-400 dark:text-gray-500">{{ p.publish_date|date:"M j, Y" }}</span>{% endif %}
+    </a>
+  {% empty %}
+    <p class="px-3 text-sm text-gray-400">No articles yet.</p>
+  {% endfor %}
+</nav>

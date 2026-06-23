@@ -6,12 +6,16 @@ Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /gearftp.html
 Allow: /tools/cycling-nutrition-calculator/
+Allow: /tools/cycling-hydration-calculator/
+Allow: /tools/race-day-fuel-plan/
 Allow: /fuelplan.html
 Allow: /calendar.html
 Allow: /events/
 Allow: /data.jsonl
 Allow: /gear-matrix.html
 Allow: /stem-comparison.html
+Allow: /tools/gear-range-calculator/
+Allow: /tools/stem-comparison/
 
 # Render assets — crawlers need these to render the pages above
 Allow: /style.css

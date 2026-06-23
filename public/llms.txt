@@ -6,9 +6,11 @@
 
 - [Cycling Race Calendar](https://racefeed.com.br/events/): Unified calendar of cycling and MTB events and races.
 - [Gear Ratio & FTP Calculator](https://racefeed.com.br/gearftp.html): Visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain.
-- [Cycling Nutrition Calculator & Fuel Plan](https://racefeed.com.br/tools/cycling-nutrition-calculator/): Estimate carbs, hydration, and sodium needs based on ride conditions, with practical fueling strategies.
-- [Gear Range Calculator](https://racefeed.com.br/gear-matrix.html): Drivetrain visualizer showing every cassette and chainring combination on a speed/development axis; compare two drivetrains side by side.
-- [Stem Comparison Tool](https://racefeed.com.br/stem-comparison.html): Compare bicycle stem dimensions side by side; visualize reach and rise for any stem length and angle.
+- [Cycling Nutrition Calculator](https://racefeed.com.br/tools/cycling-nutrition-calculator/): Estimate carbs per hour from ride duration, intensity and weight, with a practical fuelling plan.
+- [Cycling Hydration Calculator](https://racefeed.com.br/tools/cycling-hydration-calculator/): Estimate sweat rate, water and sodium needs per hour, with a bottle and electrolyte plan.
+- [Race Day Fuel Plan](https://racefeed.com.br/tools/race-day-fuel-plan/): Combine carbs, water and sodium into one ready-to-pack race-day fuelling plan.
+- [Gear Range Calculator](https://racefeed.com.br/tools/gear-range-calculator/): Drivetrain visualizer showing every cassette and chainring combination on a speed/development axis; compare two drivetrains side by side.
+- [Stem Comparison Tool](https://racefeed.com.br/tools/stem-comparison/): Compare bicycle stem dimensions side by side; visualize reach and rise for any stem length and angle.
 
 ## Optional
 

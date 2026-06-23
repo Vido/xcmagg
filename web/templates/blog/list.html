@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block html_lang %}{{ lang }}{% endblock %}
+
+{% block title %}RaceFeed Technical Blog{% endblock %}
+{% block meta_description %}Notes on building XCMAGG and RaceFeed — race aggregation, tools, and the engineering behind them.{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-10">
+
+  <!-- Main -->
+  <div class="lg:col-span-3 min-w-0">
+
+    <header class="mb-8 flex items-end justify-between border-b border-gray-200 dark:border-gray-700 pb-6">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">RaceFeed Technical Blog</h1>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">Notes on building the aggregator and the tools around it.</p>
+      </div>
+      <div class="flex gap-2 text-sm">
+        <a href="{% url 'blog-archive' 'en' %}" class="px-2.5 py-1 rounded-md uppercase text-xs font-medium transition {% if lang == 'en' %}bg-gray-800 text-white dark:bg-white dark:text-gray-900{% else %}border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-500{% endif %}">en</a>
+        <a href="{% url 'blog-archive' 'pt-br' %}" class="px-2.5 py-1 rounded-md uppercase text-xs font-medium transition {% if lang == 'pt-br' %}bg-gray-800 text-white dark:bg-white dark:text-gray-900{% else %}border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-500{% endif %}">pt-br</a>
+      </div>
+    </header>
+
+    <ul class="space-y-6">
+      {% for p in posts %}
+        <li class="group">
+          <a href="{% url 'blog-article' lang p.slug %}" class="block">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-[#e66b00] transition">{{ p.title }}</h2>
+            {% if p.publish_date %}<p class="mt-1 text-sm text-gray-400 dark:text-gray-500"><time datetime="{{ p.publish_date|date:'Y-m-d' }}">{{ p.publish_date|date:"F j, Y" }}</time></p>{% endif %}
+            {% if p.description %}<p class="mt-2 text-gray-600 dark:text-gray-300">{{ p.description }}</p>{% endif %}
+          </a>
+        </li>
+      {% empty %}
+        <li class="text-gray-400">No articles yet.</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="lg:col-span-1">
+    <div class="lg:sticky lg:top-6">
+      {% include "blog/_sidebar.html" with sidebar_posts=posts current_slug="" %}
+    </div>
+  </aside>
+
+</div>
+{% endblock %}

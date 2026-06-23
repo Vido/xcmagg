@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('linkcloak.urls')),
     path('tools/', include('tools.urls')),
     path('events/', include('tools.events_urls')),
+    path('blog/', include('blog.urls')),
 ]
 
 from django.contrib.sitemaps.views import sitemap

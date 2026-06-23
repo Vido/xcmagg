@@ -34,7 +34,11 @@ class StaticViewSitemap(BaseSitemap):
         return [
             "home",
             "events:calendar",
-            "tools:fuel-calculator",
+            "tools:nutrition-calculator",
+            "tools:hydration-calculator",
+            "tools:fuel-plan",
+            "tools:stem-comparison",
+            "tools:gear-matrix",
             "category-list",
             "manufacturer-list",
             "catalog-list",
@@ -52,8 +56,6 @@ class StaticPageSitemap(BaseSitemap):
     def items(self):
         return [
             "/gearftp.html",
-            "/gear-matrix.html",
-            "/stem-comparison.html",
         ]
 
     def location(self, path):
@@ -90,10 +92,27 @@ class CatalogItemSitemap(BaseSitemap):
     # uses Item.get_absolute_url()
 
 
+class BlogSitemap(BaseSitemap):
+    """Markdown blog posts (file-backed, both languages)."""
+    priority = 0.7
+    changefreq = "weekly"
+
+    def items(self):
+        from blog.loader import LANGS, list_posts
+        return [p for lang in LANGS for p in list_posts(lang)]
+
+    def location(self, post):
+        return reverse("blog-article", args=[post.lang, post.slug])
+
+    def lastmod(self, post):
+        return post.updated_date or post.publish_date
+
+
 SITEMAPS = {
     "static": StaticViewSitemap,
     "pages": StaticPageSitemap,
     "categories": CategorySitemap,
     "manufacturers": ManufacturerSitemap,
     "catalog": CatalogItemSitemap,
+    "blog": BlogSitemap,
 }
