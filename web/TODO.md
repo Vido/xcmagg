@@ -28,20 +28,14 @@ Locked decisions: R2 storage + self-hosted **thumbor**; 3-layer multilang (marke
   - [ ] 3a. UI: `LocaleMiddleware`, `LANGUAGES`, `LOCALE_PATHS`, `{% trans %}`, fix hardcoded `lang="en"` (`base.html:1`).
   - [ ] 3b. Field/UGC: `django-modeltranslation` on `Item.description`, Category/Manufacturer names. UGC author-language field (machine-translate later).
   - [ ] 3c. Market-segmented: `Market` model (ISO country→market) + GeoIP2 resolution middleware (cookie/session override), market-aware querysets. **Shared geo primitive reused by #4.**
+  - [ ] 3d. Sitemap hreflang: add per-language `<xhtml:link rel="alternate">` entries to catalog/category/manufacturer sitemaps (`config/sitemaps.py`) once languages are defined.
 
 - [ ] **4. Geo-targeted affiliate links** _(reuses Market + GeoIP2, depends on #3)_
   - `market` FK/M2M on `RetailerLink` (`web/catalog/models.py:165`); null = global fallback.
   - `RetailerLink.for_market(market)` manager; prefer market link, fall back global.
   - Update `_retailer_links.html` (`item_detail.html:186`) + form/admin to pass filtered qs + expose market field.
 
-- [ ] **5. Proper sitemap for edcx subsystem**
-  - Django `sitemaps` framework: catalog items, categories, manufacturers, list pages, static pages.
-  - Wire `Sitemap` classes per model w/ `lastmod` (updated_at) + sensible `changefreq`/`priority`; register in `config/urls.py`.
-  - Path-aware: edcx served under community path (see `plans/deploy-edcx-at-community-path-seo-safe.md`) — sitemap URLs must use correct base/prefix.
-  - hreflang/multilang entries once #3 lands.
-  - Point `robots.txt` → sitemap URL.
-
-- [ ] **6. Share buttons + og:cards**
+- [ ] **5. Share buttons + og:cards**
   - Per-page Open Graph + Twitter Card meta (title, description, `og:image`, `og:type`, canonical URL).
   - `og:image` from item primary photo (thumbor `og` size, depends on #2); fallback default card image.
   - Share buttons on item detail / list pages (native Web Share API + WhatsApp/X/Facebook/copy-link fallbacks).

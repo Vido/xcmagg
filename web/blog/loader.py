@@ -28,7 +28,7 @@ LANGS = ("en", "pt-br")
 DEFAULT_LANG = "en"
 
 # Pinned once so already-published posts never re-render differently.
-MD_EXTENSIONS = ["fenced_code", "tables", "toc", "footnotes"]
+MD_EXTENSIONS = ["fenced_code", "tables", "toc", "footnotes", "pymdownx.tilde"]
 
 # Keys embed file mtime/signature, so entries self-invalidate on edit; no expiry.
 _CACHE_TIMEOUT = None

@@ -56,7 +56,9 @@ class CategorySitemap(BaseSitemap):
     def items(self):
         from catalog.selectors import CategorySelectors
         return list(CategorySelectors.featured())
-    # uses Category.get_absolute_url()
+
+    def lastmod(self, obj):
+        return obj.node.updated_at
 
 
 class ManufacturerSitemap(BaseSitemap):
@@ -66,7 +68,9 @@ class ManufacturerSitemap(BaseSitemap):
     def items(self):
         from catalog.selectors import ManufacturerSelectors
         return list(ManufacturerSelectors.featured())
-    # uses Manufacturer.get_absolute_url()
+
+    def lastmod(self, obj):
+        return obj.node.updated_at
 
 
 class CatalogItemSitemap(BaseSitemap):
@@ -76,7 +80,9 @@ class CatalogItemSitemap(BaseSitemap):
     def items(self):
         from catalog.selectors import ItemSelectors
         return list(ItemSelectors.highlighted_catalog())
-    # uses Item.get_absolute_url()
+
+    def lastmod(self, obj):
+        return obj.node.updated_at
 
 
 class BlogSitemap(BaseSitemap):

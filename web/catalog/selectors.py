@@ -99,6 +99,7 @@ class ItemSelectors:
                 node__kind=kind,
             )
             .select_related("node", "node__owner")
+            .prefetch_related("node__retailer_links__link")
             .order_by("-node__published_at")
         )
 

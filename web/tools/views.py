@@ -42,4 +42,4 @@ def gear_matrix(request):
 
 def gearftp(request):
     return render(request, "tools/gearftp.html",
-                  {"related_items": _related_items("tires", "helmets", "apparel")})
+                  {"related_items": _related_items("tires", "helmets", "apparel", "lubes-cleaning")})
