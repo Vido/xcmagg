@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.sites',  # Required allauth
     'django.contrib.sitemaps',
 
@@ -137,7 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    ('blog/images', BASE_DIR / 'blog' / 'content' / 'images'),
+]
 STATIC_ROOT = DATA_DIR / 'static'  # nginx serves this via /static/ (host: /var/www/xcmagg/data/static)
 MEDIA_ROOT = DATA_DIR / 'uploads'
 MEDIA_URL = '/media/'

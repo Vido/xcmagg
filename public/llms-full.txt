@@ -12,9 +12,9 @@ A unified calendar of cycling and MTB events and races (Brazil-focused, Portugue
 
 ---
 
-## Gear Ratio & FTP Calculator
+## Cycling Power, Gear Ratio & FTP Calculator
 
-URL: https://racefeed.com.br/gearftp.html
+URL: https://racefeed.com.br/tools/cycling-power-calculator/
 
 Interactive calculator to visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain. For mountain bikers, road cyclists, and triathletes. Models speed vs. power for an exact rider/bike setup using sliders for weight, CdA, Crr, gradient, and cadence.
 

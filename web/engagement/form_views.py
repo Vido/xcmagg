@@ -34,6 +34,9 @@ class NodeForm(forms.ModelForm):
 
         parent = self.fields["parent"]
         parent.required = False if self.instance.pk else True
+        # Key the field on shortcode so option values / submitted values are
+        # shortcodes, never raw DB ids.
+        parent.to_field_name = "shortcode"
         parent.queryset = Node.objects.filter(
             kind__in={
                 NodeKind.CATEGORY,
@@ -85,9 +88,9 @@ def htmx_redirect(request, obj):
 def new_post(request):
 
     initial = {}
-    parent_id = request.GET.get("parent")
-    if parent_id:
-        initial["parent"] = parent_id
+    parent_code = request.GET.get("parent")
+    if parent_code:
+        initial["parent"] = parent_code
 
     context = {
         "node_form": NodeForm(initial=initial),

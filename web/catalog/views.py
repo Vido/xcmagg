@@ -105,7 +105,7 @@ def catalog_list(request):
         {
             "list_title": "Catalog",
             "list_subtitle": "Browse gear from the catalog",
-            "objects": ItemSelectors.highlighted_catalog(),
+            "shelves": ItemSelectors.catalog_shelves(),
             "card_template": "_item_card.html",
             "grid_class": "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
             "empty_title": "No gear in the catalog yet",

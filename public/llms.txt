@@ -5,7 +5,7 @@
 ## Tools
 
 - [Cycling Race Calendar](https://racefeed.com.br/events/): Unified calendar of cycling and MTB events and races.
-- [Gear Ratio & FTP Calculator](https://racefeed.com.br/gearftp.html): Visualize gear ratios, crank length, gain ratio, and FTP power zones for any terrain.
+- [Cycling Power, Gear Ratio & FTP Calculator](https://racefeed.com.br/tools/cycling-power-calculator/): Visualize gear ratios, crank length, gain ratio, FTP power zones, and speed vs power for any terrain.
 - [Cycling Nutrition Calculator](https://racefeed.com.br/tools/cycling-nutrition-calculator/): Estimate carbs per hour from ride duration, intensity and weight, with a practical fuelling plan.
 - [Cycling Hydration Calculator](https://racefeed.com.br/tools/cycling-hydration-calculator/): Estimate sweat rate, water and sodium needs per hour, with a bottle and electrolyte plan.
 - [Race Day Fuel Plan](https://racefeed.com.br/tools/race-day-fuel-plan/): Combine carbs, water and sodium into one ready-to-pack race-day fuelling plan.

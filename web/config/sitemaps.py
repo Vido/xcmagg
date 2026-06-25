@@ -39,6 +39,7 @@ class StaticViewSitemap(BaseSitemap):
             "tools:fuel-plan",
             "tools:stem-comparison",
             "tools:gear-matrix",
+            "tools:gearftp",
             "category-list",
             "manufacturer-list",
             "catalog-list",
@@ -46,20 +47,6 @@ class StaticViewSitemap(BaseSitemap):
 
     def location(self, name):
         return reverse(name)
-
-
-class StaticPageSitemap(BaseSitemap):
-    """Tool pages still served as static HTML by nginx (no Django route)."""
-    priority = 0.7
-    changefreq = "monthly"
-
-    def items(self):
-        return [
-            "/gearftp.html",
-        ]
-
-    def location(self, path):
-        return path
 
 
 class CategorySitemap(BaseSitemap):
@@ -110,7 +97,6 @@ class BlogSitemap(BaseSitemap):
 
 SITEMAPS = {
     "static": StaticViewSitemap,
-    "pages": StaticPageSitemap,
     "categories": CategorySitemap,
     "manufacturers": ManufacturerSitemap,
     "catalog": CatalogItemSitemap,

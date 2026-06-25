@@ -1,41 +1,36 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Sum, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from datetime import timedelta
-from engagement.models import Post
 from engagement.selectors import PostSelector
-PostSelector
+
 
 def feed_view(request):
-    """
-    Main feed view with infinite scroll support.
-    Supports sorting by: hot, new, top
-    """
-    
-    # Get sort parameter (default: hot)
-    sort = request.GET.get('sort', 'hot')
+    sort = request.GET.get('sort', 'new')
     page_number = request.GET.get('page', 1)
-    
-    # Base queryset
+
     posts = PostSelector.base_qs()
-    #posts = Post.objects.all()
-    
-    # Apply sorting
+
     if sort == 'new':
         posts = posts.order_by('-node__published_at')
-    
+
     elif sort == 'top':
-        #posts = posts.order_by('-node__score', '-node__published_at')
-        posts = posts.order_by('-node__published_at')
-    
+        posts = (
+            posts
+            .annotate(vote_score=Coalesce(Sum("node__votes__value"), Value(0)))
+            .order_by('-vote_score', '-node__published_at')
+        )
+
     elif sort == 'hot':
-        # Hot algorithm: recent posts with good engagement
-        week_ago = timezone.now() - timedelta(days=7)
-        posts = posts.filter(
-            node__published_at__gte=week_ago
-        #).order_by('-node__score', '-node__published_at')
-        ).order_by('-node__published_at')
+        month_ago = timezone.now() - timedelta(days=30)
+        posts = (
+            posts
+            .filter(node__published_at__gte=month_ago)
+            .annotate(vote_score=Coalesce(Sum("node__votes__value"), Value(0)))
+            .order_by('-vote_score', '-node__published_at')
+        )
     
     # Pagination
     paginator = Paginator(posts, 3)  # 25 posts per page
@@ -47,12 +42,12 @@ def feed_view(request):
         'has_next': page_obj.has_next(),
         'current_sort': sort,
     }
-    
-    # For HTMX requests (infinite scroll), return only the post list
+
     if request.headers.get('HX-Request'):
-        print("HTMX")
         return render(request, 'engagement/partials/_post_list.html', context)
 
-    print("GET-HTML")
-    # For regular requests, return full page
+    context['recent_posts'] = (
+        PostSelector.base_qs()
+        .order_by('-node__published_at')[:5]
+    )
     return render(request, 'engagement/feed.html', context)

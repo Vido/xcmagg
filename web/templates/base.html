@@ -160,7 +160,7 @@
                  x-transition:leave-start="transform opacity-100 scale-100"
                  x-transition:leave-end="transform opacity-0 scale-95"
                  class="absolute left-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-              <a href="/gearftp.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear vs FTP</a>
+              <a href="{% url 'tools:gearftp' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear &amp; FTP</a>
               <a href="{% url 'tools:nutrition-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Nutrition Calculator</a>
               <a href="{% url 'tools:hydration-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Hydration Calculator</a>
               <a href="{% url 'tools:fuel-plan' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Race Day Fuel Plan</a>
@@ -297,7 +297,7 @@
             </svg>
           </button>
           <div x-show="mobileToolsOpen" class="pl-4">
-            <a href="/gearftp.html" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear vs FTP</a>
+            <a href="{% url 'tools:gearftp' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear &amp; FTP</a>
             <a href="{% url 'tools:nutrition-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Nutrition Calculator</a>
             <a href="{% url 'tools:hydration-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Hydration Calculator</a>
             <a href="{% url 'tools:fuel-plan' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Race Day Fuel Plan</a>
@@ -393,7 +393,7 @@
         <!-- Middle: brand -->
         <div class="flex flex-col items-center justify-start text-center">
           <span class="text-base font-extrabold tracking-tight text-white">RaceFeed</span>
-          <p class="mt-1 text-gray-500">{% trans "Race events, aggregated." %}</p>
+          <p class="mt-1 text-gray-500">{% trans "Ride Better Together." %}</p>
         </div>
         <!-- Right: links -->
         <nav class="flex flex-col items-center md:items-end gap-2">

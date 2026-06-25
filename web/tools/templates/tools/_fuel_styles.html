@@ -41,19 +41,26 @@
   #fuelplan-app .totals-chip { display: flex; flex-direction: column; background: white; border: 1px solid lightgray; border-radius: 6px; padding: 6px 10px; min-width: 72px; }
   #fuelplan-app .totals-chip-value { font-size: 1rem; font-weight: 700; line-height: 1.2; }
   #fuelplan-app .totals-chip-label { font-size: 0.7rem; color: gray; }
+  #fuelplan-app .bottle-osm { display: flex; align-items: baseline; gap: 6px; padding-top: 10px; }
+  #fuelplan-app .bottle-osm__value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+  #fuelplan-app .bottle-osm__unit { font-size: 0.75rem; color: gray; }
+  #fuelplan-app .bottle-osm__badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 20px; margin-left: 2px; }
+  #fuelplan-app .bottle-osm__badge--hypotonic       { background: #e0f2fe; color: #0369a1; }
+  #fuelplan-app .bottle-osm__badge--isotonic        { background: #dcfce7; color: #166534; }
+  #fuelplan-app .bottle-osm__badge--mild-hypertonic { background: #ecfccb; color: #3f6212; }
+  #fuelplan-app .bottle-osm__badge--hypertonic      { background: #fef3c7; color: #92400e; }
+  #fuelplan-app .bottle-osm__badge--very-hypertonic { background: #fee2e2; color: #991b1b; }
+  .dark #fuelplan-app .bottle-osm__unit { color: #a1a1aa; }
+  .dark #fuelplan-app .bottle-osm__badge--hypotonic       { background: #0c4a6e; color: #7dd3fc; }
+  .dark #fuelplan-app .bottle-osm__badge--isotonic        { background: #14532d; color: #86efac; }
+  .dark #fuelplan-app .bottle-osm__badge--mild-hypertonic { background: #1a2e05; color: #bef264; }
+  .dark #fuelplan-app .bottle-osm__badge--hypertonic      { background: #78350f; color: #fcd34d; }
+  .dark #fuelplan-app .bottle-osm__badge--very-hypertonic { background: #7f1d1d; color: #fca5a5; }
   /* Nutrition results split (toggled by setMode); kept in CSS so it survives a Tailwind purge. */
   @media (min-width: 768px)  { #fuelplan-app #nutriGrid.nut-split { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (min-width: 1024px) { #fuelplan-app #nutriGrid.nut-split { grid-template-columns: repeat(12, minmax(0, 1fr)); } }
-  #fuelplan-app .bottle-recipe { border-left: 3px solid #0d6efd; border-radius: 0 6px 6px 0; padding: 6px 10px; }
-  #fuelplan-app .bottle-recipe__label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #0d6efd; margin-bottom: 5px; }
-  #fuelplan-app .bottle-recipe__chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  #fuelplan-app .recipe-chip { display: inline-flex; align-items: baseline; gap: 3px; font-size: 1rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-  #fuelplan-app .recipe-chip__label { font-size: 0.7rem; font-weight: 500; opacity: 0.85; }
-  #fuelplan-app .recipe-chip--malto    { background: #dbeafe; color: #1d4ed8; }
-  #fuelplan-app .recipe-chip--fructose { background: #fed7aa; color: #7c2d12; }
-  #fuelplan-app .recipe-chip--citrate  { background: #d1fae5; color: #065f46; }
   /* Dark-mode softening for the bespoke components */
-  .dark #fuelplan-app .plan-list li { border-bottom-color: #3f3f46; }
+.dark #fuelplan-app .plan-list li { border-bottom-color: #3f3f46; }
   .dark #fuelplan-app .plan-totals-row { background: #27272a; border-top-color: #52525b !important; }
   .dark #fuelplan-app .totals-chip { background: #18181b; border-color: #3f3f46; }
   .dark #fuelplan-app .totals-heading,

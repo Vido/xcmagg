@@ -11,11 +11,11 @@
     <!-- Section 3: Community Posts -->
     {% block community_section %}
       {% if community_posts %}
-        <section class="mb-16">
-          <div class="flex items-center justify-between mb-8">
+        <section class="mb-8 md:mb-16">
+          <div class="flex items-center justify-between mb-4 md:mb-8">
             <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block community_title %}Community Posts{% endblock %}</h2>
-              <p class="text-gray-600 dark:text-gray-400">{% block community_subtitle %}Discussions and reviews{% endblock %}</p>
+              <h2 class="text-base md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 md:mb-2">{% block community_title %}Community Posts{% endblock %}</h2>
+              <p class="hidden md:block text-gray-600 dark:text-gray-400">{% block community_subtitle %}Discussions and reviews{% endblock %}</p>
             </div>
             {% block community_action %}{% endblock %}
           </div>
@@ -35,11 +35,11 @@
     <!-- Section 0: Community Posts -->
     {% block reviews_section %}
       {% if reviews_posts %}
-        <section class="mb-16">
-          <div class="flex items-center justify-between mb-8">
+        <section class="mb-8 md:mb-16">
+          <div class="flex items-center justify-between mb-4 md:mb-8">
             <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block reviews_title %}Reviews and Opinions{% endblock %}</h2>
-              <p class="text-gray-600 dark:text-gray-400">{% block reviews_subtitle %}Discussions and reviews about catalogs items{% endblock %}</p>
+              <h2 class="text-base md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 md:mb-2">{% block reviews_title %}Reviews and Opinions{% endblock %}</h2>
+              <p class="hidden md:block text-gray-600 dark:text-gray-400">{% block reviews_subtitle %}Discussions and reviews about catalogs items{% endblock %}</p>
             </div>
             {% block reviews_action %}{% endblock %}
           </div>
@@ -59,11 +59,11 @@
     <!-- Section 1: Inventory Items -->
     {% block inventory_section %}
       {% if inventory_items %}
-        <section class="mb-16">
-          <div class="flex items-center justify-between mb-8">
+        <section class="mb-8 md:mb-16">
+          <div class="flex items-center justify-between mb-4 md:mb-8">
             <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block inventory_title %}In Collections{% endblock %}</h2>
-              <p class="text-gray-600 dark:text-gray-400">{% block inventory_subtitle %}Items owned by the community{% endblock %}</p>
+              <h2 class="text-base md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 md:mb-2">{% block inventory_title %}In Collections{% endblock %}</h2>
+              <p class="hidden md:block text-gray-600 dark:text-gray-400">{% block inventory_subtitle %}Items owned by the community{% endblock %}</p>
             </div>
             {% block inventory_action %}{% endblock %}
           </div>
@@ -83,11 +83,11 @@
     <!-- Section 2: Catalog Items -->
     {% block catalog_section %}
       {% if catalog_items %}
-        <section class="mb-16">
-          <div class="flex items-center justify-between mb-8">
+        <section class="mb-8 md:mb-16">
+          <div class="flex items-center justify-between mb-4 md:mb-8">
             <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{% block catalog_title %}Catalog Items{% endblock %}</h2>
-              <p class="text-gray-600 dark:text-gray-400">{% block catalog_subtitle %}Browse available gear{% endblock %}</p>
+              <h2 class="text-base md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 md:mb-2">{% block catalog_title %}Catalog Items{% endblock %}</h2>
+              <p class="hidden md:block text-gray-600 dark:text-gray-400">{% block catalog_subtitle %}Browse available gear{% endblock %}</p>
             </div>
             {% block catalog_action %}{% endblock %}
           </div>

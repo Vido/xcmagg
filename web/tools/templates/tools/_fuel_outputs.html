@@ -74,8 +74,8 @@ Cards are gated by `profile`; the engine writes only what is rendered.{% endcomm
 </div>
 {% endif %}
 
-<div class="grid md:grid-cols-3 gap-4 mb-4">
-  <div class="md:col-span-2" id="planCol">
+<div class="grid md:grid-cols-2 gap-4 mb-4">
+  <div id="planCol">
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 h-full overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-200 dark:border-neutral-700">
         <span class="font-semibold">{% if profile == 'hydration' %}🚰 Hydration Plan{% else %}🍽️ Nutrition Plan{% endif %}</span>
@@ -86,7 +86,7 @@ Cards are gated by `profile`; the engine writes only what is rendered.{% endcomm
     </div>
   </div>
   {% if profile == 'hydration' or profile == 'full' %}
-  <div class="md:col-span-1" id="bottlesCol">
+  <div id="bottlesCol">
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 h-full overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-200 dark:border-neutral-700 font-semibold">🚰 Bottles & Hydration</div>
       <div class="p-4">

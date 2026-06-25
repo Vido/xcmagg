@@ -38,3 +38,8 @@ def stem_comparison(request):
 
 def gear_matrix(request):
     return render(request, "tools/gear_matrix.html")
+
+
+def gearftp(request):
+    return render(request, "tools/gearftp.html",
+                  {"related_items": _related_items("tires", "helmets", "apparel")})

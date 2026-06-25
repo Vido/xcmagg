@@ -4,7 +4,7 @@ Allow: /$
 Allow: /sitemap.xml
 Allow: /llms.txt
 Allow: /llms-full.txt
-Allow: /gearftp.html
+Allow: /tools/cycling-power-calculator/
 Allow: /tools/cycling-nutrition-calculator/
 Allow: /tools/cycling-hydration-calculator/
 Allow: /tools/race-day-fuel-plan/

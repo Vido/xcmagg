@@ -7,6 +7,11 @@ Full plan (context, current-state file:line citations, per-issue approach, verif
 
 Locked decisions: R2 storage + self-hosted **thumbor**; 3-layer multilang (market-segmented content + field/UGC translation + UI); **GeoIP2** (MaxMind GeoLite2) for geo.
 
+## Bugs
+
+- [ ] **Welcome flow broken — no email provider configured.** Sign-up welcome email fails; will use Postmark (per prod email backend). Configure Postmark token/sender in prod `web/.env` + verify welcome email send path.
+- [ ] **Prod login fails — Turnstile siteverify 400.** Cloudflare returns `400 Bad Request` from `/turnstile/v0/siteverify` → `validate_turnstile` (`web/profiles/turnstile.py:23`) catches → `TurnstileField.clean` raises → form re-renders (POST 200, no redirect). Cause: malformed/empty `TURNSTILE_SECRET_KEY` in prod `web/.env` (a bad-but-present secret gives 200 + `invalid-input-secret`; raw 400 = empty/whitespace/stray quotes). Fix: correct secret in server `web/.env`, restart web container.
+
 ## Build order
 
 - [ ] **1. Image storage → R2** _(foundation)_

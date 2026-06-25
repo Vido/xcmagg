@@ -25,23 +25,21 @@ Parameters:
         <a href="{% url 'user-inventory' post.owner.username %}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-violet-600 dark:hover:text-violet-400">
           @{{ post.owner.username }}
         </a>
-        <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-          {% if post.parent %}
-            <a
-              href="{{ post.parent.get_absolute_url }}"
-              class="font-medium text-gray-700 dark:text-gray-300 hover:underline truncate max-w-[16rem]"
-            >
-              {{ post.parent.title }}
-            </a>
-            <span class="opacity-50">•</span>
-          {% else %}
-            <span class="opacity-50">General •</span>
-          {% endif %}
-          <span>{{ post.published_at|timesince }} ago</span>
-        </p>
+            </svg>
+            {% if post.parent %}
+              <a href="{{ post.parent.get_absolute_url }}" class="font-medium text-gray-700 dark:text-gray-300 hover:underline">{{ post.parent.title }}</a>
+            {% else %}
+              <span class="opacity-50">General</span>
+            {% endif %}
+            <span class="opacity-40 hidden sm:inline">•</span>
+            <span class="opacity-60 hidden sm:inline">{{ post.published_at|timesince }} ago</span>
+          </div>
+          <div class="opacity-60 sm:hidden mt-0.5">{{ post.published_at|timesince }} ago</div>
+        </div>
       </div>
     </div>
 

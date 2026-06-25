@@ -215,7 +215,7 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
     show('glycogenRow',  isGalatico);
     show('bottlesCol',   !isPeba);
     // Plan spans the full row when there is no bottles column (peba mode or the nutrition page).
-    setCls('planCol', (isPeba || !has('bottlesCol')) ? 'md:col-span-3' : 'md:col-span-2');
+    setCls('planCol', (isPeba || !has('bottlesCol')) ? 'md:col-span-2' : '');
     show('depletionCard',  isGalatico);
     // Nutrition combined card: plan | chart columns only when the chart shows.
     // md = 50/50; lg = 33/67 (plan lg:col-span-4 | chart lg:col-span-8, both static
@@ -785,23 +785,30 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
       + (fructose_g * per_L * FRUCTOSE_MOSM)
       + (citrate_g  * per_L * CITRATE_MOSM)
       : 0;
-    const concLabel = osmolality < 275 ? 'hypotonic'
-                    : osmolality <= 295 ? 'isotonic'
-                    : 'hypertonic';
-    const concClass = osmolality < 275 ? 'text-sky-500'
-                    : osmolality <= 295 ? 'text-green-600'
-                    : 'text-amber-600';
+    const concLabel = osmolality < 275  ? 'hypotonic'
+                    : osmolality <= 310 ? 'isotonic'
+                    : osmolality <= 400 ? 'mild-hypertonic'
+                    : osmolality <= 600 ? 'hypertonic'
+                    : 'very-hypertonic';
+    const concClass = osmolality < 275  ? 'text-sky-500'
+                    : osmolality <= 310 ? 'text-green-600'
+                    : osmolality <= 400 ? 'text-lime-600'
+                    : osmolality <= 600 ? 'text-amber-600'
+                    : 'text-red-600';
 
     const recipeChips = [];
-    if (showRecipe && glucose_g  > 0) recipeChips.push(`<span class="recipe-chip recipe-chip--malto">${Math.round(glucose_g  * per_L)} g <span class="recipe-chip__label">malto</span></span>`);
-    if (showRecipe && fructose_g > 0) recipeChips.push(`<span class="recipe-chip recipe-chip--fructose">${Math.round(fructose_g * per_L)} g <span class="recipe-chip__label">fructose</span></span>`);
-    if (showRecipe && citrate_g  > 0) recipeChips.push(`<span class="recipe-chip recipe-chip--citrate">${(citrate_g * per_L).toFixed(1)} g <span class="recipe-chip__label">citrate</span></span>`);
-    const recipeHtml = recipeChips.length
-      ? `<div class="bottle-recipe mt-2">
-           <div class="bottle-recipe__label">Bottle Mix (per 1 L)</div>
-           <div class="bottle-recipe__chips">${recipeChips.join('')}</div>
-           <div class="bottle-recipe__conc text-sm mt-1 ${concClass} font-semibold">~${Math.round(osmolality)} mOsm/kg · ${concLabel}</div>
+    if (showRecipe && glucose_g  > 0) recipeChips.push(`<div class="totals-chip"><span class="totals-chip-value text-blue-600">${Math.round(glucose_g  * per_L)} g</span><span class="totals-chip-label">malto</span></div>`);
+    if (showRecipe && fructose_g > 0) recipeChips.push(`<div class="totals-chip"><span class="totals-chip-value text-orange-600">${Math.round(fructose_g * per_L)} g</span><span class="totals-chip-label">fructose</span></div>`);
+    if (showRecipe && citrate_g  > 0) recipeChips.push(`<div class="totals-chip"><span class="totals-chip-value text-green-600">${(citrate_g * per_L).toFixed(1)} g</span><span class="totals-chip-label">citrate</span></div>`);
+    const osmHtml = (showRecipe && osmolality > 0)
+      ? `<div class="bottle-osm mt-2">
+           <span class="bottle-osm__value ${concClass}">${Math.round(osmolality)}</span>
+           <span class="bottle-osm__unit">mOsm/kg</span>
+           <span class="bottle-osm__badge bottle-osm__badge--${concLabel}">${concLabel}</span>
          </div>`
+      : '';
+    const recipeHtml = recipeChips.length
+      ? `<div class="plan-totals-row"><span class="totals-heading">🧪 Bottle Mix (per 1 L)</span><div class="totals-grid">${recipeChips.join('')}</div></div>${osmHtml}`
       : '';
     const capacity_L = r.capacity / 1000;
     const coverageHtml = `
@@ -816,11 +823,11 @@ page that omits (say) the carbs slider or the water chart simply skips them.{% e
         stopsBody.innerHTML = `
           ${coverageHtml}
           <p class="mb-0 text-green-600 font-semibold">✅ No stops needed</p>
-          ${recipeHtml ? '<hr class="my-2 border-gray-200 dark:border-neutral-700">' + recipeHtml : ''}`;
+          ${recipeHtml}`;
       } else {
         stopsBody.innerHTML = `
           ${coverageHtml}
-          <div class="flex items-center gap-3 mb-1">
+          <div class="flex items-center gap-3 mb-4">
             <div class="stops-big text-blue-600" style="min-width:2.5rem;text-align:center">${stops.stops}</div>
             <div style="min-width:0">
               <div class="font-bold">water stop${stops.stops > 1 ? 's' : ''}</div>

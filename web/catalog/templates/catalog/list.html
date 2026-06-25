@@ -40,11 +40,14 @@
 
     {% if shelves %}
       {% for shelf in shelves %}
-        <div class="mb-10">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ shelf.label }}</h2>
+        <div class="mb-12">
+          <div class="flex items-center gap-3 mb-6">
+            <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">{{ shelf.label }}</h2>
+            <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+          </div>
           <div class="grid {{ grid_class }} gap-6">
-            {% for category in shelf.categories %}
-              {% include card_template with category=category %}
+            {% for obj in shelf.categories %}
+              {% include card_template with category=obj item=obj brand=obj %}
             {% endfor %}
           </div>
         </div>

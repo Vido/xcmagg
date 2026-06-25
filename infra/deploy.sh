@@ -22,3 +22,8 @@ ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml up 
 if [[ "${1:-}" == "--migrate" ]]; then
   ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml exec -T web uv run python manage.py migrate"
 fi
+
+# Optional seed categories: ./infra/deploy.sh --categories
+if [[ "${1:-}" == "--categories" ]]; then
+  ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml exec -T web uv run python manage.py seed_categories"
+fi

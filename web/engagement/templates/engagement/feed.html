@@ -4,13 +4,13 @@
 {% block title %}Feed{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+<div class="max-w-7xl mx-auto px-2 sm:px-4 grid md:grid-cols-3 gap-4 sm:gap-8">
 
   <!-- Main Feed Column -->
   <div class="md:col-span-2 space-y-4">
     
     <!-- Sort/Filter Bar -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-4 py-3 flex items-center space-x-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-2 sm:px-4 py-2 sm:py-3 flex items-center space-x-1 sm:space-x-4">
       <button 
         class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
         hx-get="{% url 'feed' %}?sort=hot"
@@ -83,7 +83,7 @@
   // Handle sort button active state
   document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentSort = urlParams.get('sort') || 'hot';
+    const currentSort = urlParams.get('sort') || 'new';
     
     // Add active styling to current sort button
     document.querySelectorAll('[hx-get*="sort="]').forEach(button => {

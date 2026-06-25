@@ -29,6 +29,14 @@ Lean on the generic base templates — **don't override a whole section to chang
 - If the variation you need has no hook, **add a new `{% block %}` to the base** and override it in the child — do not copy the section's markup into the child to wedge in a change.
 - Empty/CTA states belong in the base's empty-state blocks, gated by context (e.g. `{% if owner == request.user %}`), not in bespoke per-page markup.
 
+## Identifiers
+
+**Never expose raw DB ids (`pk`/`id`) in URLs, templates, forms, or API responses — use the `shortcode` instead.** `Node.shortcode` (Sqids-encoded, unique, indexed) is the public identifier.
+
+- URLs/links: `{{ obj.node.shortcode }}`, never `{{ obj.node.id }}` (e.g. `?parent={{ item.node.shortcode }}`).
+- `ModelChoiceField` to a Node: set `field.to_field_name = "shortcode"` so rendered `<option>` values and submitted values are shortcodes, not pks.
+- Views: look up by `shortcode=` (e.g. `get_object_or_404(Node, shortcode=shortcode)`), never by `id=`/`pk=` from request data.
+
 ## Infrastructure
 
 ### Reverse Proxy

@@ -239,7 +239,7 @@
         {% endif %}
       </div>
       {% if request.user.is_authenticated %}
-        <a href="{% url 'new-post' %}?parent={{ item.node.id }}"
+        <a href="{% url 'new-post' %}?parent={{ item.node.shortcode }}"
            class="inline-flex items-center px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition">
           Write a review
         </a>

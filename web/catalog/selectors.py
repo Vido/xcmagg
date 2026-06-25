@@ -103,6 +103,36 @@ class ItemSelectors:
         )
 
     @staticmethod
+    def catalog_shelves():
+        shelf_defs = [
+            ("Showroom", Audience.BIKE, Durability.DURABLE),
+            ("Fuel Your Ride", Audience.RIDER, Durability.CONSUMABLE),
+            ("Keep It Rolling", Audience.PARTS, Durability.CONSUMABLE),
+            ("Upgrade Your Bike", Audience.PARTS, Durability.DURABLE),
+            ("Gear Up", Audience.RIDER, Durability.DURABLE),
+        ]
+        base_qs = (
+            Item.visible.public()
+            .filter(node__kind=NodeKind.CATALOG_ITEM, is_sold=False, manufacturer__isnull=False)
+            .select_related('node', 'node__owner', 'category', 'manufacturer')
+            .order_by('-node__published_at')
+        )
+        result = []
+        seen_pks = set()
+        for label, audience, durability in shelf_defs:
+            items = list(base_qs.filter(
+                category__audience=audience,
+                category__durability=durability,
+            ))
+            if items:
+                seen_pks.update(i.pk for i in items)
+                result.append({"label": label, "categories": items})
+        rest = list(base_qs.exclude(pk__in=seen_pks))
+        if rest:
+            result.append({"label": "More", "categories": rest})
+        return result
+
+    @staticmethod
     def highlighted_catalog():
         """
         Return the most recent public, unsold inventory items.
