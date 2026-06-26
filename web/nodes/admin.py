@@ -115,7 +115,7 @@ class NodeAdmin(admin.ModelAdmin):
         'created_at',
     )
     list_filter = ('kind', 'visibility')
-    search_fields = ('shortcode',)
+    search_fields = ('title', 'shortcode')
     readonly_fields = ('shortcode', 'created_at', 'updated_at')
 
     inlines = (

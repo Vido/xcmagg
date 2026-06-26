@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
 
+  {% if not debug %}
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-K196Y4ZCFK"></script>
   <script>
@@ -12,6 +13,7 @@
     gtag('js', new Date());
     gtag('config', 'G-K196Y4ZCFK');
   </script>
+  {% endif %}
 
   <title>{% block title %}RaceFeed{% endblock %}{% block head_title %}{% endblock head_title %}</title>
 
@@ -42,11 +44,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      plugins: [tailwindcss.typography],
     }
   </script>
 

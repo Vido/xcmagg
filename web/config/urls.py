@@ -42,11 +42,12 @@ urlpatterns += [
     path("catalog/<slug:shortcode>/<slug:slug>/", edit_item, name="edit-item"),
 ]
 
-from catalog.form_views import autocomplete_category, autocomplete_manufacturer, autocomplete_catalog_node
+from catalog.form_views import autocomplete_category, autocomplete_manufacturer, autocomplete_catalog_node, autocomplete_parent_node
 urlpatterns += [
     path("lookups/category/", autocomplete_category, name="category-lookup"),
     path("lookups/manufacturer/", autocomplete_manufacturer, name="manufacturer-lookups"),
     path("lookups/catalog-node/", autocomplete_catalog_node, name="catalog-lookups"),
+    path("lookups/parent-node/", autocomplete_parent_node, name="parent-node-lookup"),
 ]
 
 # Posts

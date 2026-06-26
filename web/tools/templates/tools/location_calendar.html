@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block html_lang %}pt-BR{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block og_title %}{{ page_title }}{% endblock %}
+{% block og_description %}{{ page_description }}{% endblock %}
+
+{% block extra-head %}
+<link rel="canonical" href="{{ canonical }}" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Calendário", "item": "https://racefeed.com.br/events/"},
+    {"@type": "ListItem", "position": 2, "name": "{{ city_name }}", "item": "https://racefeed.com.br/events/{{ city_slug }}/"}
+    {% if discipline %},{"@type": "ListItem", "position": 3, "name": "{{ discipline_name }}", "item": "{{ canonical }}"}{% endif %}
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "{{ page_title|escapejs }}",
+  "url": "{{ canonical }}",
+  "numberOfItems": {{ city_event_count }},
+  "itemListElement": [
+    {% for e in ssr_events %}{% if e.city == city_name %}{"@type": "ListItem", "position": {{ forloop.counter }}, "name": "{{ e.title|escapejs }}", "url": "{{ e.url }}"}{% if not forloop.last %},{% endif %}{% endif %}{% endfor %}
+  ]
+}
+</script>
+{% endblock extra-head %}
+
+{% block content %}
+<div class="text-gray-900 dark:text-gray-100">
+
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-gray-500 dark:text-gray-400 mb-5" aria-label="Navegação estrutural">
+    <ol class="flex flex-wrap items-center gap-1">
+      <li><a href="/events/" class="hover:text-gray-700 dark:hover:text-gray-200">Calendário</a></li>
+      <li>/</li>
+      {% if discipline %}
+      <li><a href="/events/{{ city_slug }}/" class="hover:text-gray-700 dark:hover:text-gray-200">{{ city_name }}</a></li>
+      <li>/</li>
+      <li class="text-gray-700 dark:text-gray-200" aria-current="page">{{ discipline_name }}</li>
+      {% else %}
+      <li class="text-gray-700 dark:text-gray-200" aria-current="page">{{ city_name }}</li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold mb-1">
+      {% if discipline_name %}{{ discipline_name }} em {{ city_name }}{% else %}Provas em {{ city_name }}{% endif %}
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400">
+      {{ state_name }} · {{ city_event_count }} evento{{ city_event_count|pluralize:"s" }} em {{ ssr_events.0.date_year }}
+    </p>
+  </header>
+
+  <!-- Discipline tabs -->
+  {% if discipline_tabs %}
+  <div class="flex flex-wrap gap-2 mb-6">
+    <a href="/events/{{ city_slug }}/"
+       class="px-3 py-1 rounded-full text-sm border transition-colors {% if not discipline %}bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent{% else %}border-gray-300 dark:border-neutral-600 text-gray-600 dark:text-gray-300 hover:border-gray-500{% endif %}">
+      Todos
+    </a>
+    {% for slug, label, count in discipline_tabs %}
+    <a href="/events/{{ city_slug }}/{{ slug }}/"
+       class="px-3 py-1 rounded-full text-sm border transition-colors {% if discipline == slug %}bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent{% else %}border-gray-300 dark:border-neutral-600 text-gray-600 dark:text-gray-300 hover:border-gray-500{% endif %}">
+      {{ label }} <span class="opacity-60 text-xs">({{ count }})</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Two-column: sidebar + events -->
+  <div class="grid gap-6 md:grid-cols-[14rem_1fr]">
+
+    <!-- Sidebar: nearby city links -->
+    {% if nearby_city_links %}
+    <aside class="md:sticky md:top-4 self-start">
+      <h2 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cidades próximas</h2>
+      <nav class="space-y-0.5">
+        {% for c in nearby_city_links %}
+        <a href="/events/{{ c.slug }}/"
+           class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
+          <span>{{ c.nome }}, <span class="text-gray-400 dark:text-gray-500">{{ c.uf }}</span></span>
+          {% if c.dist_km %}<span class="text-xs text-gray-400 dark:text-gray-500 ml-2 shrink-0">{{ c.dist_km }} km</span>{% endif %}
+        </a>
+        {% endfor %}
+      </nav>
+    </aside>
+    {% else %}
+    <div></div>
+    {% endif %}
+
+    <!-- Event list -->
+    <div>
+      <ul class="space-y-3" aria-label="Próximas provas">
+        {% for e in ssr_events %}
+        {% if e.city == city_name %}
+        <li class="flex gap-4 items-stretch rounded-xl border-2 border-blue-300 dark:border-blue-700 border-l-4 border-l-blue-500 dark:border-l-blue-400 p-3 hover:shadow-md transition bg-blue-50 dark:bg-blue-950">
+          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-blue-500 dark:bg-blue-600 text-white" aria-hidden="true">
+        {% else %}
+        <li class="flex gap-4 items-stretch rounded-xl border p-3 hover:shadow-sm transition bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
+          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400" aria-hidden="true">
+        {% endif %}
+            <span class="text-xl font-bold leading-none">{{ e.date_day }}</span>
+            <span class="text-xs font-semibold uppercase">{{ e.date_month }}</span>
+            <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ e.date_year }}</span>
+          </div>
+          <div class="flex flex-col justify-center min-w-0">
+            <a href="{{ e.url }}" rel="noopener" target="_blank"
+               class="font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate">
+              {{ e.title }}
+            </a>
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap items-center gap-1.5">
+              {% if e.city != city_name %}
+              <a href="/events/{{ e.city|slugify }}/" class="hover:underline">{{ e.city }}</a>,
+              {% else %}
+              <span>{{ e.city }},</span>
+              {% endif %}
+              <span>{{ e.uf|upper }}</span>
+              {% if e.dist_km %}<span>· {{ e.dist_km }} km</span>{% endif %}
+              {% if e.discipline %}
+              <span class="rounded-full bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs">{{ e.discipline }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+
+      {% if city_event_count > 20 %}
+      <div class="mt-6">
+        <a href="/events/?city={{ filter_city|urlencode }}{% if filter_discipline %}&sport={{ filter_discipline|urlencode }}{% endif %}"
+           class="inline-block rounded-lg border border-gray-300 dark:border-neutral-600 px-5 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition">
+          Ver todos os {{ city_event_count }} eventos de {{ city_name }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>
+  const LOCATION_FILTER   = "{{ filter_city|escapejs }}";
+  const UF_FILTER         = "{{ filter_uf }}";
+  const DISCIPLINE_FILTER = "{{ filter_discipline|escapejs }}";
+</script>
+{% endblock extra-scripts %}

@@ -101,6 +101,8 @@ SPORTS = {
     'Trail Run':            'Trail running',
     'Corrida Trail':        'Trail running',
     'Corrida de Montanha':  'Trail running',
+    'Corrida Rustica':      'Trail running',
+    'Corrida Rústica':      'Trail running',
     # Corrida de Rua
     'Corrida de Rua':       'Corrida de Rua',
     'Corrida':              'Corrida de Rua',

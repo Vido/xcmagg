@@ -26,7 +26,7 @@
       {% for p in posts %}
         <li class="group">
           <a href="{% url 'blog-article' lang p.slug %}" class="block">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-[#e66b00] transition">{{ p.title }}</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-[#e66b00] transition">{{ p.title }}{% if p.draft %} <span class="inline-block px-2 py-0.5 text-xs font-semibold uppercase tracking-widest rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Draft</span>{% endif %}</h2>
             {% if p.publish_date %}<p class="mt-1 text-sm text-gray-400 dark:text-gray-500"><time datetime="{{ p.publish_date|date:'Y-m-d' }}">{{ p.publish_date|date:"F j, Y" }}</time></p>{% endif %}
             {% if p.description %}<p class="mt-2 text-gray-600 dark:text-gray-300">{{ p.description }}</p>{% endif %}
           </a>

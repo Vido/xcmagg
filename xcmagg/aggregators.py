@@ -32,6 +32,12 @@ def canonical_ticketsports_url(url: str) -> str:
 
 
 class ConfederacaoBrasileira:
+    # REJECTED — no per-event URL. Calendar is a flat 120-row table with no
+    # detail pages; the only links are organizer sites/emails (non-unique: 12
+    # events share one domain, many are instagram profiles or bare homepages,
+    # some are leaked mailto). url=PK invariant fails — would need a synthetic
+    # key that dereferences to nothing. Deep-linked rows (inscricoes.com.br,
+    # ticketsports) we already scrape direct. Not worth it.
     URL = 'https://www.cbc.esp.br/modalidades/calendario/busca/mtb'
     REPO = Path('cbc.esp.br')
     META = {
@@ -62,6 +68,155 @@ class FederacaoCarioca():
         'Category': 'Federação',
         'DDD': '24',
     }
+
+class FederacaoTriSC():
+    # SKIP — low yield. 28 triathlon-only events with a clean /prova/<slug>/<id>
+    # PK, but ~1/3 of the ticket links point at ticketsports (already scraped via
+    # TicketSportsAPI2) and 20/28 have no registration link at all. Net new
+    # uniquely-addressable events ≈ 3. Not worth a crawler.
+    URL = 'https://fetrisc.org.br/'
+    REPO = Path('fetrisc.org.br')
+    META = {
+        'Category': 'Federação',
+        'DDD': '48',
+    }
+
+
+class ConfederacaoTriathlon():
+    # REJECTED — "CBC disease". cbtri.org.br just iframes the national tri
+    # calendar at vemprotri.org.br/calendario: 43 server-rendered event cards
+    # (title + DD.MM date + location) but 0/43 carry a per-event URL. No PK, no
+    # click target. Same failure as ConfederacaoBrasileira. Federations publish
+    # display-only calendars — value lives at the ticketing platforms we already
+    # scrape (ticketsports, sympla).
+    URL = 'https://www.vemprotri.org.br/calendario'  # cbtri.org.br iframes this
+    REPO = Path('vemprotri.org.br')
+    META = {
+        'Category': 'Federação',
+    }
+
+
+class BlueTicket():
+    # REJECTED — generalist ticketing (rock concerts, shows, etc); sports skew
+    # to bodybuilding/swimming, not the endurance/cycling core. Plus SPA ticket
+    # widget (React, ~3KB shell, API-only): per-event purchase pages, no
+    # crawlable calendar. Surfaces only as a registration link on other sources
+    # (e.g. fetrisc). Low relevance × hard to crawl = not worth it.
+    URL = 'https://site.blueticket.com.br/'
+    REPO = Path('blueticket.com.br')
+    META = {
+        'Category': 'Empresa de Ingressos',
+    }
+
+class Semexe():
+    # SHIT SOURCE — dogshit SEO content page, not a real event directory.
+    # Marketplace (used bikes) bolted a static "calendario-de-eventos" timeline
+    # for search traffic: link-less event cards (no <a>, no url in ld+json), no
+    # detail pages, no entries sold. Data parses trivially (server-rendered +
+    # ld+json ItemList) but every event url falls back to self.URL.
+    URL = 'https://semexe.com/calendario-de-eventos/?estado=SP'
+    REPO = Path('semexe.com')
+    META = {
+        'Category': 'Agregador',
+        'DDD': '11',
+    }
+
+class GuiaDaCorrida():
+    URL = 'https://guiadacorrida.com/'
+    REPO = Path('guiadacorrida.com')
+    META = {
+        'Category': 'Agregador',
+    }
+
+
+class RaveliSports():
+    # STUB — not implemented. Main sport: Corrida de Rua.
+    # Contact: +55 11 96337-9609
+    URL = 'https://www.ravelisports.com.br/eventos'
+    REPO = Path('ravelisports.com.br')
+    META = {
+        'Category': 'Organizador',
+        'DDD': '11',
+    }
+
+
+# Local appears two ways depending on the template:
+#   "Cidade/UF"   (e.g. Linhares/ES)
+#   "CIDADE - UF" (e.g. SÃO MATEUS - ES)
+# City = 3..50 chars (anchor uppercase + 2..49); upper bound is a runaway guard.
+_SUAINSCRICAO_LOCAL_SLASH_RE = re.compile(r'([A-ZÀ-Ý][A-Za-zÀ-ÿ.\s]{2,49}?/\s*[A-Z]{2})\b')
+_SUAINSCRICAO_LOCAL_DASH_RE = re.compile(r'([A-ZÀ-Ý][A-Za-zÀ-ÿ.\s]{2,49}?\s-\s[A-Z]{2})\b')
+
+
+class SuaInscricao(Crawler, Extractor):
+    """Registration platform (ES). Crawl list → detail.
+
+    Listing is the open-registration page (only stable/complete one); homepage,
+    /eventos and /calendario serve a rotating random ~30 of a larger pool.
+
+    SEO-consultancy prospect: no sitemap, no robots.txt, soft-404s everything,
+    randomized listings, no per-event canonical discovery. Broken SEO = lead.
+    """
+    URL = 'https://www.suainscricao.com/'
+    REPO = Path('suainscricao.com')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Agregador',
+        'DDD': '27',
+        'Phone': '+55 27 996714374',
+    }
+
+    @staticmethod
+    def _call(method_f, endpoint, params={}, payload={}, crawl_delay=1):
+        # Site sits behind TLS fingerprinting; impersonate like the other
+        # bot-gated sources (Sympla, TicketSportsAPI2).
+        time.sleep(crawl_delay)
+        session = cf_requests.Session(impersonate='chrome120')
+        kwargs = {'params': params} if params else {}
+        return session.get(endpoint, **kwargs)
+
+    def title(self, soup) -> str:
+        return soup.find('h1').get_text(strip=True)
+
+    def date(self, soup) -> str:
+        # "02/08/2026 08:00h" → "02/08/2026"; ignore time.
+        m = soup.find(string=re.compile(r'\d{2}/\d{2}/\d{4}'))
+        return re.search(r'\d{2}/\d{2}/\d{4}', m).group(0) if m else ''
+
+    def local(self, soup) -> str:
+        # First City/UF token on the page, either template variant.
+        for regex in (_SUAINSCRICAO_LOCAL_SLASH_RE, _SUAINSCRICAO_LOCAL_DASH_RE):
+            for s in soup.find_all(string=regex):
+                m = regex.search(s)
+                if m:
+                    return ' '.join(m.group(1).split())
+        return ''
+
+    def url(self, soup) -> str:
+        link = soup.find('link', rel='canonical')
+        return link.get('href') if link else self._current_event_url
+
+    def trigger(self):
+        endpoint = urljoin(self.URL, 'inscricao-aberta/provas-com-inscricao-aberta')
+        fp, soup = self.get_html(endpoint, suffix='inscricao-aberta.html')
+
+        hrefs, seen = [], set()
+        for a in soup.find_all('a', href=re.compile(r'/evento/[^/]+/?$')):
+            href = urljoin(self.URL, a['href'])
+            if href not in seen:
+                seen.add(href)
+                hrefs.append(href)
+
+        events_acc = []
+        for href in hrefs:
+            self._current_event_url = href
+            slug = href.rstrip('/').split('/')[-1]
+            try:
+                _, detail = self.get_html(href, suffix=f'{slug}.html')
+                events_acc.append(self.parse(detail, fp))
+            except Exception as e:
+                print(f'Skipping {href}: {e}')
+        return events_acc
 
 
 class ASCABiker():

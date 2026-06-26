@@ -18,8 +18,6 @@
 - Crawlers to update first (have detail pages): TicketBr, TicketSports, ActiveSports, Peloto, Atletis
 - PDFs / federation calendars: skip (no descriptions available)
 
-## Planned Features
-- Merge calculators (FTP, Gear Matrix, Nutrition Plan) with EDCX.club system
-
 ## SEO
 - Plan B: city landing pages → `plans/plan-b-seo-city-pages.md`
+- OG cards for location calendar — make shared link visually clickable (rich preview image, compelling title/description)

@@ -22,6 +22,7 @@ crawlers = [
     TicketSportsAPI2(),
     InscricoesBike(),
     InscricoesBr(),
+    SuaInscricao(),
     Nuflow(),
     Atletis(),
     SampaBikers(),
@@ -84,8 +85,17 @@ def publish():
     schema_events = GoldLayer.publish()
     events = schema_events.fetchall()
 
+def _event_count():
+    from db import Persistence
+    try:
+        return Persistence().CONN.execute("SELECT COUNT(*) FROM schema_events").fetchone()[0]
+    except Exception:
+        return 0
+
 if __name__ == "__main__":
-    print("Hello from xcmagg!") 
+    before = _event_count()
     extract()
     load_v2()
+    after = _event_count()
     publish()
+    print(f"Before: {before} events | After: {after} events | +{after - before}")

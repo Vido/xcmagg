@@ -28,7 +28,14 @@
     .article-body pre { background: #1e1e1e; color: #e6e6e6; padding: 1rem 1.1rem; border-radius: .5rem; overflow-x: auto; }
     .article-body pre code { background: none; padding: 0; font-size: .85rem; }
     .article-body img { border-radius: .5rem; max-width: 100%; height: auto; }
+    .article-body .arithmatex { overflow-x: auto; }
   </style>
+  {% if post.use_katex %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body)"></script>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -37,6 +44,7 @@
   <!-- Article -->
   <article class="lg:col-span-3 min-w-0">
     <header class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
+      {% if post.draft %}<span class="inline-block mb-3 px-3 py-1 text-xs font-semibold uppercase tracking-widest rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Draft</span>{% endif %}
       <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ post.title }}</h1>
       <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
         {% if post.publish_date %}<time datetime="{{ post.publish_date|date:'Y-m-d' }}">{{ post.publish_date|date:"F j, Y" }}</time>{% endif %}

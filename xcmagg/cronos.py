@@ -322,6 +322,17 @@ class ProximaProva():
     URL = 'https://proximaprova.com.br/eventos/'
 
 
+class CronosCariri():
+    # Mostly corrida de rua (Cariri/CE region).
+    URL = 'https://cronoscariri.com.br/'
+    REPO = Path('cronoscariri.com.br')
+    META = {
+        'Category': 'Empresa de Cronometragem',
+        'DDD': '88',
+        'Phone': '+55 88 98188-6299',
+    }
+
+
 class Nuflow(Crawler, Extractor):
     URL = 'https://nuflowpass.com.br/'
     REPO = Path('nuflowpass.com.br')

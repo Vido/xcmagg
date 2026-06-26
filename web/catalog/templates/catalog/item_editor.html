@@ -77,31 +77,45 @@
 
       <!-- Category -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Category
+          {% if request.user.is_staff %}
+            <a href="/admin_3dcx/catalog/category/add/" target="popup" class="ml-2 text-blue-500 hover:text-blue-700 text-xs font-normal">+ new</a>
+          {% endif %}
+        </label>
         <input
           type="text"
           name="category_label"
           placeholder="Search category…"
+          value="{{ item.category.title|default:'' }}"
+          autocomplete="off"
           hx-get="{% url 'category-lookup' %}"
-          hx-trigger="keyup changed delay:300ms"
+          hx-trigger="keyup changed delay:150ms"
           hx-target="#category-results"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
-        {{ item_form.category }}
+        <div class="hidden">{{ item_form.category }}</div>
         <div id="category-results" class="mt-2 space-y-1"></div>
       </div>
 
       <!-- Manufacturer -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Manufacturer</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Manufacturer
+          {% if request.user.is_staff %}
+            <a href="/admin_3dcx/catalog/manufacturer/add/" target="popup" class="ml-2 text-blue-500 hover:text-blue-700 text-xs font-normal">+ new</a>
+          {% endif %}
+        </label>
         <input
           type="text"
           name="manufacturer_label"
           placeholder="Search manufacturer…"
+          value="{{ item.manufacturer.title|default:'' }}"
+          autocomplete="off"
           hx-get="{% url 'manufacturer-lookups' %}"
-          hx-trigger="keyup changed delay:300ms"
+          hx-trigger="keyup changed delay:150ms"
           hx-target="#manufacturer-results"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
-        {{ item_form.manufacturer }}
+        <div class="hidden">{{ item_form.manufacturer }}</div>
         <div id="manufacturer-results" class="mt-2 space-y-1"></div>
       </div>
 
@@ -113,11 +127,13 @@
           type="text"
           name="catalog_node_label"
           placeholder="Link to catalog item…"
+          value="{{ item.catalog_node.title|default:'' }}"
+          autocomplete="off"
           hx-get="{% url 'catalog-lookups' %}"
-          hx-trigger="keyup changed delay:300ms"
+          hx-trigger="keyup changed delay:150ms"
           hx-target="#catalog-results"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
-        {{ item_form.catalog_node }}
+        <div class="hidden">{{ item_form.catalog_node }}</div>
         <div id="catalog-results" class="mt-2 space-y-1"></div>
       </div>
       {% endif %}

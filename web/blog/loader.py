@@ -28,7 +28,8 @@ LANGS = ("en", "pt-br")
 DEFAULT_LANG = "en"
 
 # Pinned once so already-published posts never re-render differently.
-MD_EXTENSIONS = ["fenced_code", "tables", "toc", "footnotes", "pymdownx.tilde"]
+MD_EXTENSIONS = ["fenced_code", "tables", "toc", "footnotes", "pymdownx.tilde", "pymdownx.arithmatex"]
+MD_EXTENSION_CONFIGS = {"pymdownx.arithmatex": {"generic": True}}
 
 # Keys embed file mtime/signature, so entries self-invalidate on edit; no expiry.
 _CACHE_TIMEOUT = None
@@ -49,6 +50,8 @@ class PostMeta:
     translation_group: str
     tags: tuple
     author: str = ""
+    use_katex: bool = False
+    draft: bool = False
 
     @property
     def is_updated(self) -> bool:
@@ -70,11 +73,14 @@ def _meta_from(slug: str, lang: str, m: dict) -> PostMeta:
         translation_group=str(m.get("translation_group", slug)),
         tags=tuple(m.get("tags") or ()),
         author=m.get("author", ""),
+        use_katex=bool(m.get("use_katex", False)),
+        draft=bool(m.get("draft", False)),
     )
 
 
 def _is_draft(m: dict) -> bool:
-    return bool(m.get("draft"))
+    from django.conf import settings
+    return bool(m.get("draft")) and not settings.DEBUG
 
 
 def _dir_signature(folder: Path) -> str:
@@ -122,7 +128,7 @@ def get_post(lang: str, slug: str) -> tuple[PostMeta, str]:
         raise Http404("Post not found")
 
     meta = _meta_from(slug, lang, post.metadata)
-    html = md.markdown(post.content, extensions=MD_EXTENSIONS)
+    html = md.markdown(post.content, extensions=MD_EXTENSIONS, extension_configs=MD_EXTENSION_CONFIGS)
     _cache().set(key, (meta, html), _CACHE_TIMEOUT)
     return meta, html
 

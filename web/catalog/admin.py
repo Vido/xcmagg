@@ -18,7 +18,7 @@ class CategoryAdmin(admin.ModelAdmin):
     )
     list_filter = ("durability", "audience")
     search_fields = ("node__title", "node__shortcode")
-    readonly_fields = ("node",)
+    autocomplete_fields = ("node",)
 
     def node_title(self, obj):
         return obj.node.title
@@ -48,7 +48,7 @@ class ManufacturerAdmin(admin.ModelAdmin):
         "node_created_at",
     )
     search_fields = ("node__title", "node__shortcode", "website")
-    readonly_fields = ("node",)
+    autocomplete_fields = ("node",)
 
     def node_title(self, obj):
         return obj.node.title

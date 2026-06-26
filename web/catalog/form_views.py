@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Case, When, IntegerField, Value
 
 from django.urls import reverse
 from django.db import transaction
@@ -271,23 +272,40 @@ def edit_item(request, shortcode, slug=None):
 
 @login_required
 def autocomplete_category(request):
-    q = request.GET.get("q", '')
-    results = Category.objects.filter(title__icontains=q)[:10]
+    q = request.GET.get("category_label", "")
+    results = (Category.objects
+        .filter(node__title__icontains=q)
+        .annotate(rank=Case(When(node__title__istartswith=q, then=Value(0)), default=Value(1), output_field=IntegerField()))
+        .order_by("rank", "node__title")[:10])
     return render(request, "catalog/autocomplete/category.html", {"results": results})
 
 @login_required
 def autocomplete_manufacturer(request):
-    q = request.GET.get("q", "")
-    results = Manufacturer.objects.filter(title__icontains=q)[:10]
+    q = request.GET.get("manufacturer_label", "")
+    results = (Manufacturer.objects
+        .filter(node__title__icontains=q)
+        .annotate(rank=Case(When(node__title__istartswith=q, then=Value(0)), default=Value(1), output_field=IntegerField()))
+        .order_by("rank", "node__title")[:10])
     return render(request, "catalog/autocomplete/manufacturer.html", {"results": results})
 
 @login_required
 def autocomplete_catalog_node(request):
-    q = request.GET.get("q", "")
-    results = Node.objects.filter(
-        kind=NodeKind.CATALOG_ITEM,
-        title__icontains=q,
-    )[:10]
+    q = request.GET.get("catalog_node_label", "")
+    results = (Node.objects
+        .filter(kind=NodeKind.CATALOG_ITEM, title__icontains=q)
+        .annotate(rank=Case(When(title__istartswith=q, then=Value(0)), default=Value(1), output_field=IntegerField()))
+        .order_by("rank", "title")[:10])
     return render(request, "catalog/autocomplete/catalog_node.html", {"results": results})
+
+
+@login_required
+def autocomplete_parent_node(request):
+    q = request.GET.get("parent_label", "")
+    results = (Node.objects
+        .filter(kind__in=[NodeKind.CATEGORY, NodeKind.MANUFACTURER, NodeKind.CATALOG_ITEM], title__icontains=q)
+        .annotate(rank=Case(When(title__istartswith=q, then=Value(0)), default=Value(1), output_field=IntegerField()))
+        .order_by("rank", "title")
+        .select_related("category", "manufacturer")[:10])
+    return render(request, "catalog/autocomplete/parent_node.html", {"results": results})
 
 

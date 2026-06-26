@@ -22,6 +22,12 @@ SEED_CATEGORIES = [
         "durability": CONSUMABLE,
         "audience": RIDER,
     },
+    {
+        "title": "Supplements",
+        "description": "Vitamins, minerals, protein, and recovery supplements for cyclists.",
+        "durability": CONSUMABLE,
+        "audience": RIDER,
+    },
     # ----- Bicycles -----
     {
         "title": "Road Bikes",

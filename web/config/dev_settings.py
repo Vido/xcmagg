@@ -10,6 +10,7 @@ SECRET_KEY = config('SECRET_KEY', default=dev_placeholder)
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+INTERNAL_IPS = ['127.0.0.1']
 
 CACHES['default'] = {
     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # DEV - not PROD!
