@@ -15,7 +15,7 @@ class GeoInfo:
     city: str | None = None
     lat: float | None = None
     lon: float | None = None
-    #timezone: str | None = None
+    timezone: str | None = None
 
 
 @lru_cache(maxsize=None)
@@ -37,19 +37,20 @@ def geoip_lookup(ip: str) -> dict:
         "city": r.city.name,
         "lat": r.location.latitude,
         "lon": r.location.longitude,
-        #"timezone": r.location.time_zone,
+        "timezone": r.location.time_zone,
     }
 
 
-def geo_context(request) -> dict[str, GeoInfo | None]:
-    data = {}
-    
-    cc = request.META.get(
-        'HTTP_CF_IPCOUNTRY', '') or settings.FALLBACK_COUNTRY
-    if cc.replace('XX', ''):
-        data["country_code"] = cc
+class GeoMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-    if ip := request.META.get("HTTP_CF_CONNECTING_IP"):
-          data.update(geoip_lookup(ip))
-
-    return {"geo": GeoInfo(**data)}
+    def __call__(self, request):
+        data = {}
+        cc = request.META.get("HTTP_CF_IPCOUNTRY", "") or settings.FALLBACK_COUNTRY
+        if cc.replace("XX", ""):
+            data["country_code"] = cc
+        if ip := request.META.get("HTTP_CF_CONNECTING_IP"):
+            data.update(geoip_lookup(ip))
+        request.geo = GeoInfo(**data)
+        return self.get_response(request)

@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'config.middlewares.GeoMiddleware',
     # 'accounts.middleware.RequireProfileCompletionMiddleware', # Progressive Profiling
 ]
 
@@ -82,7 +83,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                'config.context_processors.geo_context',
             ],
             'builtins': [
                 'django.templatetags.static',
