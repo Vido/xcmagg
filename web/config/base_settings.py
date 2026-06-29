@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'config.context_processors.geo_context',
             ],
             'builtins': [
                 'django.templatetags.static',
@@ -154,6 +155,8 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # Set to e.g. "https://go.edcx.club" later to serve redirects from a subdomain
 # without code changes.
 LINKCLOAK_BASE_URL = config("LINKCLOAK_BASE_URL", default="")
+
+FALLBACK_COUNTRY = ""
 
 # Required allauth
 SITE_ID = 1

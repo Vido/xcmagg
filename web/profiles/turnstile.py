@@ -37,7 +37,7 @@ class TurnstileValidator():
 
         return Compat(validate_turnstile(
             token=request.POST.get('cf-turnstile-response'),
-            remoteip=request.META.get('REMOTE_ADDR'),
+            remoteip=request.META.get("HTTP_CF_CONNECTING_IP"),
         ))
 
 

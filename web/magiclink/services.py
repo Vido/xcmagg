@@ -2,7 +2,6 @@ import secrets
 from typing import Dict, Tuple
 
 from django.urls import reverse
-from ipware import get_client_ip
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from allauth.account.models import EmailAddress
@@ -64,10 +63,8 @@ class BaseService:
         return next_url
 
     @staticmethod
-    def _get_IP_UA(request) -> str:     
-        client_ip, is_routable = get_client_ip(request)
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        return client_ip, user_agent
+    def _get_IP_UA(request) -> str:
+        return request.META.get("HTTP_CF_CONNECTING_IP"), request.META.get("HTTP_USER_AGENT", "")
 
     @classmethod
     def _redeem(klass, token, ip_address=None, user_agent=None):

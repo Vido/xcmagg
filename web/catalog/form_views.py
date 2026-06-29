@@ -91,10 +91,14 @@ def htmx_redirect(request, obj):
 @login_required
 @require_http_methods(["GET", "POST"])
 def new_item(request):
+    initial = {}
+    cat_slug = request.GET.get("category")
+    if cat_slug:
+        initial["category"] = Category.objects.filter(node__slug=cat_slug).first()
 
     context = {
         "node_form": NodeForm(),
-        "item_form": ItemForm(),
+        "item_form": ItemForm(initial=initial),
         "title": 'New Item',
         "item": None,
         "new": True,

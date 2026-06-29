@@ -28,3 +28,5 @@ TURNSTILE_SECRET = config('TURNSTILE_SECRET_KEY', default='1x0000000000000000000
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
 )
+
+FALLBACK_COUNTRY = "BR"
