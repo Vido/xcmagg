@@ -148,7 +148,7 @@ STATIC_ROOT = DATA_DIR / 'static'  # nginx serves this via /static/ (host: /var/
 MEDIA_ROOT = DATA_DIR / 'uploads'
 MEDIA_URL = '/media/'
 
-DEFAULT_FROM_EMAIL = "EDCX <no-reply@edcx.club>"
+DEFAULT_FROM_EMAIL = "RaceFeed <no-reply@racefeed.com.br>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # linkcloak: base URL for cloak redirects. Empty -> relative /go2/ path (current).

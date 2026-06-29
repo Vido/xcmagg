@@ -26,10 +26,10 @@
     </h1>
 
     {% if item %}
-      <button
-        class="text-sm text-red-600 dark:text-red-400 font-medium hover:text-red-700 dark:hover:text-red-300"
-        hx-delete="."
-        hx-confirm="Delete this item permanently?">
+      <button type="button"
+        data-modal-target="delete-item-modal"
+        data-modal-toggle="delete-item-modal"
+        class="text-sm text-red-600 dark:text-red-400 font-medium hover:text-red-700 dark:hover:text-red-300">
         Delete
       </button>
     {% endif %}
@@ -255,7 +255,51 @@
     </div>
 
   </form>
+
+  {% if item %}
+  <div id="delete-item-modal" tabindex="-1" aria-hidden="true"
+    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+        <div class="flex items-center justify-between p-4 border-b dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Delete Item</h3>
+          <button type="button" data-modal-hide="delete-item-modal" aria-label="Close modal"
+            class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-600 dark:text-gray-300">This will permanently delete this item and all associated data. This action cannot be undone.</p>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" data-modal-hide="delete-item-modal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+              Cancel
+            </button>
+            <button type="button"
+              hx-delete="."
+              hx-target="body"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
+              Delete permanently
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
+{% endblock %}
+
+{% block flowbite_css %}
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.css"></noscript>
+{% endblock %}
+
+{% block flowbite_js %}
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 {% endblock %}
 
 {% block scripts %}

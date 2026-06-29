@@ -62,12 +62,6 @@ class YeetService:
             request=request,
             next_url=next_url
         )
-        
-        print('token', token)
-        print('token', token)
-        print('token', token)
-        print('token', token)
-        print('token', token)
         url = MagicLinkService.url(request, token)
         return YeetService.yeet(
             user.email,
@@ -82,11 +76,6 @@ class YeetService:
             request=request,
             next_url=next_url
         )
-        print('token', token)
-        print('token', token)
-        print('token', token)
-        print('token', token)
-        print('token', token)
         url = MagicEmailService.url(request, token)
 
         return YeetService.yeet(
