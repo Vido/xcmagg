@@ -78,8 +78,10 @@ _DISCIPLINE_CASE = """
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _db():
-    path = Path(settings.DATA_DIR) / 'events.duckdb'
+_EVENTS_DB = Path(settings.DATA_DIR) / 'events.duckdb'
+
+
+def _db(path):
     return duckdb.connect(str(path), read_only=True)
 
 
@@ -163,6 +165,21 @@ def _load_city_events(con, city_slug):
     return [e for e in _rows(cur) if slugify(e['city']) == city_slug]
 
 
+def _geo_for_city_slug(con, city_slug):
+    """Return (city_name, uf, lat, lon) from geo table for a slug, or (None,)*4."""
+    rows = con.execute("""
+        SELECT nome, uf, latitude, longitude
+        FROM geo
+        WHERE strip_accents(lower(replace(nome, ' ', '-'))) = ?
+        ORDER BY populacao DESC NULLS LAST
+        LIMIT 10
+    """, [city_slug]).fetchall()
+    for nome, uf, lat, lon in rows:
+        if slugify(nome) == city_slug:
+            return nome, uf, lat, lon
+    return None, None, None, None
+
+
 def _nearby_events(con, lat, lon, city_name, discipline=None, radius_km=200, limit=20):
     """Upcoming events within radius_km of (lat, lon), excluding current city."""
     sport_clause = "AND e.sport = ?" if discipline else ""
@@ -220,73 +237,42 @@ def _nearby_city_links(nearby_events):
     return links
 
 
-def city_calendar(request, city_slug):
-    with _db() as con:
-        events = _load_city_events(con, city_slug)
-        if not events:
-            raise Http404
-
-        lat = lon = None
-        for e in events:
-            if e.get('latitude') and e.get('longitude'):
-                lat, lon = e['latitude'], e['longitude']
-                break
-        nearby = _nearby_events(con, lat, lon, events[0]['city']) if lat else []
-
-    city_name = events[0]['city']
-    uf = events[0]['uf'].lower()
-    combined = sorted(events + nearby, key=lambda e: e['start_date'])
-    ssr = combined
-    _add_date_parts(ssr)
-    title, desc = _make_meta(events, None, f'{city_name}, {uf.upper()}')
-    return render(request, 'tools/location_calendar.html', {
-        'ssr_events': ssr,
-        'city_event_count': len(events),
-        'total_count': len(combined),
-        'city_name': city_name,
-        'state_name': UF_NAMES.get(uf.upper(), uf.upper()),
-        'uf': uf,
-        'city_slug': city_slug,
-        'discipline': None,
-        'discipline_name': None,
-        'discipline_tabs': _disc_tabs_from_events(combined),
-        'nearby_city_links': _nearby_city_links(nearby),
-        'page_title': title,
-        'page_description': desc,
-        'canonical': request.build_absolute_uri(f'/events/{city_slug}/'),
-        'filter_uf': uf.upper(),
-        'filter_city': city_name,
-        'filter_discipline': '',
-    })
-
-
-def city_discipline_calendar(request, city_slug, discipline):
-    if discipline not in VALID_DISCIPLINES:
+def city_calendar(request, city_slug, discipline=None):
+    if discipline is not None and discipline not in VALID_DISCIPLINES:
         raise Http404
 
-    with _db() as con:
+    with _db(_EVENTS_DB) as con:
         all_city_events = _load_city_events(con, city_slug)
 
-        events = [e for e in all_city_events if e.get('discipline') == discipline]
-        if not events:
-            raise Http404
+        if not all_city_events:
+            city_name, city_uf, lat, lon = _geo_for_city_slug(con, city_slug)
+            if city_name is None:
+                raise Http404
+            nearby = _nearby_events(con, lat, lon, city_name, discipline=discipline) if lat else []
+            events = []
+        else:
+            events = [e for e in all_city_events if e.get('discipline') == discipline] if discipline else all_city_events
+            if discipline and not events:
+                raise Http404
 
-        lat = lon = None
-        for e in all_city_events:
-            if e.get('latitude') and e.get('longitude'):
-                lat, lon = e['latitude'], e['longitude']
-                break
-        nearby = _nearby_events(con, lat, lon, all_city_events[0]['city'],
-                                discipline=discipline) if lat else []
+            lat = lon = None
+            for e in all_city_events:
+                if e.get('latitude') and e.get('longitude'):
+                    lat, lon = e['latitude'], e['longitude']
+                    break
+            nearby = _nearby_events(con, lat, lon, all_city_events[0]['city'],
+                                    discipline=discipline) if lat else []
+            city_name = all_city_events[0]['city']
+            city_uf = all_city_events[0]['uf']
 
-    city_name = events[0]['city']
-    uf = events[0]['uf'].lower()
+    uf = city_uf.lower() if city_uf else ''
     combined = sorted(events + nearby, key=lambda e: e['start_date'])
-    ssr = combined
-    _add_date_parts(ssr)
+    _add_date_parts(combined)
     title, desc = _make_meta(events, discipline, f'{city_name}, {uf.upper()}')
+    canonical_path = f'/events/{city_slug}/{discipline}/' if discipline else f'/events/{city_slug}/'
     return render(request, 'tools/location_calendar.html', {
-        'ssr_events': ssr,
+        'ssr_events': combined,
+        'city_events': events,
         'city_event_count': len(events),
         'total_count': len(combined),
         'city_name': city_name,
@@ -294,13 +280,13 @@ def city_discipline_calendar(request, city_slug, discipline):
         'uf': uf,
         'city_slug': city_slug,
         'discipline': discipline,
-        'discipline_name': DISCIPLINE_NAMES[discipline],
+        'discipline_name': DISCIPLINE_NAMES.get(discipline),
         'discipline_tabs': _disc_tabs_from_events(all_city_events + nearby),
         'nearby_city_links': _nearby_city_links(nearby),
         'page_title': title,
         'page_description': desc,
-        'canonical': request.build_absolute_uri(f'/events/{city_slug}/{discipline}/'),
+        'canonical': request.build_absolute_uri(canonical_path),
         'filter_uf': uf.upper(),
         'filter_city': city_name,
-        'filter_discipline': _SLUG_TO_SPORT[discipline],
+        'filter_discipline': _SLUG_TO_SPORT.get(discipline, ''),
     })

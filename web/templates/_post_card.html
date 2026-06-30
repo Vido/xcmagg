@@ -9,9 +9,10 @@ Parameters:
   {% with primary=post.primary_photo %}
   {% if primary %}
   <div class="aspect-video bg-gray-100 dark:bg-gray-900 overflow-hidden">
-    <img 
-      src="{{ primary.image.url }}" 
+    <img
+      src="{{ primary.image.url }}"
       alt="{{ post.title }}"
+      {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
   </div>
   {% endif %}
@@ -25,7 +26,7 @@ Parameters:
         <a href="{% url 'user-inventory' post.owner.username %}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-violet-600 dark:hover:text-violet-400">
           @{{ post.owner.username }}
         </a>
-        <div class="text-xs text-gray-500 dark:text-gray-400">
+        <div class="text-xs text-gray-600 dark:text-gray-400">
           <div class="flex items-center gap-1.5 flex-wrap">
             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -58,7 +59,7 @@ Parameters:
     {% endif %}
 
     <!-- Post Stats -->
-    <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
+    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
       <span class="flex items-center">
         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>

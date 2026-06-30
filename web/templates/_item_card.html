@@ -7,9 +7,10 @@ Usage: {% include '_item_card.html' with item=item %}
   {% with primary=item.primary_photo %}
   <div class="aspect-square bg-gray-100 dark:bg-gray-900 overflow-hidden">
     {% if primary %}
-      <img 
-        src="{{ primary.image.url }}" 
+      <img
+        src="{{ primary.image.url }}"
         alt="{{ item.title }}"
+        {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     {% else %}
       <div class="w-full h-full flex items-center justify-center">

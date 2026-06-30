@@ -22,7 +22,7 @@
     {% if highlighted_posts %}
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for post in highlighted_posts %}
-          {% include '_post_card.html' with post=post %}
+          {% include '_post_card.html' with post=post eager=forloop.first %}
         {% endfor %}
       </div>
     {% else %}

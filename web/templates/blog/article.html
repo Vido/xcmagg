@@ -46,7 +46,7 @@
     <header class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
       {% if post.draft %}<span class="inline-block mb-3 px-3 py-1 text-xs font-semibold uppercase tracking-widest rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Draft</span>{% endif %}
       <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ post.title }}</h1>
-      <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
         {% if post.publish_date %}<time datetime="{{ post.publish_date|date:'Y-m-d' }}">{{ post.publish_date|date:"F j, Y" }}</time>{% endif %}
         {% if post.is_updated %} · <span>updated {{ post.updated_date|date:"F j, Y" }}</span>{% endif %}
         {% if post.author %} · {{ post.author }}{% endif %}

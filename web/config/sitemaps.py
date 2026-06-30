@@ -20,9 +20,14 @@ class _FixedSite:
 class BaseSitemap(Sitemap):
     protocol = "https"
 
-    # Ignore the request/DB Site; always emit the production domain.
     def get_urls(self, page=1, site=None, protocol=None):
-        return super().get_urls(page=page, site=_FixedSite(), protocol=protocol)
+        urls = super().get_urls(page=page, site=_FixedSite(), protocol=protocol)
+        for url_info in urls:
+            url_info['images'] = self.get_images(url_info['item'])
+        return urls
+
+    def get_images(self, item):
+        return []
 
 
 class StaticViewSitemap(BaseSitemap):
@@ -79,10 +84,49 @@ class CatalogItemSitemap(BaseSitemap):
 
     def items(self):
         from catalog.selectors import ItemSelectors
-        return list(ItemSelectors.highlighted_catalog())
+        from catalog.models import Item
+        qs = ItemSelectors.highlighted_catalog()
+        if hasattr(qs, 'prefetch_related'):
+            qs = qs.prefetch_related('node__photos')
+        return list(qs)
 
     def lastmod(self, obj):
         return obj.node.updated_at
+
+    def get_images(self, item):
+        return [
+            {
+                'loc': f"https://{DOMAIN}{photo.image.url}",
+                'caption': item.node.title or '',
+            }
+            for photo in item.node.photos.all()
+        ]
+
+
+class PostSitemap(BaseSitemap):
+    priority = 0.6
+    changefreq = "weekly"
+
+    def items(self):
+        from engagement.models import Post
+        return list(
+            Post.visible.all()
+            .select_related('node')
+            .prefetch_related('node__photos')
+            .order_by('-node__published_at')
+        )
+
+    def lastmod(self, post):
+        return post.node.published_at
+
+    def get_images(self, post):
+        return [
+            {
+                'loc': f"https://{DOMAIN}{photo.image.url}",
+                'caption': post.node.title or '',
+            }
+            for photo in post.node.photos.all()
+        ]
 
 
 class BlogSitemap(BaseSitemap):
@@ -106,5 +150,6 @@ SITEMAPS = {
     "categories": CategorySitemap,
     "manufacturers": ManufacturerSitemap,
     "catalog": CatalogItemSitemap,
+    "posts": PostSitemap,
     "blog": BlogSitemap,
 }

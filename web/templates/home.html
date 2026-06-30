@@ -50,17 +50,17 @@
   <!-- Quick Tools -->
   <section class="mb-8 md:mb-16">
     <div class="flex gap-3 mb-6 overflow-x-auto pb-1 -mx-4 px-4 snap-x snap-mandatory">
-      <a href="{% url 'events:calendar' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-violet-100 dark:bg-violet-900/40 hover:bg-violet-200 dark:hover:bg-violet-900/60 transition text-center snap-start shrink-0">
-        <svg class="w-6 h-6 md:w-8 md:h-8 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <a href="{% url 'events:calendar' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition text-center snap-start shrink-0">
+        <svg class="w-6 h-6 md:w-8 md:h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
-        <span class="text-xs font-medium text-violet-700 dark:text-violet-300 leading-tight">Calendar</span>
+        <span class="text-xs font-medium text-emerald-700 dark:text-emerald-300 leading-tight">Calendar</span>
       </a>
-      <a href="{% url 'tools:fuel-plan' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-orange-100 dark:bg-orange-900/40 hover:bg-orange-200 dark:hover:bg-orange-900/60 transition text-center snap-start shrink-0">
-        <svg class="w-6 h-6 md:w-8 md:h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <a href="{% url 'tools:fuel-plan' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-violet-100 dark:bg-violet-900/40 hover:bg-violet-200 dark:hover:bg-violet-900/60 transition text-center snap-start shrink-0">
+        <svg class="w-6 h-6 md:w-8 md:h-8 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
-        <span class="text-xs font-medium text-orange-700 dark:text-orange-300 leading-tight">Fuel Plan</span>
+        <span class="text-xs font-medium text-violet-700 dark:text-violet-300 leading-tight">Fuel Plan</span>
       </a>
       <a href="{% url 'tools:gearftp' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-rose-100 dark:bg-rose-900/40 hover:bg-rose-200 dark:hover:bg-rose-900/60 transition text-center snap-start shrink-0">
         <svg class="w-6 h-6 md:w-8 md:h-8 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,11 +74,11 @@
         </svg>
         <span class="text-xs font-medium text-sky-700 dark:text-sky-300 leading-tight">Community</span>
       </a>
-      <a href="{% url 'blog-index' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition text-center snap-start shrink-0">
-        <svg class="w-6 h-6 md:w-8 md:h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <a href="{% url 'blog-index' %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-orange-100 dark:bg-orange-900/40 hover:bg-orange-200 dark:hover:bg-orange-900/60 transition text-center snap-start shrink-0">
+        <svg class="w-6 h-6 md:w-8 md:h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
         </svg>
-        <span class="text-xs font-medium text-emerald-700 dark:text-emerald-300 leading-tight">Blog</span>
+        <span class="text-xs font-medium text-orange-700 dark:text-orange-300 leading-tight">Blog</span>
       </a>
     </div>
   </section>
@@ -99,7 +99,7 @@
     </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for post in highlighted_posts %}
-        {% include '_post_card.html' with post=post %}
+        {% include '_post_card.html' with post=post eager=forloop.first %}
       {% endfor %}
     </div>
     <div class="mt-4 md:hidden text-center">
@@ -126,9 +126,9 @@
         </svg>
       </a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
       {% for item in highlighted_inventory %}
-        {% include '_item_card.html' with item=item %}
+        {% include '_item_card.html' with item=item eager=forloop.first %}
       {% endfor %}
     </div>
     <div class="mt-4 md:hidden text-center">
@@ -155,7 +155,7 @@
         </svg>
       </a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
       {% for item in highlighted_catalog %}
         {% include '_item_card.html' with item=item %}
       {% endfor %}

@@ -18,10 +18,17 @@ User = get_user_model()
 
 def home(request):
 
+    def trim(items, multiple):
+        return items[:len(items) - len(items) % multiple]
+
+    posts = trim(list(PostSelector.highlighted()[:6]), 3)
+    inventory = trim(list(ItemSelectors.highlighted_inventory()[:8]), 4)
+    catalog = trim(list(ItemSelectors.highlighted_catalog()[:8]), 4)
+
     context =  {
-        'highlighted_posts': PostSelector.highlighted()[:6],
-        'highlighted_inventory': ItemSelectors.highlighted_inventory()[:5],
-        'highlighted_catalog': ItemSelectors.highlighted_catalog()[:5],
+        'highlighted_posts': posts,
+        'highlighted_inventory': inventory,
+        'highlighted_catalog': catalog,
         'categories': CategorySelectors.featured()[:6],
         'manufacturers': ManufacturerSelectors.featured()[:12],
     }

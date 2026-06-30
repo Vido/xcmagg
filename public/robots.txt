@@ -1,46 +1,14 @@
 User-agent: *
-Disallow: /
-Allow: /index.html
-Allow: /sitemap.xml
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /tools/cycling-power-calculator/
-Allow: /tools/cycling-nutrition-calculator/
-Allow: /tools/cycling-hydration-calculator/
-Allow: /tools/race-day-fuel-plan/
-Allow: /fuelplan.html
-Allow: /calendar.html
-Allow: /events/
-Allow: /blog/
-Allow: /data.jsonl
-Allow: /gear-matrix.html
-Allow: /stem-comparison.html
-Allow: /tools/gear-range-calculator/
-Allow: /tools/stem-comparison/
-
-# Render assets — crawlers need these to render the pages above
-Allow: /logo_beta.png
-Allow: /logo_beta_square.png
-Allow: /style.css
-Allow: /cassette-database.js
-Allow: /favicon.ico
-Allow: /*.png$
-Allow: /*.webp$
-Allow: /*.svg$
-
-# edcx app at /community/ — allow content, block private/action/redirect paths
-Allow: /community/
-Disallow: /community/admin_3dcx/
-Disallow: /community/accounts/
-Disallow: /community/magic/
-Disallow: /community/go2/
-Disallow: /community/lookups/
-Disallow: /community/inventory/new/
-Disallow: /community/catalog/new/
-Disallow: /community/post/new/
-Disallow: /community/vote/
-Disallow: /community/rate/
-Disallow: /community/comments/new/
-Disallow: /community/photos/upload/
+Disallow: /accounts/
+Disallow: /magic/
+Disallow: /go2/
+Disallow: /lookups/
+Disallow: /inventory/new/
+Disallow: /catalog/new/
+Disallow: /post/new/
+Disallow: /vote/
+Disallow: /rate/
+Disallow: /comments/new/
+Disallow: /photos/upload/
 
 Sitemap: https://racefeed.com.br/sitemap.xml

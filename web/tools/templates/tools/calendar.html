@@ -85,6 +85,20 @@
       <input type="search" id="searchInput" placeholder="Buscar evento ou cidade..."
         class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm">
       <div class="text-sm text-gray-500 dark:text-gray-400"><span id="event-count"></span></div>
+      {% if top_cities %}
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Cidades com mais eventos</p>
+        <nav class="space-y-0.5">
+          {% for c in top_cities %}
+          <a href="/events/{{ c.slug }}/"
+             class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
+            <span>{{ c.city }}, <span class="text-gray-400 dark:text-gray-500">{{ c.uf }}</span></span>
+            <span class="text-xs text-gray-400 ml-2">{{ c.count }}</span>
+          </a>
+          {% endfor %}
+        </nav>
+      </div>
+      {% endif %}
     </aside>
 
     <div>
@@ -117,6 +131,11 @@
   const RADIUS_KM = 250;
 
   // nearMe button class states (replaces Bootstrap btn-outline-success / btn-success swap)
+  function slugify(str) {
+    return (str || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
   const NEARME_BASE = 'w-full rounded-lg px-3 py-2 text-sm font-medium border transition-colors disabled:opacity-60';
   const NEARME_OFF  = NEARME_BASE + ' border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950';
   const NEARME_ON   = NEARME_BASE + ' bg-green-600 border-green-600 text-white';
@@ -205,7 +224,7 @@
       card.className = 'flex gap-4 items-stretch rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3 hover:shadow-sm transition';
 
       const badge = document.createElement('div');
-      badge.className = 'flex flex-col items-center justify-center shrink-0 w-16 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 py-2';
+      badge.className = 'flex flex-col items-center justify-center shrink-0 w-16 rounded-lg bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 py-2';
       badge.innerHTML =
         '<span class="text-xl font-bold leading-none">' + d + '</span>' +
         '<span class="text-xs font-semibold">' + MONTHS_PT[m - 1] + '</span>' +
@@ -216,18 +235,24 @@
 
       const link = document.createElement('a');
       link.href = item.url;
-      link.className = 'font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 hover:underline';
+      link.className = 'font-semibold text-gray-900 dark:text-gray-100 hover:text-green-600 hover:underline';
       link.target = '_blank';
       link.rel = 'noopener';
       link.textContent = item.title;
 
       const loc = document.createElement('div');
       loc.className = 'text-sm text-gray-500 dark:text-gray-400 mt-0.5';
-      let locText = (item.uf || '') + ' · ' + (item.city || '');
-      if (nearMeActive && item.distance != null) {
-        locText += ' · ~' + Math.round(item.distance) + ' km';
+      loc.appendChild(document.createTextNode((item.uf || '') + ' · '));
+      if (item.city) {
+        const cityLink = document.createElement('a');
+        cityLink.href = '/events/' + slugify(item.city) + '/';
+        cityLink.textContent = item.city;
+        cityLink.className = 'hover:underline hover:text-green-600';
+        loc.appendChild(cityLink);
       }
-      loc.textContent = locText;
+      if (nearMeActive && item.distance != null) {
+        loc.appendChild(document.createTextNode(' · ~' + Math.round(item.distance) + ' km'));
+      }
 
       if (item.sport) {
         const sportTag = document.createElement('span');

@@ -33,6 +33,34 @@
   ]
 }
 </script>
+{% if city_events %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {% for e in city_events %}{
+      "@type": "SportsEvent",
+      "name": "{{ e.title|escapejs }}",
+      "startDate": "{{ e.start_date|date:'Y-m-d' }}",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "{{ e.city|escapejs }}",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "{{ e.city|escapejs }}",
+          "addressRegion": "{{ e.uf|upper }}",
+          "addressCountry": "BR"
+        }
+      }{% if e.url %},
+      "url": "{{ e.url }}"{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
 {% endblock extra-head %}
 
 {% block content %}
@@ -102,22 +130,27 @@
 
     <!-- Event list -->
     <div>
+      {% if not city_events %}
+      <p class="text-gray-500 dark:text-gray-400 py-4">
+        {{ city_name }} não tem eventos previstos em breve — confira as cidades próximas.
+      </p>
+      {% endif %}
       <ul class="space-y-3" aria-label="Próximas provas">
         {% for e in ssr_events %}
         {% if e.city == city_name %}
-        <li class="flex gap-4 items-stretch rounded-xl border-2 border-blue-300 dark:border-blue-700 border-l-4 border-l-blue-500 dark:border-l-blue-400 p-3 hover:shadow-md transition bg-blue-50 dark:bg-blue-950">
-          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-blue-500 dark:bg-blue-600 text-white" aria-hidden="true">
+        <li class="flex gap-4 items-stretch rounded-xl border-2 border-green-300 dark:border-green-700 border-l-4 border-l-green-500 dark:border-l-green-400 p-3 hover:shadow-md transition bg-green-50 dark:bg-green-950">
+          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-green-500 dark:bg-green-600 text-white" aria-hidden="true">
         {% else %}
         <li class="flex gap-4 items-stretch rounded-xl border p-3 hover:shadow-sm transition bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
           <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400" aria-hidden="true">
         {% endif %}
             <span class="text-xl font-bold leading-none">{{ e.date_day }}</span>
             <span class="text-xs font-semibold uppercase">{{ e.date_month }}</span>
-            <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ e.date_year }}</span>
+            <span class="text-[10px] opacity-70">{{ e.date_year }}</span>
           </div>
           <div class="flex flex-col justify-center min-w-0">
             <a href="{{ e.url }}" rel="noopener" target="_blank"
-               class="font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline truncate">
+               class="font-semibold text-gray-900 dark:text-gray-100 hover:text-green-600 dark:hover:text-green-400 hover:underline truncate">
               {{ e.title }}
             </a>
             <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap items-center gap-1.5">

@@ -113,6 +113,9 @@ SPORTS = {
     'Audax':                'Audax',
     'Randonneuring':        'Audax',
     'Brevet':               'Audax',
+    # Indoor Cycling
+    'Indoor Cycling':       'Indoor Cycling',
+    'Spinning':             'Indoor Cycling',
 }
 
 _CANONICAL_SPORTS = Enum('Sport', {v: v for v in dict.fromkeys(SPORTS.values())})

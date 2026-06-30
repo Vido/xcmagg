@@ -285,15 +285,26 @@ class Peloto(Crawler, Extractor):
         raise ValueError("Cannot extract local from page")
 
     def url(self, soup) -> str:
+        # og:url is the canonical event page (evento.php?ev=N); prefer it over
+        # the btn-large href which points to the registration page (inscricao_page?e=N).
+        meta = soup.find('meta', property='og:url')
+        if meta:
+            return meta.get('content', '').strip()
         href_tag = soup.find('a', class_='btn-large')
         if href_tag:
             href = href_tag.get('href')
             return urljoin(self.URL, href)
-        # new LP-style page: use og:url
-        meta = soup.find('meta', property='og:url')
-        if meta:
-            return meta.get('content', '').strip()
         raise ValueError("Cannot extract url from page")
+
+    def canonical_url(self, url: str) -> str:
+        # Normalize registration URLs to event page so old scrape variants dedup:
+        # inscricao_page?e=N → evento.php?ev=N
+        url = re.sub(
+            r'peloto\.com\.br/inscricao_page[/]?\?e=(\d+)',
+            r'peloto.com.br/evento.php?ev=\1',
+            url,
+        )
+        return super().canonical_url(url)
 
     def trigger(self):
         fp, soup = self.get_html(self.URL, suffix='home.html')
@@ -858,11 +869,15 @@ class RandonneursBrasil(Crawler, Extractor):
     def trigger(self):
         clubs = self._club_lookup()
         fp, data = self.get_json(self.API_URL, suffix='calendarios.json')
-        events = []
+        seen, events = set(), []
         for group in data:
             for row in group['calendario']:
                 if row.get('cancelado', 0) != 0:
                     continue
+                key = (row['modalidade'], row['data'], row['clube'])
+                if key in seen:
+                    continue
+                seen.add(key)
                 club_info = clubs.get(row['clube'], {})
                 row['_cidade'] = club_info.get('cidade', '').title()
                 row['_estado'] = club_info.get('estado', '')

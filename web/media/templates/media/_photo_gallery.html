@@ -35,8 +35,10 @@ Required context:
           x-transition:enter-start="opacity-0"
           x-transition:enter-end="opacity-100"
           class="absolute inset-0">
-          <img src="{{ primary.image.url }}" 
-               alt="{{ primary.alt_text|default:node.item.display_name }}" 
+          <img src="{{ primary.image.url }}"
+               alt="{{ primary.alt_text|default:node.item.display_name }}"
+               fetchpriority="high"
+               loading="eager"
                class="w-full h-full object-cover">
         </div>
       {% endwith %}

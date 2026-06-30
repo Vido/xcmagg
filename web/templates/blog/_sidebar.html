@@ -6,7 +6,7 @@
        class="block px-3 py-2 rounded-md text-sm transition
               {% if p.slug == current_slug %}bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white{% endif %}">
       <span class="block">{{ p.title }}</span>
-      {% if p.publish_date %}<span class="block text-xs text-gray-400 dark:text-gray-500">{{ p.publish_date|date:"M j, Y" }}</span>{% endif %}
+      {% if p.publish_date %}<span class="block text-xs text-gray-600 dark:text-gray-400">{{ p.publish_date|date:"M j, Y" }}</span>{% endif %}
     </a>
   {% empty %}
     <p class="px-3 text-sm text-gray-400">No articles yet.</p>

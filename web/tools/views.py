@@ -1,7 +1,31 @@
+from pathlib import Path
+
+import duckdb
+from django.conf import settings
 from django.shortcuts import render
+from django.utils.text import slugify
 
 from nodes.models import Node, NodeKind
 from catalog.selectors import CategorySelectors
+
+_EVENTS_DB = Path(settings.DATA_DIR) / 'events.duckdb'
+
+
+def _top_cities(limit=5):
+    try:
+        with duckdb.connect(str(_EVENTS_DB), read_only=True) as con:
+            rows = con.execute("""
+                SELECT location.city, location.uf, COUNT(*) AS cnt
+                FROM schema_events
+                WHERE TRY_CAST(date_range->>'start_date' AS DATE) > CURRENT_DATE
+                  AND location.city IS NOT NULL
+                GROUP BY 1, 2
+                ORDER BY cnt DESC
+                LIMIT ?
+            """, [limit]).fetchall()
+        return [{'city': r[0], 'uf': r[1], 'count': r[2], 'slug': slugify(r[0])} for r in rows]
+    except Exception:
+        return []
 
 
 def _related_items(*slugs):
@@ -28,8 +52,7 @@ def fuel_plan(request):
 
 
 def calendar(request):
-    # Events still client-fetched from /data.jsonl (lift to Django for slug + base.html shell).
-    return render(request, "tools/calendar.html")
+    return render(request, "tools/calendar.html", {'top_cities': _top_cities()})
 
 
 def stem_comparison(request):

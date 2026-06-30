@@ -24,7 +24,7 @@
             <!-- Community Posts Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {% for post in community_posts %}
-                {% include '_post_card.html' with post=post %}
+                {% include '_post_card.html' with post=post eager=forloop.first %}
               {% endfor %}
             </div>
           {% endblock community_content %}
@@ -48,7 +48,7 @@
             <!-- Reviews and Opinions Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {% for post in reviews_posts %}
-                {% include '_post_card.html' with post=post %}
+                {% include '_post_card.html' with post=post eager=forloop.first %}
               {% endfor %}
             </div>
           {% endblock reviews_content %}
