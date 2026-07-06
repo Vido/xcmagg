@@ -15,9 +15,13 @@
 - **PWA** — manifest (installable), service worker CDN cache (kills 810ms Tailwind delay after first visit), offline tools → `plans/pwa-mobile-ux.md`
 
 ## Email / Magic Links (HIGH PRIORITY — blocks user acquisition)
-- Verify sender `no-reply@racefeed.com.br` in Postmark (DKIM + Return-Path DNS on `racefeed.com.br`)
-- Confirm `POSTMARK_SERVER_TOKEN` is set in `web/.env` on server (file exists but token must be valid)
-- Deploy + test full flow: register → email received → magic link works
+
+Full plan + best-practices checklist: `plans/transactional-email-best-practices.md`
+
+- [ ] Verify sender `verify@racefeed.com.br` in Postmark (DKIM + Return-Path DNS) — note: code uses `verify@`, not `no-reply@`
+- [ ] Confirm `POSTMARK_SERVER_TOKEN` set in `web/.env` on server
+- [ ] Deploy + test full flow: register → email received → magic link/code works
+- See plan for template quality, HTML emails, reply-to, message streams, open tracking
 
 ## Monetization
 - Affiliate links in Fuel Plan — carb gels, nutrition products (already partially done, needs expansion)

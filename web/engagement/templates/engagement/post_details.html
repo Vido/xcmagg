@@ -32,7 +32,7 @@
       <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ post.title }}</h1>
 
       <!-- Photo Gallery -->
-      {% include "media/_photo_gallery.html" with node=post.node owner=post.owner %}
+      {% include "media/_photo_gallery.html" with obj=post %}
 
       {% if post.parent.kind == 'catalog_item' %}
         <div class="mt-3 flex items-center gap-3">

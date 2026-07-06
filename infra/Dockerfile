@@ -26,4 +26,5 @@ CMD ["uv", "run", "uvicorn", "config.asgi:application", \
     "--port", "8000", \
     "--workers", "2", \
     "--proxy-headers", \
-    "--forwarded-allow-ips", "172.16.0.0/12"]
+    "--forwarded-allow-ips", "172.16.0.0/12", \
+    "--lifespan", "off"]

@@ -64,6 +64,9 @@ class RawEvent:
         if not self.url:
             raise ValueError('URL cannot be empty')
 
+        if not self.date:
+            raise ValueError('Date cannot be empty')
+
         parsed = urlparse(self.url)
         if not parsed.scheme:
             self.url = "https://" + self.url

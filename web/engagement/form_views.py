@@ -90,7 +90,9 @@ def new_post(request):
     initial = {}
     parent_code = request.GET.get("parent")
     if parent_code:
-        initial["parent"] = parent_code
+        parent_node = Node.objects.filter(shortcode=parent_code).first()
+        if parent_node:
+            initial["parent"] = parent_node
 
     context = {
         "node_form": NodeForm(initial=initial),

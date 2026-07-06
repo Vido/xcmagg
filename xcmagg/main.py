@@ -20,7 +20,7 @@ crawlers = [
     TicketBr(),
     SeuEsporteApp(),
     TicketSportsAPI2(),
-    InscricoesBike(),
+    # InscricoesBike(), # site moved: inscricoes.bike -> inscricoes.com.br, static.inscricoes.bike NXDOMAIN
     InscricoesBr(),
     SuaInscricao(),
     Nuflow(),

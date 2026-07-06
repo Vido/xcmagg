@@ -29,6 +29,12 @@ Lean on the generic base templates — **don't override a whole section to chang
 - If the variation you need has no hook, **add a new `{% block %}` to the base** and override it in the child — do not copy the section's markup into the child to wedge in a change.
 - Empty/CTA states belong in the base's empty-state blocks, gated by context (e.g. `{% if owner == request.user %}`), not in bespoke per-page markup.
 
+## Domain Models
+
+`Post`, `Item` extend `NodeBoundModel` (`nodes/models.py`), which `__getattr__`-delegates to `Node`. So `post.title`, `post.owner`, `post.gallery` work directly — no `.node.` chains needed.
+
+Pass domain objects to templates (`obj=post`) instead of `node=post.node`. Note: `get_absolute_url` / `get_edit_url` are NOT delegated — implement per class.
+
 ## Identifiers
 
 **Never expose raw DB ids (`pk`/`id`) in URLs, templates, forms, or API responses — use the `shortcode` instead.** `Node.shortcode` (Sqids-encoded, unique, indexed) is the public identifier.

@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django.db import transaction
@@ -22,6 +23,7 @@ from magiclink.services import (
 from profiles.models import Profile
 from profiles.forms import CustomSignupForm
 from profiles.services import YeetService
+from profiles.turnstile import TurnstileValidator
 
 
 User = get_user_model()

@@ -781,7 +781,7 @@ class KalangasBikers(Crawler, Extractor):
         raw = self._raw(soup)
         m = re.match(r'^(\d{1,2}/\d{2})', raw)
         if not m:
-            return ''
+            raise ValueError(f"Cannot extract date from title: {raw!r}")
         year_m = re.search(r'\b(20\d{2})\b', raw)
         year = year_m.group(1) if year_m else str(date.today().year)
         return f'{m.group(1)}/{year}'

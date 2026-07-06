@@ -12,7 +12,7 @@
   <div class="grid lg:grid-cols-2 gap-8 mb-12">
     
     <!-- Left Column: Photo Gallery -->
-    {% include "media/_photo_gallery.html" with node=item.node owner=item.owner %}
+    {% include "media/_photo_gallery.html" with obj=item %}
 
     <!-- Right Column: Item Details -->
     <div class="space-y-6">
