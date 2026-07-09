@@ -140,6 +140,23 @@
 
   </div>
 
+  {% if related_items %}
+  <section class="mb-10">
+    <div class="flex items-end justify-between mb-4">
+      <h2 class="text-2xl font-bold">Bars, stems &amp; bar tape</h2>
+      <div class="flex gap-3 text-sm font-medium">
+        <a href="{% url 'category-profile' 'bars-stems' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Bars &amp; Stems →</a>
+        <a href="{% url 'category-profile' 'bar-tape-grips' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Bar Tape →</a>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in related_items %}
+        {% include "media/_simple_gallery.html" with node=item.node %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
   <!-- FAQ -->
   <section class="py-8" aria-label="Frequently Asked Questions">
     <h1 class="text-lg font-semibold mb-1">Stem Comparison Tool — Reach &amp; Rise Calculator</h1>

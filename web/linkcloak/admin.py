@@ -1,9 +1,25 @@
+import csv
+
 from django.contrib import admin
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.html import format_html
 
 from linkcloak.models import ClickEvent, Link
+
+
+def _export_click_events_csv(modeladmin, request, queryset):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="click_events.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["slug", "destination", "ip_address", "date"])
+    for row in queryset.values_list("link__slug", "link__target_url", "ip_address", "created_at"):
+        writer.writerow(row)
+    return response
+
+
+_export_click_events_csv.short_description = "Export selected as CSV"
 
 
 @admin.register(Link)
@@ -43,6 +59,7 @@ class LinkAdmin(admin.ModelAdmin):
 
 @admin.register(ClickEvent)
 class ClickEventAdmin(admin.ModelAdmin):
+    actions = [_export_click_events_csv]
     list_display = (
         "link",
         "created_at",

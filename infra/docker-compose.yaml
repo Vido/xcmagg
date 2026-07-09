@@ -23,6 +23,23 @@ services:
     networks:
       - racefeed_network
 
+  mcp:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: ["uv", "run", "python", "mcp_server.py"]
+    env_file:
+      - ../web/.env
+    environment:
+      DATA_DIR: /data
+      DJANGO_SETTINGS_MODULE: config.prod_settings
+    volumes:
+      - /var/www/xcmagg/data:/data
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - racefeed_network
+
   cache:
     image: memcached:latest
     restart: unless-stopped

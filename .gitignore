@@ -24,5 +24,14 @@ web/.pytest_cache/
 .vscode
 *.sw*
 
+# MCP config (contains Bearer token — copy from skills/mcp.json.example)
+.mcp.json
+
+# Claude Code local config — personal, not versioned (skills live in skills/)
+.claude/
+
+# Local dev overrides — never deploy to prod
+infra/docker-compose.override.yaml
+
 # blog filebased cache (regenerable)
 data/cache/

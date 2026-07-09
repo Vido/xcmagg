@@ -1,0 +1,27 @@
+# Local runtime data
+data/
+
+# SQLite files (extra safety)
+*.sqlite3
+
+# Python junk
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+web/.venv/
+web/venv/
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+*.pem
+*.key

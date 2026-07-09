@@ -45,16 +45,17 @@ class RetailerLinkData:
             except (TypeError, ValueError):
                 link_id = None
 
+            is_affiliate = bool(obj.get("is_affiliate", False))
             yield cls(
                 id=link_id,
                 text=(obj.get("text") or "").strip(),
                 url=url,
-                is_affiliate=bool(obj.get("is_affiliate", False)),
+                is_affiliate=is_affiliate,
                 promo_code=(obj.get("promo_code") or "").strip(),
                 order=order,
                 slug=(obj.get("slug") or "").strip(),
                 cloak=bool(obj.get("cloak", True)),
-                rel_sponsored=bool(obj.get("rel_sponsored", False)),
+                rel_sponsored=bool(obj.get("rel_sponsored", is_affiliate)),
                 rel_nofollow=bool(obj.get("rel_nofollow", True)),
                 rel_ugc=bool(obj.get("rel_ugc", False)),
                 utm_source=(obj.get("utm_source") or "").strip(),

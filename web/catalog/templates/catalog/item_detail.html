@@ -11,8 +11,11 @@
 
   <div class="grid lg:grid-cols-2 gap-8 mb-12">
     
-    <!-- Left Column: Photo Gallery -->
-    {% include "media/_photo_gallery.html" with obj=item %}
+    <!-- Left Column: Photo Gallery + Retailer Links -->
+    <div class="space-y-4">
+      {% include "media/_photo_gallery.html" with obj=item %}
+      {% include 'catalog/includes/_retailer_links.html' with links=item.retailer_links.all %}
+    </div>
 
     <!-- Right Column: Item Details -->
     <div class="space-y-6">
@@ -203,8 +206,6 @@
         </dl>
       </div>
       
-      {% include 'catalog/includes/_retailer_links.html' with links=item.retailer_links.all %}
-
       <!-- Action Buttons (for non-owners) -->
       {% if item.owner != request.user %}
         {% if not item.is_catalog and item.is_listed %}

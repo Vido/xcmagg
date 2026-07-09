@@ -22,4 +22,6 @@ dependencies = [
     "pymdown-extensions>=11.0",
     "duckdb>=1.5.4",
     "geoip2>=5.2.0",
+    "mcp[cli]>=1.0.0",
+    "python-multipart>=0.0.32",
 ]

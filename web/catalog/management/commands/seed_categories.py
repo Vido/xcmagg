@@ -92,6 +92,12 @@ SEED_CATEGORIES = [
     },
     # ----- Bike durables -----
     {
+        "title": "Bars & Stems",
+        "description": "Handlebars, stems, and cockpit components for road, gravel, and MTB.",
+        "durability": DURABLE,
+        "audience": PARTS,
+    },
+    {
         "title": "Pumps & Inflators",
         "description": "Floor, mini, and electric pumps plus CO2 inflators.",
         "durability": DURABLE,

@@ -56,7 +56,8 @@ def calendar(request):
 
 
 def stem_comparison(request):
-    return render(request, "tools/stem_comparison.html")
+    return render(request, "tools/stem_comparison.html",
+                  {"related_items": _related_items("bars-stems", "bar-tape-grips")})
 
 
 def gear_matrix(request):

@@ -13,6 +13,7 @@ rsync -avz --delete \
   --exclude '.venv' \
   --exclude '*.pyc' \
   --exclude '.env' \
+  --exclude 'docker-compose.override.yaml' \
   "$REPO_ROOT/web" "$REPO_ROOT/infra" \
   "$SERVER:$REMOTE_DIR/"
 

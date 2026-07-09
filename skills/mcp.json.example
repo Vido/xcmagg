@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "xcmagg-catalog": {
+      "type": "http",
+      "url": "https://racefeed.com.br/mcp_r4cef33d/",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_SECRET_TOKEN"
+      }
+    }
+  }
+}
