@@ -87,7 +87,7 @@
           type="text"
           name="category_label"
           placeholder="Search category…"
-          value="{{ item.category.title|default:item_form.initial.category.title|default:'' }}"
+          value="{{ item.category.title|default:'' }}"
           autocomplete="off"
           hx-get="{% url 'category-lookup' %}"
           hx-trigger="keyup changed delay:150ms"

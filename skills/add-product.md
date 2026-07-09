@@ -38,8 +38,10 @@ Call `create_catalog_item` MCP tool:
 - `manufacturer`: resolved slug
 - `category`: resolved slug
 - `description`: scraped description (already trimmed to 500 chars)
-- `links`: `[{"text": "Comprar no {retailer}", "url": "$ARGUMENTS", "is_affiliate": true}]`
-  where `{retailer}` is the `retailer` field from Step 1 (e.g. "Comprar no Mercado Livre")
+- `links`: `[{"text": "Comprar no {retailer}", "url": "$ARGUMENTS", "is_affiliate": false}]`
+  where `{retailer}` is the `retailer` field from Step 1 (e.g. "Comprar no Mercado Livre").
+  `is_affiliate` defaults to `false` — only set `true` if the user confirms we have
+  an active affiliate program with that retailer for this link.
 
 This returns `{"url": "...", "shortcode": "..."}`.
 
@@ -50,6 +52,10 @@ If `image_url` was found in Step 1, upload it directly to the server (no bytes t
 ```bash
 cd xcmagg && uv run python fetch.py upload <shortcode> <image_url>
 ```
+
+This is the only upload path — the MCP server has no server-side image-fetch tool
+(removed: fetched from a datacenter IP, and retailers like AliExpress returned 403
+for those; the local machine's residential IP works fine).
 
 **Step 6 — Report**
 

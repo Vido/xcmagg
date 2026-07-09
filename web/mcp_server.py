@@ -1,11 +1,7 @@
 import asyncio
-import ipaddress
 import json
 import os
-import socket
 import sys
-import urllib.request
-from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.prod_settings")
@@ -16,11 +12,17 @@ django.setup()
 
 from decouple import config
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 MCP_TOKEN = config("MCP_SECRET_TOKEN")
+MCP_ALLOWED_HOSTS = config(
+    "MCP_ALLOWED_HOST",
+    default="racefeed.com.br",
+    cast=lambda v: v.split(","),
+)
 
 
 class BearerAuth(BaseHTTPMiddleware):
@@ -30,7 +32,11 @@ class BearerAuth(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-mcp = FastMCP("xcmagg-catalog", streamable_http_path="/")
+mcp = FastMCP("xcmagg-catalog", streamable_http_path="/", transport_security=TransportSecuritySettings(
+    enable_dns_rebinding_protection=True,
+    allowed_hosts=MCP_ALLOWED_HOSTS,
+    allowed_origins=[f"https://{h}" for h in MCP_ALLOWED_HOSTS],
+))
 
 
 def _resolve_manufacturer(query: str):
@@ -49,29 +55,6 @@ def _resolve_category(query: str):
         Category.objects.filter(node__slug=query).first()
         or Category.objects.filter(node__title__iexact=query).first()
     )
-
-
-def _fetch_photo(node, image_url: str, is_primary: bool = True):
-    from django.core.files.base import ContentFile
-    from media.models import Photo
-
-    parsed = urlparse(image_url)
-    if parsed.scheme != "https":
-        raise ValueError("image_url must be HTTPS")
-    try:
-        ip = socket.gethostbyname(parsed.hostname)
-        addr = ipaddress.ip_address(ip)
-        if addr.is_private or addr.is_loopback or addr.is_link_local:
-            raise ValueError(f"image_url resolves to private/internal address: {ip}")
-    except socket.gaierror:
-        raise ValueError(f"Cannot resolve hostname: {parsed.hostname}")
-
-    with urllib.request.urlopen(image_url, timeout=10) as resp:  # noqa: S310
-        content = resp.read()
-
-    filename = (parsed.path.split("/")[-1].split("?")[0] or "photo.jpg")[:100]
-    photo = Photo(node=node, is_primary=is_primary)
-    photo.image.save(filename, ContentFile(content))
 
 
 @mcp.tool()
@@ -126,14 +109,13 @@ async def create_catalog_item(
     category: str,
     description: str = "",
     links: list[dict] = [],
-    image_url: str = "",
 ) -> dict:
-    """Create or update a catalog item with affiliate links and optional primary photo.
+    """Create or update a catalog item with affiliate links.
 
     manufacturer: slug or title of an existing Manufacturer (use search_brands first).
     category: slug or title of an existing Category (use search_categories first).
     links: list of dicts with keys: text, url, is_affiliate (bool), promo_code (optional).
-    image_url: HTTPS URL to product image — fetched server-side. Optional.
+    Attach a photo separately via the /upload endpoint (see fetch.py upload).
     """
     def _run():
         from django.contrib.auth import get_user_model
@@ -186,22 +168,8 @@ async def create_catalog_item(
             )
             RetailerLinkService.sync(node=node, links_json=json.dumps(links))
 
-            if image_url:
-                _fetch_photo(node, image_url, is_primary=True)
-
         item = node.item
         return {"url": item.get_absolute_url(), "shortcode": node.shortcode}
-    return await asyncio.to_thread(_run)
-
-
-@mcp.tool()
-async def add_item_photo(shortcode: str, image_url: str, is_primary: bool = True) -> dict:
-    """Download an image from a URL and attach it to an existing catalog item."""
-    def _run():
-        from nodes.models import Node, NodeKind
-        node = Node.objects.get(shortcode=shortcode, kind=NodeKind.CATALOG_ITEM)
-        _fetch_photo(node, image_url, is_primary=is_primary)
-        return {"ok": True}
     return await asyncio.to_thread(_run)
 
 
