@@ -79,7 +79,7 @@ URL: https://racefeed.com.br/tools/race-day-fuel-plan/
 Combine carbs, water and sodium into one ready-to-pack race-day fuel plan based on ride conditions, with practical fuelling strategies. Hydration model: water starts at carried volume (bottles + pack), drops at a sweat rate driven by temperature (Sawka et al., ACSM 2007).
 
 Focused single-purpose versions of this tool:
-- Cycling Nutrition Calculator (carbs per hour + fuel plan): https://racefeed.com.br/tools/cycling-nutrition-calculator/
+- Cycling Nutrition Calculator (carbs, gels & real food): https://racefeed.com.br/tools/cycling-nutrition-calculator/
 - Cycling Hydration Calculator (sweat rate, water + sodium): https://racefeed.com.br/tools/cycling-hydration-calculator/
 
 ### FAQ — Nutrition & Fueling

@@ -90,6 +90,10 @@ class Post(NodeBoundModel, models.Model):
             models.Index(fields=["node"]),
         ]
 
+    @property
+    def display_name(self):
+        return self.title or "Untitled"
+
     def __str__(self):
         snippet = (self.body[:50] + "...") if len(self.body) > 50 else self.body
         return f"{self.node.owner.username}: {snippet}"

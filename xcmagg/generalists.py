@@ -52,6 +52,11 @@ class Sympla(Crawler, Extractor):
             return f'{city} - {state}'
         return addr.get('name') or 'Online'
 
+    def description(self, d) -> str:
+        import html
+        text = html.unescape(d.get('strippedDetail') or '')
+        return ' '.join(text.split())[:500]
+
     @staticmethod
     def _event_dict(soup) -> dict:
         tag = soup.find('script', id='__NEXT_DATA__')

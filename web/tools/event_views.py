@@ -12,6 +12,7 @@ from datetime import date
 from pathlib import Path
 
 import duckdb
+from urllib.parse import urlparse
 from django.conf import settings
 from django.http import Http404
 from django.shortcuts import render
@@ -90,6 +91,14 @@ def _rows(cur):
     return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
+def _organizer_name(source_url: str) -> str:
+    """'https://www.ticketsports.com.br/' → 'ticketsports.com.br'"""
+    if not source_url:
+        return ''
+    netloc = urlparse(source_url).netloc
+    return netloc.removeprefix('www.')
+
+
 def _fmt_date(d):
     """datetime.date → '15 Mar 2026' (locale-aware month abbrev)"""
     try:
@@ -108,6 +117,7 @@ def _add_date_parts(events):
             e['date_year'] = d.year
         else:
             e['date_day'] = e['date_month'] = e['date_year'] = ''
+        e['organizer_name'] = _organizer_name(e.get('source', ''))
 
 
 def _make_meta(events, discipline, location):
@@ -149,6 +159,7 @@ def _load_city_events(con, city_slug):
         SELECT
             e.title,
             e.canonical_url                  AS url,
+            e.source                         AS source,
             e.date_range.start_date          AS start_date,
             e.location.city                  AS city,
             e.location.uf                    AS uf,
@@ -193,6 +204,7 @@ def _nearby_events(con, lat, lon, city_name, discipline=None, radius_km=200, lim
             SELECT
                 e.title,
                 e.canonical_url             AS url,
+                e.source                    AS source,
                 e.date_range.start_date     AS start_date,
                 e.location.city             AS city,
                 e.location.uf               AS uf,
@@ -266,15 +278,17 @@ def city_calendar(request, city_slug, discipline=None):
             city_uf = all_city_events[0]['uf']
 
     uf = city_uf.lower() if city_uf else ''
-    combined = sorted(events + nearby, key=lambda e: e['start_date'])
-    _add_date_parts(combined)
+    _add_date_parts(events)
+    _add_date_parts(nearby)
     title, desc = _make_meta(events, discipline, f'{city_name}, {uf.upper()}')
     canonical_path = f'/events/{city_slug}/{discipline}/' if discipline else f'/events/{city_slug}/'
+    all_events = events or nearby
+    year = all_events[0].get('date_year', '') if all_events else ''
     return render(request, 'tools/location_calendar.html', {
-        'ssr_events': combined,
         'city_events': events,
+        'nearby_events': nearby,
+        'year': year,
         'city_event_count': len(events),
-        'total_count': len(combined),
         'city_name': city_name,
         'state_name': UF_NAMES.get(uf.upper(), uf.upper()),
         'uf': uf,

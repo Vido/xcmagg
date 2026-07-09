@@ -30,6 +30,7 @@ User = get_user_model()
 
 @require_POST
 @ratelimit(key='post:email', rate='3/m', method='POST', block=True)
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def identity_gate(request):
 
     next_url = request.POST.get("next", "/")
@@ -115,11 +116,11 @@ def onboarding(request, token):
         return render(request, 'profiles/onboarding.html', {
             'email': email,
             'magic_url': magic_url,
-            'form': CustomSignupForm(email=email),
+            'form': CustomSignupForm(email=email, request=request),
         })
 
     # POST: Process signup
-    form = CustomSignupForm(request.POST, email=email)
+    form = CustomSignupForm(request.POST, email=email, request=request)
     if not form.is_valid():
         messages.error(request, f'{form.errors}')
         return render(request, 'profiles/onboarding.html', {

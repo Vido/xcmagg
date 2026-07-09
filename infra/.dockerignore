@@ -13,6 +13,8 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
+web/.venv/
+web/venv/
 
 # Git
 .git

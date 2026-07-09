@@ -1,10 +1,11 @@
 <div id="identity-gate" hx-on="htmx:afterSwap: this.scrollIntoView({behavior:'smooth'})">
     <div x-data="{ emailSent: {{ yeet|default:False|yesno:'true,false' }} }">
-        <form 
+        <form
             x-show="!emailSent"
-            hx-post="{% url 'identity_gate' %}" 
+            hx-post="{% url 'identity_gate' %}"
             hx-target="#identity-gate"
             hx-swap="outerHTML"
+            hx-on:htmx:before-request="gtag('event','send_verification_link',{'event_category':'engagement'})"
             class="space-y-4">
             
             {% csrf_token %}

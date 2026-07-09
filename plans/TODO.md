@@ -10,18 +10,22 @@
 - fetchpriority="high" on gallery primary + first card in list loops; loading="lazy" on remaining cards
 - Date/meta text contrast: gray-400 → gray-600 (light) / gray-500 → gray-400 (dark) across post cards, blog list, blog sidebar, article meta
 
+## Completed — 2026-07-07
+- **City landing pages** — `city_calendar` view, `/events/<city_slug>/` + `/events/<city_slug>/<discipline>/` URLs, `location_calendar.html` template. Nearby cities + discipline tabs SSR'd. `→ plans/migrate-calendar-to-django.md Phase 2 (partial)`
+- **Email / Magic Links** — anymail + Postmark wired in prod_settings; `verify@racefeed.com.br` sender; magic link flow implemented. Deployed. Waiting on Postmark domain approval (DKIM/Return-Path DNS).
+
 ## Performance / Build (next sprint)
 - **Tailwind build step** — compile + purge CSS, drop CDN entirely → `plans/tailwind-compile-purge-css-for-prod.md`
 - **PWA** — manifest (installable), service worker CDN cache (kills 810ms Tailwind delay after first visit), offline tools → `plans/pwa-mobile-ux.md`
 
-## Email / Magic Links (HIGH PRIORITY — blocks user acquisition)
+## Email / Magic Links (NEEDS E2E TEST)
 
 Full plan + best-practices checklist: `plans/transactional-email-best-practices.md`
 
-- [ ] Verify sender `verify@racefeed.com.br` in Postmark (DKIM + Return-Path DNS) — note: code uses `verify@`, not `no-reply@`
-- [ ] Confirm `POSTMARK_SERVER_TOKEN` set in `web/.env` on server
-- [ ] Deploy + test full flow: register → email received → magic link/code works
-- See plan for template quality, HTML emails, reply-to, message streams, open tracking
+- [x] Code deployed: anymail + Postmark backend, `verify@racefeed.com.br` sender, magic link flow
+- [x] Postmark domain approved (DKIM + Return-Path DNS) — 2026-07-07
+- [ ] End-to-end test: register → email received → magic link works
+- [ ] Template quality, HTML emails, reply-to, message streams → see plan
 
 ## Monetization
 - Affiliate links in Fuel Plan — carb gels, nutrition products (already partially done, needs expansion)
@@ -42,5 +46,7 @@ Full plan + best-practices checklist: `plans/transactional-email-best-practices.
 - PDFs / federation calendars: skip (no descriptions available)
 
 ## SEO
-- Plan B: city landing pages → `plans/plan-b-seo-city-pages.md`
+- ~~City landing pages~~ ✅ done — `/events/<city_slug>/` + discipline filter tabs
+- **State landing pages** — `/events/estado/<uf>/` (NOT YET built; see `plans/migrate-calendar-to-django.md` Phase 2 remaining)
+- **City/State sitemap** — `CitySitemap` + `StateSitemap` not added to `web/config/sitemaps.py` yet
 - OG cards for location calendar — make shared link visually clickable (rich preview image, compelling title/description)

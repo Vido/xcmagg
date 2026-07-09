@@ -214,24 +214,21 @@ class Parser:
     def sport(self, raw_event) -> str:
         if raw_event.sport:
             return raw_event.sport
-        from agents import classify_sport, search_classify_sport
+        from agents import classify_sport
 
-        ## Level 1: nano
-        #result = classify_sport(raw_event.title)
-        #if result.sport and result.confidence != 'low':
-        #    return result.sport
-
-        # Level 2: 5.4-mini
+        # Phase 1: title + local
         result = classify_sport(f'{raw_event.title} {raw_event.local}')
         if result.sport and result.confidence != 'low':
-            return result.sport
+            return result.sport_str
 
-        # Level 3: search — last resort
-        # print(f'[L3 sport input]  {raw_event.title} — {raw_event.url}')
-        # result = search_classify_sport(raw_event.title, raw_event.url)
-        # print(f'[L3 sport output] {result}')
-        # return result.sport.value if result.sport else ''
-        return result.sport if result.sport else ''
+        # Phase 2: add description when Phase 1 uncertain
+        desc = getattr(raw_event, 'description', '')
+        if desc:
+            result = classify_sport(f'{raw_event.title} {raw_event.local}\n{desc}')
+            if result.sport and result.confidence != 'low':
+                return result.sport_str
+
+        return ''
 
     def processed_at(self) -> datetime:
         return datetime.now()

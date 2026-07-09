@@ -1,4 +1,4 @@
-version: "3.9"
+name: racefeed
 
 x-logging: &default-logging
   driver: json-file
@@ -23,7 +23,7 @@ services:
     networks:
       - racefeed_network
 
-  memcached:
+  cache:
     image: memcached:latest
     restart: unless-stopped
     logging: *default-logging

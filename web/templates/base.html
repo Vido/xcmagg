@@ -25,6 +25,11 @@
     gtag('js', new Date());
     gtag('config', 'G-K196Y4ZCFK');
   </script>
+  {% else %}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+  </script>
   {% endif %}
 
   <title>{% block title %}RaceFeed{% endblock %}{% block head_title %}{% endblock head_title %}</title>
@@ -183,7 +188,7 @@
               <a href="{% url 'tools:nutrition-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Nutrition Calculator</a>
               <a href="{% url 'tools:hydration-calculator' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Hydration Calculator</a>
               <a href="{% url 'tools:fuel-plan' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Race Day Fuel Plan</a>
-              <a href="{% url 'tools:gear-matrix' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Matrix</a>
+              <a href="{% url 'tools:gear-matrix' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Gear Ratio Calc</a>
               <a href="{% url 'tools:stem-comparison' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Stem Compare</a>
             </div>
           </div>
@@ -258,7 +263,7 @@
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
               </svg>
             </button>
-            <a href="{% url2 'welcome' next=request.path %}" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+            <a href="{% url2 'welcome' next=request.path %}" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_desktop'})" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
               Enter
             </a>
           {% endif %}
@@ -327,7 +332,7 @@
             <a href="{% url 'tools:nutrition-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Nutrition Calculator</a>
             <a href="{% url 'tools:hydration-calculator' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Hydration Calculator</a>
             <a href="{% url 'tools:fuel-plan' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Race Day Fuel Plan</a>
-            <a href="{% url 'tools:gear-matrix' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Matrix</a>
+            <a href="{% url 'tools:gear-matrix' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Gear Ratio Calc</a>
             <a href="{% url 'tools:stem-comparison' %}" class="block text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 px-3 py-1 rounded-md text-sm">Stem Compare</a>
           </div>
         </div>
@@ -363,7 +368,7 @@
             Logout
           </a>
         {% else %}
-          <a href="{% url2 'welcome' next=request.path %}" class="block bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-2 rounded-md text-base font-medium">
+          <a href="{% url2 'welcome' next=request.path %}" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_mobile'})" class="block bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-2 rounded-md text-base font-medium">
             Enter
           </a>
         {% endif %}

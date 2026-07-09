@@ -12,6 +12,10 @@
 - [Gear Range Calculator](https://racefeed.com.br/tools/gear-range-calculator/): Drivetrain visualizer showing every cassette and chainring combination on a speed/development axis; compare two drivetrains side by side.
 - [Stem Comparison Tool](https://racefeed.com.br/tools/stem-comparison/): Compare bicycle stem dimensions side by side; visualize reach and rise for any stem length and angle.
 
+## Blog
+
+- [Tech Blog](https://racefeed.com.br/blog/en/): Notes on building RaceFeed — Django, data pipelines, indie hacking, and cycling tech.
+
 ## Optional
 
 - [Full content (llms-full.txt)](https://racefeed.com.br/llms-full.txt): All tool descriptions and FAQ content inlined in one file.

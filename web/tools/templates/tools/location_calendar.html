@@ -29,7 +29,7 @@
   "url": "{{ canonical }}",
   "numberOfItems": {{ city_event_count }},
   "itemListElement": [
-    {% for e in ssr_events %}{% if e.city == city_name %}{"@type": "ListItem", "position": {{ forloop.counter }}, "name": "{{ e.title|escapejs }}", "url": "{{ e.url }}"}{% if not forloop.last %},{% endif %}{% endif %}{% endfor %}
+    {% for e in city_events %}{% if not forloop.first %},{% endif %}{"@type": "ListItem", "position": {{ forloop.counter }}{% if e.url %}, "url": "{{ e.url }}"{% endif %}, "name": "{{ e.title|escapejs }}"}{% endfor %}
   ]
 }
 </script>
@@ -41,7 +41,7 @@
     {% for e in city_events %}{
       "@type": "SportsEvent",
       "name": "{{ e.title|escapejs }}",
-      "startDate": "{{ e.start_date|date:'Y-m-d' }}",
+      "startDate": "{{ e.start_date|date:'Y-m-d' }}T00:00:00",
       "eventStatus": "https://schema.org/EventScheduled",
       "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
       "location": {
@@ -54,7 +54,8 @@
           "addressCountry": "BR"
         }
       }{% if e.url %},
-      "url": "{{ e.url }}"{% endif %}
+      "url": "{{ e.url }}"{% endif %}{% if e.organizer_name %},
+      "organizer": {"@type": "Organization", "name": "{{ e.organizer_name|escapejs }}", "url": "{{ e.source }}"}{% endif %}
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
   ]
@@ -87,7 +88,7 @@
       {% if discipline_name %}{{ discipline_name }} em {{ city_name }}{% else %}Provas em {{ city_name }}{% endif %}
     </h1>
     <p class="text-gray-500 dark:text-gray-400">
-      {{ state_name }} · {{ city_event_count }} evento{{ city_event_count|pluralize:"s" }} em {{ ssr_events.0.date_year }}
+      {{ state_name }}{% if year %} · {{ city_event_count }} evento{{ city_event_count|pluralize:"s" }} em {{ year }}{% endif %}
     </p>
   </header>
 
@@ -130,20 +131,18 @@
 
     <!-- Event list -->
     <div>
+
+      <!-- Events in city -->
+      <h2 class="text-xl font-semibold mb-4">Eventos em {{ city_name }}</h2>
       {% if not city_events %}
       <p class="text-gray-500 dark:text-gray-400 py-4">
         {{ city_name }} não tem eventos previstos em breve — confira as cidades próximas.
       </p>
-      {% endif %}
-      <ul class="space-y-3" aria-label="Próximas provas">
-        {% for e in ssr_events %}
-        {% if e.city == city_name %}
+      {% else %}
+      <ul class="space-y-3" aria-label="Provas em {{ city_name }}">
+        {% for e in city_events %}
         <li class="flex gap-4 items-stretch rounded-xl border-2 border-green-300 dark:border-green-700 border-l-4 border-l-green-500 dark:border-l-green-400 p-3 hover:shadow-md transition bg-green-50 dark:bg-green-950">
           <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-green-500 dark:bg-green-600 text-white" aria-hidden="true">
-        {% else %}
-        <li class="flex gap-4 items-stretch rounded-xl border p-3 hover:shadow-sm transition bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
-          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400" aria-hidden="true">
-        {% endif %}
             <span class="text-xl font-bold leading-none">{{ e.date_day }}</span>
             <span class="text-xs font-semibold uppercase">{{ e.date_month }}</span>
             <span class="text-[10px] opacity-70">{{ e.date_year }}</span>
@@ -154,11 +153,44 @@
               {{ e.title }}
             </a>
             <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap items-center gap-1.5">
-              {% if e.city != city_name %}
-              <a href="/events/{{ e.city|slugify }}/" class="hover:underline">{{ e.city }}</a>,
-              {% else %}
               <span>{{ e.city }},</span>
+              <span>{{ e.uf|upper }}</span>
+              {% if e.discipline %}
+              <span class="rounded-full bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs">{{ e.discipline }}</span>
               {% endif %}
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if city_event_count > 20 %}
+      <div class="mt-6">
+        <a href="/events/?city={{ filter_city|urlencode }}{% if filter_discipline %}&sport={{ filter_discipline|urlencode }}{% endif %}"
+           class="inline-block rounded-lg border border-gray-300 dark:border-neutral-600 px-5 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition">
+          Ver todos os {{ city_event_count }} eventos de {{ city_name }}
+        </a>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <!-- Events near city -->
+      {% if nearby_events %}
+      <h2 class="text-xl font-semibold mt-10 mb-4">Eventos perto de {{ city_name }}</h2>
+      <ul class="space-y-3" aria-label="Provas perto de {{ city_name }}">
+        {% for e in nearby_events %}
+        <li class="flex gap-4 items-stretch rounded-xl border p-3 hover:shadow-sm transition bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
+          <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400" aria-hidden="true">
+            <span class="text-xl font-bold leading-none">{{ e.date_day }}</span>
+            <span class="text-xs font-semibold uppercase">{{ e.date_month }}</span>
+            <span class="text-[10px] opacity-70">{{ e.date_year }}</span>
+          </div>
+          <div class="flex flex-col justify-center min-w-0">
+            <a href="{{ e.url }}" rel="noopener" target="_blank"
+               class="font-semibold text-gray-900 dark:text-gray-100 hover:text-green-600 dark:hover:text-green-400 hover:underline truncate">
+              {{ e.title }}
+            </a>
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap items-center gap-1.5">
+              <a href="/events/{{ e.city|slugify }}/" class="hover:underline">{{ e.city }}</a>,
               <span>{{ e.uf|upper }}</span>
               {% if e.dist_km %}<span>· {{ e.dist_km }} km</span>{% endif %}
               {% if e.discipline %}
@@ -169,15 +201,8 @@
         </li>
         {% endfor %}
       </ul>
-
-      {% if city_event_count > 20 %}
-      <div class="mt-6">
-        <a href="/events/?city={{ filter_city|urlencode }}{% if filter_discipline %}&sport={{ filter_discipline|urlencode }}{% endif %}"
-           class="inline-block rounded-lg border border-gray-300 dark:border-neutral-600 px-5 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition">
-          Ver todos os {{ city_event_count }} eventos de {{ city_name }}
-        </a>
-      </div>
       {% endif %}
+
     </div>
 
   </div>

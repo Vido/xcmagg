@@ -100,6 +100,7 @@ SPORTS = {
     'Trail running':        'Trail running',
     'Trail Run':            'Trail running',
     'Corrida Trail':        'Trail running',
+    'Corrida de trilha':    'Trail running',
     'Corrida de Montanha':  'Trail running',
     'Corrida Rustica':      'Trail running',
     'Corrida Rústica':      'Trail running',
@@ -122,8 +123,12 @@ _CANONICAL_SPORTS = Enum('Sport', {v: v for v in dict.fromkeys(SPORTS.values())}
 
 
 class _SportClassification(BaseModel):
-    sport: Optional[str] = None
+    sport: Optional[_CANONICAL_SPORTS] = None
     confidence: Literal['low', 'high'] = 'low'
+
+    @property
+    def sport_str(self) -> Optional[str]:
+        return self.sport.value if self.sport else None
 
 def classify_sport(content: str, model: str = 'gpt-5.4-mini') -> _SportClassification:
     model = 'gpt-5.4-mini'
@@ -135,10 +140,10 @@ def classify_sport(content: str, model: str = 'gpt-5.4-mini') -> _SportClassific
             {
                 "role": "system",
                 "content": (
-                    "Classify sport.\n"
+                    "Classify Brazilian endurance sport event.\n"
                     f"Classes: {', '.join(e.value for e in _CANONICAL_SPORTS)}\n"
-                    "Unknown → null\n"
-                    "Uncertain → confidence=low"
+                    "Unknown → null. Uncertain → confidence=low.\n"
+                    "PT-BR: cycling Maratona or Maratona >50km = Mountain bike."
                 ),
             },
             {"role": "user", "content": content},

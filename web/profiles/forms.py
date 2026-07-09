@@ -71,7 +71,7 @@ class CustomSignupForm(SignupForm):
     captcha = TurnstileField(required=True)
 
     def __init__(self, *args, email=None, **kwargs):
-        self.request = kwargs.get("request")
+        self.request = kwargs.pop("request", None)
         # Pre-fill initial data before calling super()
         if email:
             if 'initial' not in kwargs:

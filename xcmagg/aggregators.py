@@ -196,6 +196,10 @@ class SuaInscricao(Crawler, Extractor):
         link = soup.find('link', rel='canonical')
         return link.get('href') if link else self._current_event_url
 
+    def description(self, soup) -> str:
+        el = soup.find('div', class_=lambda c: c and 'prose' in c and 'text-gray-600' in c)
+        return el.get_text(' ', strip=True)[:500] if el else ''
+
     def trigger(self):
         endpoint = urljoin(self.URL, 'inscricao-aberta/provas-com-inscricao-aberta')
         fp, soup = self.get_html(endpoint, suffix='inscricao-aberta.html')
@@ -466,12 +470,50 @@ class TicketSportsAPI2(Crawler, Extractor):
 
 
 class TourDaRoca():
+    # STUB — registration migrated to RaizesEsportes platform. See RaizesEsportes.
     URL = 'https://tourdaroca.com.br/'
     REPO = Path('tourdaroca.com.br')
     META = {
         'Category': 'Organizador',
         'DDD': '11',
     }
+
+
+class RaizesEsportes(Crawler, Extractor):
+    """Tour da Roça registration platform (checkout.raizesesportes.com.br).
+    Homepage lists all open-registration events as cards. Server-rendered."""
+    URL = 'https://checkout.raizesesportes.com.br/'
+    REPO = Path('checkout.raizesesportes.com.br')
+    TIME_FORMAT = '%d/%m/%Y'
+    META = {
+        'Category': 'Organizador',
+    }
+
+    def title(self, card) -> str:
+        return card.find('p', class_=lambda c: c and 'font-semibold' in c).get_text(strip=True)
+
+    def date(self, card) -> str:
+        badge = card.find('div', class_=lambda c: c and 'absolute' in c and 'top-4' in c)
+        return badge.get_text(strip=True) if badge else ''
+
+    def local(self, card) -> str:
+        loc = card.find('p', class_=lambda c: c and 'text-indigo-600' in c)
+        return loc.get_text(strip=True) if loc else ''
+
+    def url(self, card) -> str:
+        a = card.find('a', href=True)
+        return a['href'] if a else self.URL
+
+    def trigger(self):
+        fp, soup = self.get_html(self.URL, suffix='index.html')
+        cards = soup.find_all('div', class_=lambda c: c and 'rounded-lg' in c and 'shadow-lg' in c)
+        events = []
+        for card in cards:
+            try:
+                events.append(self.parse(card, fp))
+            except Exception as e:
+                print(f'Skipping card: {e}')
+        return events
 
 
 class TourDoPeixe(Crawler, Extractor):
@@ -515,6 +557,10 @@ class TourDoPeixe(Crawler, Extractor):
 
 
 class InscricoesBike(Crawler, Extractor):
+    """Dead: inscricoes.bike rebranded to inscricoes.com.br, this static JSON
+    API is NXDOMAIN. Site's catalog is already fully covered by
+    InscricoesBr (same domain, no gap to fill)."""
+
     URL = 'https://inscricoes.bike/'
     REPO = Path('inscricoes.bike')
     META = {
@@ -627,40 +673,24 @@ class InscricoesBr(Crawler, Extractor):
         'Category': 'Agregador',
     }
 
-    def title(self, soup) -> str:
-        return soup.find('h1').get_text(strip=True)
+    def title(self, card) -> str:
+        return card.find('h3').get_text(strip=True)
 
-    def date(self, soup) -> str:
-        # "14/06/2026 às 16:00" → "14/06/2026"
-        for tag in soup.find_all(string=re.compile(r'\d{2}/\d{2}/\d{4}')):
-            m = re.search(r'(\d{2}/\d{2}/\d{4})', tag)
-            if m:
-                return m.group(1)
-        return ''
+    def date(self, card) -> str:
+        icon = card.find('i', attrs={'data-lucide': 'calendar'})
+        return icon.parent.find('span').get_text(strip=True) if icon else ''
 
-    def local(self, soup) -> str:
-        # "Cristinápolis, SE"
-        for tag in soup.find_all(string=re.compile(r',\s*[A-Z]{2}$')):
-            return tag.strip()
-        return ''
+    def local(self, card) -> str:
+        icon = card.find('i', attrs={'data-lucide': 'map-pin'})
+        return icon.parent.find('span').get_text(strip=True) if icon else ''
 
-    def url(self, soup) -> str:
-        return self._current_event_url
+    def url(self, card) -> str:
+        return card['href']
 
     def trigger(self):
         fp, soup = self.get_html(urljoin(self.URL, 'eventos'), suffix='eventos.html')
-        hrefs = []
-        seen = set()
-        for a in soup.find_all('a', href=re.compile(r'/eventos/[^/]+$')):
-            href = a['href']
-            if href not in seen:
-                seen.add(href)
-                hrefs.append(href)
 
         events_acc = []
-        for href in hrefs:
-            self._current_event_url = href
-            slug = href.rstrip('/').split('/')[-1]
-            _, detail = self.get_html(self._current_event_url, suffix=f'{slug}.html')
-            events_acc.append(self.parse(detail, fp))
+        for card in soup.find_all('a', class_='event-item'):
+            events_acc.append(self.parse(card, fp))
         return events_acc

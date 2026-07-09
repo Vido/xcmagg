@@ -10,6 +10,7 @@ class GoldLayer:
     @classmethod
     def publish(klass):
         p = Persistence()
+        junk_file = str((Path(__file__).parent.parent / 'data' / 'junk_urls.txt').resolve())
         output_file = str((Path(__file__).parent.parent / 'data' / 'gold' / 'data.jsonl').resolve())
         results = p.CONN.execute(
             f"""
@@ -34,6 +35,11 @@ class GoldLayer:
                         ON strip_accents(LOWER(TRIM(e.location->>'city'))) = strip_accents(LOWER(TRIM(g.nome)))
                         AND UPPER(TRIM(e.location->>'uf')) = UPPER(TRIM(g.uf))
                     WHERE TRY_CAST(e.date_range->>'start_date' AS DATE) > CURRENT_DATE
+                    AND e.canonical_url NOT IN (
+                        SELECT column0
+                        FROM read_csv('{ junk_file }', header=false, comment='#')
+                        WHERE trim(column0) != ''
+                    )
                 ) TO '{ output_file }' (FORMAT JSON, ARRAY false);
             """
         )

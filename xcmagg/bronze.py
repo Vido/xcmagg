@@ -52,6 +52,7 @@ class RawEvent:
     raw_file: Path
     sport: str = ''
     canonical_url: str = ''
+    description: str = ''
 
     def __post_init__(self):
         self.validate()
@@ -260,6 +261,9 @@ class Extractor(ABC):
     def sport(self, soup) -> str:
         return ''
 
+    def description(self, soup) -> str:
+        return ''
+
     def canonical_url(self, url: str) -> str:
         """Dedup key for this source's URLs. Override for source-specific rules."""
         return canonical_url(url)
@@ -285,6 +289,7 @@ class Extractor(ABC):
                 crawled_at=self.crawled_at(filepath),
                 raw_file=self.raw_file(filepath),
                 sport=self.sport(soup),
+                description=self.description(soup),
             )
              event.canonical_url = self.canonical_url(event.url)
         except Exception as e:
