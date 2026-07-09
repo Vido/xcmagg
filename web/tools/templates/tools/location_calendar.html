@@ -6,8 +6,13 @@
 {% block og_title %}{{ page_title }}{% endblock %}
 {% block og_description %}{{ page_description }}{% endblock %}
 
+{% block canonical %}<link rel="canonical" href="{{ canonical }}" />{% endblock canonical %}
+{% block hreflang %}
+<link rel="alternate" hreflang="pt-BR" href="{{ canonical }}" />
+<link rel="alternate" hreflang="x-default" href="{{ canonical }}" />
+{% endblock hreflang %}
+
 {% block extra-head %}
-<link rel="canonical" href="{{ canonical }}" />
 
 <script type="application/ld+json">
 {
@@ -52,7 +57,7 @@
           "addressLocality": "{{ e.city|escapejs }}",
           "addressRegion": "{{ e.uf|upper }}",
           "addressCountry": "BR"
-        }
+        }{% if e.latitude %},"geo": {"@type": "GeoCoordinates", "latitude": {{ e.latitude }}, "longitude": {{ e.longitude }}}{% endif %}
       }{% if e.url %},
       "url": "{{ e.url }}"{% endif %}{% if e.organizer_name %},
       "organizer": {"@type": "Organization", "name": "{{ e.organizer_name|escapejs }}", "url": "{{ e.source }}"}{% endif %}
@@ -85,12 +90,16 @@
   <!-- Header -->
   <header class="mb-6">
     <h1 class="text-3xl font-bold mb-1">
-      {% if discipline_name %}{{ discipline_name }} em {{ city_name }}{% else %}Provas em {{ city_name }}{% endif %}
+      {% if discipline_name %}Provas de {{ discipline_name }} em {{ city_name }}, {{ uf|upper }}{% else %}Calendário de Ciclismo em {{ city_name }}, {{ uf|upper }}{% endif %}
     </h1>
     <p class="text-gray-500 dark:text-gray-400">
       {{ state_name }}{% if year %} · {{ city_event_count }} evento{{ city_event_count|pluralize:"s" }} em {{ year }}{% endif %}
     </p>
   </header>
+
+  {% if editorial_intro %}
+  <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{{ editorial_intro }}</p>
+  {% endif %}
 
   <!-- Discipline tabs -->
   {% if discipline_tabs %}

@@ -145,6 +145,31 @@ class BlogSitemap(BaseSitemap):
         return post.updated_date or post.publish_date
 
 
+class EventCalendarSitemap(BaseSitemap):
+    """Hardcoded state capitals — stable cities that always have events."""
+    priority = 0.8
+    changefreq = "daily"
+
+    _CITIES = [
+        "sao-paulo",
+        "belo-horizonte",
+        "rio-de-janeiro",
+        "curitiba",
+        "florianopolis",
+        "porto-alegre",
+        "vitoria",
+        "salvador",
+        "aracaju",
+        "recife",
+    ]
+
+    def items(self):
+        return self._CITIES
+
+    def location(self, slug):
+        return f"/events/{slug}/"
+
+
 SITEMAPS = {
     "static": StaticViewSitemap,
     "categories": CategorySitemap,
@@ -152,4 +177,5 @@ SITEMAPS = {
     "catalog": CatalogItemSitemap,
     "posts": PostSitemap,
     "blog": BlogSitemap,
+    "events": EventCalendarSitemap,
 }

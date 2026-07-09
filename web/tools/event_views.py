@@ -46,6 +46,15 @@ DISCIPLINE_NAMES = {
 }
 VALID_DISCIPLINES = set(DISCIPLINE_NAMES)
 
+# Duplicated in callsites — consolidate when adding new disciplines.
+_DISCIPLINE_LONG_NAME = {
+    'mountain-bike': 'Mountain Bike XCM e XCO',
+    'ciclismo':      'Ciclismo de Estrada',
+    'triathlon':     'Triathlon e Duathlon',
+    'trail-running': 'Corridas de Trail',
+    'audax':         'Audax e BRM Randonnée',
+}
+
 # Raw sport field values as stored in schema_events (must match DB exactly).
 _SLUG_TO_SPORT = {
     'mountain-bike': 'Mountain bike',
@@ -57,7 +66,7 @@ _SLUG_TO_SPORT = {
 
 # State (UF) pages deferred to v2.
 _SPORT_INTROS = {
-    'mountain-bike': 'Encontre trilhas e provas de MTB em {loc}.',
+    'mountain-bike': 'Encontre eventos e desafios de MTB em {loc}.',
     'triathlon':     'Calendário de triathlon em {loc}: sprint, olímpico e longa distância.',
     'ciclismo':      'Provas de ciclismo de estrada em {loc} para {year}.',
     'trail-running': 'Corridas de trail em {loc} em {year}.',
@@ -123,27 +132,36 @@ def _add_date_parts(events):
 def _make_meta(events, discipline, location):
     year = date.today().year
     label = DISCIPLINE_NAMES.get(discipline, '')
+    long_label = _DISCIPLINE_LONG_NAME.get(discipline, 'ciclismo e MTB')
     count = len(events)
 
-    if label and count:
-        title = f'{count} Provas de {label} em {location} — {year} | RaceFeed'
+    if label:
+        title = f'Calendário {label} {location} {year} – {long_label} | RaceFeed'
     else:
-        title = f'Calendário de Ciclismo e MTB em {location} {year} | RaceFeed'
+        title = f'Calendário de Ciclismo em {location} {year} | RaceFeed'
 
     if not events:
         return title, f'Calendário de eventos de ciclismo em {location}.'
 
     next_ev = events[0]
-    intro = _SPORT_INTROS.get(discipline, 'Calendário de eventos em {loc}.').format(
-        loc=location, year=year,
-    )
-    cities = list(dict.fromkeys(e['city'] for e in events if e.get('city')))[:3]
     desc = (
-        f'{intro} {count} evento{"s" if count != 1 else ""} em {year}. '
-        f'Próximo: {next_ev["title"]} em {_fmt_date(next_ev["start_date"])}. '
-        f'Cidades: {", ".join(cities)}.'
+        f'Confira {count} prova{"s" if count != 1 else ""} de {long_label} '
+        f'em {location} em {year}. '
+        f'Próxima: {next_ev["title"]} em {_fmt_date(next_ev["start_date"])}.'
     )
     return title, desc
+
+
+def _make_editorial_intro(events, discipline, city_name, year, nearby=None):
+    if not events:
+        return ''
+    count = len(events)
+    s1 = _SPORT_INTROS.get(discipline, 'Calendário de eventos em {loc}.').format(loc=city_name, year=year)
+    s2 = f'São {count} evento{"s" if count != 1 else ""} confirmados, com datas, locais e links de inscrição.'
+    s3 = f'A próxima prova é {events[0]["title"]}, em {_fmt_date(events[0]["start_date"])}.'
+    nearby_count = len(nearby) if nearby else 0
+    s4 = f' Há também {nearby_count} evento{"s" if nearby_count != 1 else ""} em cidades próximas.' if nearby_count else ''
+    return f'{s1} {s2} {s3}{s4}'
 
 
 def _disc_tabs_from_events(events):
@@ -297,6 +315,7 @@ def city_calendar(request, city_slug, discipline=None):
         'discipline_name': DISCIPLINE_NAMES.get(discipline),
         'discipline_tabs': _disc_tabs_from_events(all_city_events + nearby),
         'nearby_city_links': _nearby_city_links(nearby),
+        'editorial_intro': _make_editorial_intro(events, discipline, city_name, date.today().year, nearby=nearby),
         'page_title': title,
         'page_description': desc,
         'canonical': request.build_absolute_uri(canonical_path),

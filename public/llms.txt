@@ -16,6 +16,13 @@
 
 - [Tech Blog](https://racefeed.com.br/blog/en/): Notes on building RaceFeed — Django, data pipelines, indie hacking, and cycling tech.
 
+## Event Calendars
+
+- [Cycling & MTB Events Calendar](https://racefeed.com.br/events/): All cycling events in Brazil by city and sport.
+- [Ciclismo São Paulo](https://racefeed.com.br/events/sao-paulo/ciclismo/)
+- [Mountain Bike Belo Horizonte](https://racefeed.com.br/events/belo-horizonte/mountain-bike/)
+- [Triathlon Florianópolis](https://racefeed.com.br/events/florianopolis/triathlon/)
+
 ## Optional
 
 - [Full content (llms-full.txt)](https://racefeed.com.br/llms-full.txt): All tool descriptions and FAQ content inlined in one file.
