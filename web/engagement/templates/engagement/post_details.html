@@ -3,6 +3,22 @@
 
 {% block title %}{{ post.title }} - @{{ post.owner.username }}{% endblock %}
 
+{% with primary=post.primary_photo %}
+{% if primary %}
+{% block extra-head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  "contentUrl": "{{ primary.image.url }}",
+  "name": "{{ primary.alt_text|default:post.title|escapejs }}"{% if primary.caption %},
+  "description": "{{ primary.caption|escapejs }}"{% endif %}
+}
+</script>
+{% endblock extra-head %}
+{% endif %}
+{% endwith %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
 

@@ -1,6 +1,7 @@
 import secrets
 from typing import Dict, Tuple
 
+from django.conf import settings
 from django.urls import reverse
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
@@ -95,8 +96,10 @@ class MagicLinkService(BaseService):
 
     @staticmethod
     def url(request, token) -> str:
+        # Site-owned route name; overridable so magiclink stays portable.
+        url_name = getattr(settings, 'MAGICLINK_LOGIN_URL_NAME', 'magic-login')
         return request.build_absolute_uri(
-            reverse('magic-login',
+            reverse(url_name,
                 kwargs={"token": token},
             )
         )
@@ -174,8 +177,10 @@ class MagicEmailService(BaseService):
 
     @staticmethod
     def url(request, token) -> str:
+        # Site-owned route name; overridable so magiclink stays portable.
+        url_name = getattr(settings, 'MAGICLINK_CLAIM_URL_NAME', 'onboarding')
         return request.build_absolute_uri(
-            reverse('onboarding',
+            reverse(url_name,
                 kwargs={"token": token},
             )
         )

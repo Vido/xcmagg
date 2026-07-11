@@ -1,7 +1,18 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
+from nodes.admin import NodeAdmin
 from catalog.models import Category, Manufacturer, Item, RetailerLink
+
+
+class RetailerLinkInline(admin.TabularInline):
+    model = RetailerLink
+    extra = 0
+
+
+# Contribute the RetailerLink inline to the Node admin without the spine
+# importing catalog.
+NodeAdmin.inlines = (*NodeAdmin.inlines, RetailerLinkInline)
 
 
 # ---------- Category ----------

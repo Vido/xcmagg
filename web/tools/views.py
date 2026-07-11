@@ -60,6 +60,11 @@ def stem_comparison(request):
                   {"related_items": _related_items("bars-stems", "bar-tape-grips")})
 
 
+def dropbar_stem_comparison(request):
+    return render(request, "tools/dropbar_stem_comparison.html",
+                  {"related_items": _related_items("bars-stems", "bar-tape-grips")})
+
+
 def gear_matrix(request):
     return render(request, "tools/gear_matrix.html")
 

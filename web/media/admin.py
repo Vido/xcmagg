@@ -1,6 +1,25 @@
 from django.contrib import admin
 from django.utils.html import format_html
+
+from nodes.admin import NodeAdmin
 from .models import Photo
+
+
+class PhotoInline(admin.TabularInline):
+    model = Photo
+    extra = 0
+    readonly_fields = ('image_preview', 'created_at')
+    fields = ('image', 'image_preview', 'created_at')  # show both
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="height: 75px;"/>', obj.image.url)
+        return 'N/A'
+    image_preview.short_description = 'Preview'
+
+
+# Contribute the Photo inline to the Node admin without the spine importing media.
+NodeAdmin.inlines = (*NodeAdmin.inlines, PhotoInline)
 
 
 @admin.register(Photo)
@@ -22,6 +41,8 @@ class PhotoAdmin(admin.ModelAdmin):
         "node",
         "image",
         "primary_thumb",
+        "alt_text",
+        "caption",
         "is_primary",
         "order",
         "created_at",

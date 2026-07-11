@@ -11,6 +11,7 @@ urlpatterns = [
     path("cycling-hydration-calculator/", views.hydration_calculator, name="hydration-calculator"),
     path("race-day-fuel-plan/", views.fuel_plan, name="fuel-plan"),
     path("stem-comparison/", views.stem_comparison, name="stem-comparison"),
+    path("dropbar-stem-comparison/", views.dropbar_stem_comparison, name="dropbar-stem-comparison"),
     path("bike-gear-ratio-calculator/", views.gear_matrix, name="gear-matrix"),
     path("cycling-power-calculator/", views.gearftp, name="gearftp"),
 ] + [

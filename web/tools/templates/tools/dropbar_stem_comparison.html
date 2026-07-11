@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+
+{% block title %}Drop Bar + Stem Calculator — Reach, Rise & Drop | RaceFeed{% endblock %}
+
+{% block meta_description %}Combine stem and drop handlebar geometry: compare total reach to the hoods and drop position for two full cockpit setups. Free bike fit calculator.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+{% block og_title %}Drop Bar + Stem Calculator | RaceFeed{% endblock %}
+{% block og_description %}Free calculator combining stem and drop bar reach/drop — see total hood and drop position for two setups.{% endblock %}
+
+{% block extra-head %}
+  <link rel="canonical" href="https://racefeed.com.br/tools/dropbar-stem-comparison/" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Drop Bar + Stem Calculator",
+    "alternateName": ["Dropbar Reach Drop Calculator", "Handlebar Reach Drop Calculator", "Road Bike Cockpit Calculator", "Stem and Bar Comparison Tool"],
+    "url": "https://racefeed.com.br/tools/dropbar-stem-comparison/",
+    "description": "Compare stem and drop handlebar reach, rise, and drop together across two full cockpit setups to find the right fit.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+    "author": {
+      "@type": "Person",
+      "name": "Lucas Vido",
+      "sameAs": [
+        "https://www.strava.com/athletes/35282962",
+        "https://www.youtube.com/@lucas_vido",
+        "https://github.com/vido"
+      ]
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Lucas Vido",
+    "sameAs": [
+      "https://www.strava.com/athletes/35282962",
+      "https://www.youtube.com/@lucas_vido",
+      "https://github.com/vido"
+    ],
+    "knowsAbout": [
+      "Cycling",
+      "Endurance cycling",
+      "Bicycle physics",
+      "Software development",
+      "Data modeling",
+      "Computational modeling"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is handlebar reach and drop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reach is the horizontal distance from the center of the bar clamp to the center of the forward-most bend, roughly where the hoods sit. Drop is the vertical distance from the center of the clamp down to the bottom of the drop section. Together they describe how far forward and how far down the bar's usable hand positions sit relative to the clamp."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does bar reach and drop combine with stem geometry?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The stem sets the clamp position relative to the headset — its own reach and rise. The bar's reach and drop start counting from that clamp position outward. Add stem reach plus bar reach for the horizontal distance from the headset to roughly the hood position, and combine stem rise with bar drop to see how low the drops sit relative to the headset."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are typical reach and drop values for different bar shapes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Compact bars run about 70-80mm reach and 115-125mm drop. Shallow or mid bars run about 75-85mm reach and 125-135mm drop. Traditional deep bars run about 85-100mm reach and 135-150mm drop. Compact and shallow shapes are the most common on modern road and gravel bikes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the hood position exact with this tool?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This tool approximates the hood position at the bar's reach forward from the clamp, at the same height as the clamp. Real bars vary slightly by brand and by where the lever body sits on the bend. It is accurate enough for comparing two setups' relative change, not for a millimeter-exact fit."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    #dropbar-app .setup-label { display:inline-block; width:22px; height:22px; border-radius:50%; font-size:0.78rem; font-weight:700; line-height:22px; text-align:center; color:#fff; margin-right:6px; }
+    #dropbar-app .label-a { background:#6a1b9a; }
+    #dropbar-app .label-b { background:#e65100; }
+    #dropbar-app #dropbarChart { overflow-x:auto; }
+    #dropbar-app #dropbarChart svg { min-width:340px; }
+    #dropbar-app { overflow-x:hidden; }
+    #dropbar-app .stat-block { padding:10px 14px; border-radius:8px; background:#f8f9fa; }
+    #dropbar-app .stat-value { font-weight:700; font-size:1.1rem; }
+    #dropbar-app .stat-sub { font-size:0.78rem; color:#888; }
+    #dropbar-app .delta-positive { color:#2e7d32; }
+    #dropbar-app .delta-negative { color:#c62828; }
+    #dropbar-app .delta-zero { color:#555; }
+    .dark #dropbar-app .stat-block { background:#18181b; }
+  </style>
+{% endblock extra-head %}
+
+{% block content %}
+<div id="dropbar-app" class="text-gray-900 dark:text-gray-100">
+  <div class="grid gap-6 md:grid-cols-2 items-start">
+
+    <!-- Controls -->
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden">
+      <div class="flex items-center justify-between flex-wrap gap-2 px-4 py-3 border-b border-gray-200 dark:border-neutral-700">
+        <span class="font-semibold">⚙️ Setup</span>
+        <button id="shareLinkBtn" class="text-sm rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-1 hover:bg-gray-50 dark:hover:bg-neutral-700">🔗 Share</button>
+      </div>
+      <div class="p-4 flex flex-col gap-3">
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="htaInput" class="text-sm font-semibold">🚴 Head Tube Angle</label>
+            <span id="htaValue" class="text-sm font-semibold">73°</span>
+          </div>
+          <input type="range" id="htaInput" min="60" max="75" step="0.5" value="73" class="w-full accent-blue-600">
+          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Road ~73° · Gravel 71–73°</div>
+        </div>
+
+        <hr class="border-gray-200 dark:border-neutral-700">
+
+        <!-- Setup A -->
+        <div>
+          <div class="font-semibold mb-2"><span class="setup-label label-a">A</span> Cockpit</div>
+          <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Stem</div>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label for="lengthA" class="block text-xs mb-1">Length (mm)</label>
+              <select id="lengthA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <div>
+              <label for="angleA" class="block text-xs mb-1">Angle (°)</label>
+              <select id="angleA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <label class="col-span-2 inline-flex items-center gap-2 text-sm">
+              <input class="accent-blue-600" type="checkbox" id="flipA"> 🔄 Flip stem
+            </label>
+          </div>
+          <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Drop bar</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="barReachA" class="block text-xs mb-1">Bar reach (mm)</label>
+              <select id="barReachA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <div>
+              <label for="barDropA" class="block text-xs mb-1">Bar drop (mm)</label>
+              <select id="barDropA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-200 dark:border-neutral-700">
+
+        <!-- Setup B -->
+        <div id="setupCardB">
+          <div class="font-semibold mb-2"><span class="setup-label label-b">B</span> Compare</div>
+          <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Stem</div>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label for="lengthB" class="block text-xs mb-1">Length (mm)</label>
+              <select id="lengthB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <div>
+              <label for="angleB" class="block text-xs mb-1">Angle (°)</label>
+              <select id="angleB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <label class="col-span-2 inline-flex items-center gap-2 text-sm">
+              <input class="accent-blue-600" type="checkbox" id="flipB"> 🔄 Flip stem
+            </label>
+          </div>
+          <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Drop bar</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="barReachB" class="block text-xs mb-1">Bar reach (mm)</label>
+              <select id="barReachB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <div>
+              <label for="barDropB" class="block text-xs mb-1">Bar drop (mm)</label>
+              <select id="barDropB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-200 dark:border-neutral-700">
+        <div id="statsTable"></div>
+      </div>
+    </div>
+
+    <!-- Visualization -->
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3 min-w-0 overflow-hidden">
+      <div id="dropbarChart"></div>
+    </div>
+
+  </div>
+
+  {% if related_items %}
+  <section class="mt-8 mb-8">
+    <div class="flex items-end justify-between mb-4">
+      <h2 class="text-2xl font-bold">Bars, stems &amp; bar tape</h2>
+      <div class="flex gap-3 text-sm font-medium">
+        <a href="{% url 'category-profile' 'bars-stems' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Bars &amp; Stems →</a>
+        <a href="{% url 'category-profile' 'bar-tape-grips' %}" class="text-blue-600 dark:text-blue-400 hover:underline">Bar Tape →</a>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in related_items %}
+        {% include "media/_simple_gallery.html" with node=item.node %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- FAQ -->
+  <section class="mt-6 py-6" aria-label="Frequently Asked Questions">
+    <h1 class="text-lg font-semibold mb-1">Drop Bar + Stem Calculator — Reach &amp; Drop</h1>
+    <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What is handlebar reach and drop?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Reach is the horizontal distance from the center of the bar clamp to the center of the forward-most bend, roughly where the hoods sit. Drop is the vertical distance from the center of the clamp down to the bottom of the drop section. Together they describe how far forward and how far down the bar's usable hand positions sit relative to the clamp.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How does bar reach and drop combine with stem geometry?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          The stem sets the clamp position relative to the headset — its own reach and rise. The bar's reach and drop start counting from that clamp position outward. Add stem reach plus bar reach for the horizontal distance from the headset to roughly the hood position, and combine stem rise with bar drop to see how low the drops sit relative to the headset.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">What are typical reach and drop values for different bar shapes?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Compact bars run about 70-80mm reach and 115-125mm drop. Shallow or mid bars run about 75-85mm reach and 125-135mm drop. Traditional deep bars run about 85-100mm reach and 135-150mm drop. Compact and shallow shapes are the most common on modern road and gravel bikes — see the full table below.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Is the hood position exact with this tool?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          This tool approximates the hood position at the bar's reach forward from the clamp, at the same height as the clamp. Real bars vary slightly by brand and by where the lever body sits on the bend. It is accurate enough for comparing two setups' relative change, not for a millimeter-exact fit.
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- Reference table -->
+  <section class="mt-6 py-6" aria-label="Typical drop bar reach and drop by shape">
+    <h2 class="text-2xl font-semibold mb-2">Typical Drop Bar Reach &amp; Drop by Shape</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-4">
+      Bar shape changes reach and drop independently of the stem — swapping bar shape is a cheap way to fine-tune hood and drop position without touching the stem at all.
+    </p>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-neutral-700 text-left">
+            <th class="px-4 py-2 font-semibold">Bar shape</th>
+            <th class="px-4 py-2 font-semibold">Typical reach</th>
+            <th class="px-4 py-2 font-semibold">Typical drop</th>
+            <th class="px-4 py-2 font-semibold">Why</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+          <tr>
+            <td class="px-4 py-2 font-medium">Compact</td>
+            <td class="px-4 py-2">70–80mm</td>
+            <td class="px-4 py-2">115–125mm</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Shorter reach and shallower drop keep the hoods and drops close together — easy to reach the drops from the hoods.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">Shallow / ergo</td>
+            <td class="px-4 py-2">75–85mm</td>
+            <td class="px-4 py-2">125–135mm</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">The most common modern road/gravel shape — a middle ground between compact comfort and traditional aero reach.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">Traditional / deep</td>
+            <td class="px-4 py-2">85–100mm</td>
+            <td class="px-4 py-2">135–150mm</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Longer reach and deeper drop put the drops in a lower, more aggressive position — favored for racing and sprinting.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-gray-600 dark:text-gray-300 mt-4">
+      If your hoods feel right but the drops feel too far away or too low, the fix is usually a shallower bar — not a shorter stem, which would move the hoods too.
+    </p>
+  </section>
+</div>
+{% endblock content %}
+
+{% block extra-scripts %}
+<script>
+  const ANGLES = [0, 4, 5, 6, 8, 10, 12, 17, 25, 35];
+  const LENGTHS = [35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140];
+  const BAR_REACH = [60, 65, 70, 75, 80, 85, 90, 95, 100];
+  const BAR_DROP = [100, 110, 115, 120, 125, 130, 135, 140, 145, 150];
+
+  let state = {
+    lengthA: 100, angleA: 6, flipA: true, barReachA: 75, barDropA: 125,
+    lengthB: 110, angleB: 17, flipB: true, barReachB: 80, barDropB: 130,
+    hta: 73
+  };
+
+  function stemGeometry(length, angle, flip) {
+    const stemDeg = flip ? -angle : angle;
+    const effectiveDeg = (90 - state.hta) + stemDeg;
+    const rad = effectiveDeg * Math.PI / 180;
+    return {
+      reach: length * Math.cos(rad),
+      rise:  length * Math.sin(rad),
+      deg: stemDeg,
+      effectiveDeg,
+      length
+    };
+  }
+
+  function cockpitGeometry(length, angle, flip, barReach, barDrop) {
+    const stem = stemGeometry(length, angle, flip);
+    const hoodsReach = stem.reach + barReach;
+    const hoodsRise = stem.rise;
+    const dropsReach = stem.reach + barReach * 0.1;
+    const dropsRise = stem.rise - barDrop;
+    return {
+      stem,
+      barReach, barDrop,
+      hoods: { reach: +hoodsReach.toFixed(1), rise: +hoodsRise.toFixed(1) },
+      drops: { reach: +dropsReach.toFixed(1), rise: +dropsRise.toFixed(1) },
+      stemReach: +stem.reach.toFixed(1),
+      stemRise: +stem.rise.toFixed(1)
+    };
+  }
+
+  const COLOR_A = '#6a1b9a', COLOR_B = '#e65100';
+
+  function buildChart() {
+    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA);
+    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB);
+
+    const points = [geoA, geoB];
+    const maxRight = Math.max(...points.map(g => Math.max(g.hoods.reach, g.drops.reach)), 1);
+    const maxUp = Math.max(0, ...points.map(g => Math.max(g.stemRise, g.hoods.rise)));
+    const maxDown = Math.max(0, ...points.map(g => -g.drops.rise));
+
+    const VW = 440, VH = 460;
+    const ox = 90, oy = VH * 0.28;
+    const availW = VW - ox - 90;
+    const availUp = oy - 30;
+    const availDown = VH - oy - 40;
+    const SCALE = Math.min(availW / maxRight, availUp / Math.max(maxUp, 1), availDown / Math.max(maxDown, 1)) * 0.9;
+
+    let svg = `<svg viewBox="0 0 ${VW} ${VH}" width="100%" style="overflow:visible;font-family:system-ui,sans-serif">`;
+    svg += `<rect width="${VW}" height="${VH}" fill="#fafafa" rx="6"/>`;
+    svg += `<line x1="${ox - 20}" y1="${oy}" x2="${VW - 20}" y2="${oy}" stroke="#ddd" stroke-width="1" stroke-dasharray="5,3"/>`;
+
+    const htaRad = state.hta * Math.PI / 180;
+    const axisLen = VH * 0.22;
+    const axisUpX = ox - Math.cos(htaRad) * axisLen;
+    const axisUpY = oy - Math.sin(htaRad) * axisLen;
+    svg += `<line x1="${ox}" y1="${oy}" x2="${axisUpX}" y2="${axisUpY}" stroke="#ddd" stroke-width="1" stroke-dasharray="5,3"/>`;
+
+    svg += `<circle cx="${ox}" cy="${oy}" r="5" fill="#555"/>`;
+    svg += `<text x="${ox - 8}" y="${oy - 10}" text-anchor="end" font-size="10" fill="#888">steerer</text>`;
+    svg += `<text x="${VW - 18}" y="${oy + 14}" font-size="10" fill="#bbb" text-anchor="end">reach →</text>`;
+
+    function drawCockpit(geo, color, labelChar, offset) {
+      const sx = ox + geo.stemReach * SCALE;
+      const sy = oy - geo.stemRise * SCALE;
+      const hx = ox + geo.hoods.reach * SCALE;
+      const hy = oy - geo.hoods.rise * SCALE;
+      const dx = ox + geo.drops.reach * SCALE;
+      const dy = oy - geo.drops.rise * SCALE;
+
+      const arcR = 26 + offset;
+      if (Math.abs(geo.stem.deg) > 0.3) {
+        const arcStartX = ox + arcR, arcStartY = oy;
+        const arcEndX = ox + arcR * Math.cos(geo.stem.deg * Math.PI / 180);
+        const arcEndY = oy - arcR * Math.sin(geo.stem.deg * Math.PI / 180);
+        const sweep = geo.stem.deg < 0 ? 1 : 0;
+        svg += `<path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 ${sweep} ${arcEndX} ${arcEndY}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+      }
+
+      svg += `<line x1="${ox}" y1="${oy}" x2="${sx}" y2="${sy}" stroke="${color}" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>`;
+      svg += `<circle cx="${sx}" cy="${sy}" r="5" fill="${color}"/>`;
+
+      // hook: flat lead-in, tight bend at the hoods, long gentle sweep landing flat at the drops
+      const ds = dy - hy;
+      const r = ds * 0.16;                    // tight bend radius
+      const startX = hx - ds * 0.25;          // flat lead-in start
+      const bx = hx - r;                      // bend start
+      const fx = hx + ds * 0.04;              // front x after the bend
+
+      const c1x = bx + r * 0.8, c1y = hy;
+      const c2x = fx,           c2y = hy + r * 0.4;
+      const bendEndY = hy + r;
+
+      svg += `<path d="M ${startX} ${hy} L ${bx} ${hy}
+        C ${c1x} ${c1y}, ${c2x} ${c2y}, ${fx} ${bendEndY}
+        C ${fx} ${hy + ds * 0.16}, ${dx + (fx - dx) * 0.95} ${dy}, ${dx + (fx - dx) * 0.35} ${dy}
+        L ${dx} ${dy}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" opacity="0.55"/>`;
+
+      // hood marker pinned onto the tight bend (cubic bezier point at t=0.5)
+      const t = 0.5, u = 1 - t;
+      const hoodX = u*u*u*bx + 3*u*u*t*c1x + 3*u*t*t*c2x + t*t*t*fx;
+      const hoodY = u*u*u*hy + 3*u*u*t*c1y + 3*u*t*t*c2y + t*t*t*bendEndY;
+      svg += `<circle cx="${hoodX}" cy="${hoodY}" r="6" fill="${color}" opacity="0.85"/>`;
+      svg += `<text x="${hoodX + 10}" y="${hoodY - 8}" font-size="9" fill="${color}" opacity="0.85">hoods</text>`;
+      svg += `<circle cx="${dx}" cy="${dy}" r="7" fill="${color}"/>`;
+      svg += `<text x="${dx + 10}" y="${dy + 4}" font-size="12" fill="${color}" font-weight="700">${labelChar}</text>`;
+      svg += `<text x="${dx + 10}" y="${dy + 16}" font-size="9" fill="${color}" opacity="0.85">drops</text>`;
+    }
+
+    drawCockpit(geoA, COLOR_A, 'A', 0);
+    drawCockpit(geoB, COLOR_B, 'B', 16);
+
+    svg += '</svg>';
+    const chart = document.getElementById('dropbarChart');
+    chart.innerHTML = svg;
+    chart.scrollLeft = (chart.scrollWidth - chart.clientWidth) / 2;
+  }
+
+  function buildStats() {
+    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA);
+    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB);
+
+    const badge = (cls, char) =>
+      `<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${cls === 'a' ? '#6a1b9a' : '#e65100'};color:#fff;font-size:0.7rem;font-weight:700;line-height:18px;text-align:center;margin-right:4px">${char}</span>`;
+
+    const sign = v => v > 0 ? '+' : '';
+    const cls = v => v > 0 ? 'delta-positive' : v < 0 ? 'delta-negative' : 'delta-zero';
+
+    let html = '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">';
+
+    const block = (geo, color, badgeCls, char, label, state_) => `
+      <div class="stat-block">
+        <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">${badge(badgeCls, char)} ${label} — ${state_.length}mm ${geo.stem.deg > 0 ? '+' : ''}${geo.stem.deg}°, ${state_.barReach}/${state_.barDrop}mm bar</div>
+        <div class="mb-1">Reach to hoods: <span class="stat-value" style="color:${color}">${geo.hoods.reach} mm</span></div>
+        <div class="mb-1">Rise at hoods: <span class="stat-value" style="color:${color}">${sign(geo.hoods.rise)}${geo.hoods.rise} mm</span></div>
+        <div class="mb-1">Reach to drops: <span class="stat-value" style="color:${color}">${geo.drops.reach} mm</span></div>
+        <div>Rise at drops: <span class="stat-value" style="color:${color}">${sign(geo.drops.rise)}${geo.drops.rise} mm</span></div>
+      </div>`;
+
+    html += `<div>${block(geoA, COLOR_A, 'a', 'A', 'Setup A', { length: state.lengthA, barReach: state.barReachA, barDrop: state.barDropA })}</div>`;
+    html += `<div>${block(geoB, COLOR_B, 'b', 'B', 'Setup B', { length: state.lengthB, barReach: state.barReachB, barDrop: state.barDropB })}</div>`;
+
+    const dHoodsReach = +(geoB.hoods.reach - geoA.hoods.reach).toFixed(1);
+    const dHoodsRise  = +(geoB.hoods.rise  - geoA.hoods.rise ).toFixed(1);
+    const dDropsReach = +(geoB.drops.reach - geoA.drops.reach).toFixed(1);
+    const dDropsRise  = +(geoB.drops.rise  - geoA.drops.rise ).toFixed(1);
+
+    html += `<div>
+      <div class="stat-block">
+        <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">△ Difference (B − A)</div>
+        <div class="mb-1">ΔReach hoods: <span class="stat-value ${cls(dHoodsReach)}">${sign(dHoodsReach)}${dHoodsReach} mm</span></div>
+        <div class="mb-1">ΔRise hoods: <span class="stat-value ${cls(dHoodsRise)}">${sign(dHoodsRise)}${dHoodsRise} mm</span></div>
+        <div class="mb-1">ΔReach drops: <span class="stat-value ${cls(dDropsReach)}">${sign(dDropsReach)}${dDropsReach} mm</span></div>
+        <div>ΔRise drops: <span class="stat-value ${cls(dDropsRise)}">${sign(dDropsRise)}${dDropsRise} mm</span></div>
+      </div>
+    </div>`;
+
+    html += '</div>';
+    document.getElementById('statsTable').innerHTML = html;
+  }
+
+  function readState() {
+    state.lengthA   = parseFloat(document.getElementById('lengthA').value) || 100;
+    state.angleA    = parseFloat(document.getElementById('angleA').value) || 0;
+    state.flipA     = document.getElementById('flipA').checked;
+    state.barReachA = parseFloat(document.getElementById('barReachA').value) || 75;
+    state.barDropA  = parseFloat(document.getElementById('barDropA').value) || 125;
+    state.lengthB   = parseFloat(document.getElementById('lengthB').value) || 110;
+    state.angleB    = parseFloat(document.getElementById('angleB').value) || 0;
+    state.flipB     = document.getElementById('flipB').checked;
+    state.barReachB = parseFloat(document.getElementById('barReachB').value) || 80;
+    state.barDropB  = parseFloat(document.getElementById('barDropB').value) || 130;
+    state.hta       = Math.max(60, Math.min(75, parseFloat(document.getElementById('htaInput').value) || 73));
+    document.getElementById('htaValue').textContent = state.hta + '°';
+  }
+
+  function render() {
+    readState();
+    buildChart();
+    buildStats();
+    syncURL();
+  }
+
+  function syncURL() {
+    const p = new URLSearchParams();
+    p.set('la', state.lengthA);
+    p.set('aa', state.angleA);
+    if (state.flipA) p.set('fa', '1');
+    p.set('bra', state.barReachA);
+    p.set('bda', state.barDropA);
+    p.set('hta', state.hta);
+    p.set('lb', state.lengthB);
+    p.set('ab', state.angleB);
+    if (state.flipB) p.set('fb', '1');
+    p.set('brb', state.barReachB);
+    p.set('bdb', state.barDropB);
+    history.replaceState(null, '', '?' + p.toString());
+  }
+
+  function loadFromURL() {
+    const p = new URLSearchParams(location.search);
+    if (!p.has('la')) return;
+    document.getElementById('lengthA').value = p.get('la');
+    setSelect('angleA', parseFloat(p.get('aa') || '0'));
+    if (p.get('fa') === '1') document.getElementById('flipA').checked = true;
+    if (p.has('bra')) document.getElementById('barReachA').value = p.get('bra');
+    if (p.has('bda')) document.getElementById('barDropA').value = p.get('bda');
+    if (p.has('hta')) document.getElementById('htaInput').value = p.get('hta');
+    if (p.has('lb')) {
+      document.getElementById('lengthB').value = p.get('lb');
+      setSelect('angleB', parseFloat(p.get('ab') || '0'));
+      if (p.get('fb') === '1') document.getElementById('flipB').checked = true;
+      if (p.has('brb')) document.getElementById('barReachB').value = p.get('brb');
+      if (p.has('bdb')) document.getElementById('barDropB').value = p.get('bdb');
+    }
+  }
+
+  function setSelect(selId, val) {
+    const sel = document.getElementById(selId);
+    const opt = [...sel.options].find(o => parseFloat(o.value) === val);
+    if (opt) sel.value = String(val);
+  }
+
+  function populateSelect(selId, values, defaultVal, fmt) {
+    const sel = document.getElementById(selId);
+    values.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = fmt(v);
+      if (v === defaultVal) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function wireEvents() {
+    ['lengthA', 'angleA', 'flipA', 'barReachA', 'barDropA',
+     'lengthB', 'angleB', 'flipB', 'barReachB', 'barDropB', 'htaInput'].forEach(id => {
+      document.getElementById(id).addEventListener('change', render);
+    });
+    document.getElementById('htaInput').addEventListener('input', render);
+
+    document.getElementById('shareLinkBtn').addEventListener('click', function() {
+      syncURL();
+      navigator.clipboard.writeText(location.href).then(() => {
+        this.textContent = '✅ Copied!';
+        setTimeout(() => { this.textContent = '🔗 Share'; }, 2000);
+      }).catch(() => {
+        this.textContent = '🔗 Share';
+      });
+    });
+  }
+
+  populateSelect('angleA', ANGLES, 6, a => (a > 0 ? '+' : '') + a + '°');
+  populateSelect('angleB', ANGLES, 17, a => (a > 0 ? '+' : '') + a + '°');
+  populateSelect('lengthA', LENGTHS, 100, l => l + 'mm');
+  populateSelect('lengthB', LENGTHS, 110, l => l + 'mm');
+  populateSelect('barReachA', BAR_REACH, 75, r => r + 'mm');
+  populateSelect('barReachB', BAR_REACH, 80, r => r + 'mm');
+  populateSelect('barDropA', BAR_DROP, 125, d => d + 'mm');
+  populateSelect('barDropB', BAR_DROP, 130, d => d + 'mm');
+  document.getElementById('flipA').checked = true;
+  document.getElementById('flipB').checked = true;
+  loadFromURL();
+  wireEvents();
+  render();
+</script>
+{% endblock extra-scripts %}

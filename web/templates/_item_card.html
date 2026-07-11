@@ -9,7 +9,7 @@ Usage: {% include '_item_card.html' with item=item %}
     {% if primary %}
       <img
         src="{{ primary.image.url }}"
-        alt="{{ item.title }}"
+        alt="{{ primary.alt_text|default:item.title }}"
         {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
     {% else %}

@@ -53,12 +53,61 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is stem reach?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Reach is the horizontal distance from the steerer clamp center to the handlebar clamp center. It directly determines how far forward your hands are relative to the headset. A longer reach stretches you out more; a shorter reach brings you upright. This is the most influential stem dimension for bike fit."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is stem rise?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Rise is the vertical distance from the steerer clamp center to the handlebar clamp center. A positive rise lifts the bars above the headset; a negative rise (most road stems) drops them below. This affects your torso angle and lower-back load. Rise does not account for spacers under the stem — add those separately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does “flip the stem” mean?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most threadless stems can be mounted upside-down on the steerer. Flipping inverts the angle: a −6° stem becomes effectively +6°, raising the handlebars and slightly reducing reach. This is a free adjustment — no new parts needed, just an allen key. Use the flip toggle above to compare both orientations."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I use this tool for bike fitting?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Enter your current stem in Setup A, then adjust Setup B with a stem you're considering. The visualization overlays both stems to the same scale from the same origin. The delta table shows the exact change in reach and rise — e.g., switching from a 100mm −6° to a 110mm −6° stem adds +10.0mm reach and −1.0mm rise."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much reach change is meaningful?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "As a rule of thumb, most riders can feel a difference of ≥5mm in reach. A 10mm change is significant — you will notice it in how the bike handles and where your weight sits. Changes under 3mm are typically undetectable in normal riding, though they matter for precision fitting in competition. Rise changes are less sensitive: the same 10mm vertical shift is usually less noticeable than 10mm of horizontal reach."
+        }
+      }
+    ]
+  }
+  </script>
   <style>
     #stem-app .setup-label { display:inline-block; width:22px; height:22px; border-radius:50%; font-size:0.78rem; font-weight:700; line-height:22px; text-align:center; color:#fff; margin-right:6px; }
     #stem-app .label-a { background:#6a1b9a; }
     #stem-app .label-b { background:#e65100; }
     #stem-app #stemChart { overflow-x:auto; }
     #stem-app #stemChart svg { min-width:340px; }
+    #stem-app { overflow-x:hidden; }
     #stem-app .stat-block { padding:10px 14px; border-radius:8px; background:#f8f9fa; }
     #stem-app .stat-value { font-weight:700; font-size:1.1rem; }
     #stem-app .delta-positive { color:#2e7d32; }
@@ -81,9 +130,11 @@
       <div class="p-4 flex flex-col gap-3">
 
         <div>
-          <label class="block text-sm font-semibold mb-1">🚴 Head Tube Angle (°)</label>
-          <input type="number" id="htaInput" min="60" max="75" step="0.5" value="73" placeholder="°"
-            class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+          <div class="flex items-center justify-between mb-1">
+            <label for="htaInput" class="text-sm font-semibold">🚴 Head Tube Angle</label>
+            <span id="htaValue" class="text-sm font-semibold">73°</span>
+          </div>
+          <input type="range" id="htaInput" min="60" max="75" step="0.5" value="73" class="w-full accent-blue-600">
           <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Road ~73° · MTB 67–70°</div>
         </div>
 
@@ -94,12 +145,11 @@
           <div class="font-semibold mb-2"><span class="setup-label label-a">A</span> Stem</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs mb-1">Length (mm)</label>
-              <input type="number" id="lengthA" min="20" max="150" step="5" value="100" placeholder="mm"
-                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+              <label for="lengthA" class="block text-xs mb-1">Length (mm)</label>
+              <select id="lengthA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
             <div>
-              <label class="block text-xs mb-1">Angle (°)</label>
+              <label for="angleA" class="block text-xs mb-1">Angle (°)</label>
               <select id="angleA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
             <label class="col-span-2 inline-flex items-center gap-2 text-sm">
@@ -114,12 +164,11 @@
           <div class="font-semibold mb-2"><span class="setup-label label-b">B</span> Compare</div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs mb-1">Length (mm)</label>
-              <input type="number" id="lengthB" min="20" max="150" step="5" value="110" placeholder="mm"
-                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm">
+              <label for="lengthB" class="block text-xs mb-1">Length (mm)</label>
+              <select id="lengthB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
             <div>
-              <label class="block text-xs mb-1">Angle (°)</label>
+              <label for="angleB" class="block text-xs mb-1">Angle (°)</label>
               <select id="angleB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
             <label class="col-span-2 inline-flex items-center gap-2 text-sm">
@@ -134,14 +183,14 @@
     </div>
 
     <!-- Visualization -->
-    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3">
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-3 min-w-0 overflow-hidden">
       <div id="stemChart"></div>
     </div>
 
   </div>
 
   {% if related_items %}
-  <section class="mt-10 mb-10">
+  <section class="mt-8 mb-8">
     <div class="flex items-end justify-between mb-4">
       <h2 class="text-2xl font-bold">Bars, stems &amp; bar tape</h2>
       <div class="flex gap-3 text-sm font-medium">
@@ -158,7 +207,7 @@
   {% endif %}
 
   <!-- FAQ -->
-  <section class="mt-10 py-8" aria-label="Frequently Asked Questions">
+  <section class="mt-6 py-6" aria-label="Frequently Asked Questions">
     <h1 class="text-lg font-semibold mb-1">Stem Comparison Tool — Reach &amp; Rise Calculator</h1>
     <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
@@ -215,12 +264,74 @@
 
     </div>
   </section>
+
+  <!-- Reference table -->
+  <section class="mt-6 py-6" aria-label="Typical stem length and angle by discipline">
+    <h2 class="text-2xl font-semibold mb-2">Typical Stem Length &amp; Angle by Discipline</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-4">
+      Stem length and angle vary a lot by discipline because the priority shifts from aero/aggressive (road race) to comfort (endurance, gravel) to steering precision (MTB). Use these ranges as a starting point in the calculator above, then fine-tune from your current setup.
+    </p>
+    <div class="rounded-xl border border-gray-200 dark:border-neutral-700 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-neutral-700 text-left">
+            <th class="px-4 py-2 font-semibold">Discipline</th>
+            <th class="px-4 py-2 font-semibold">Typical length</th>
+            <th class="px-4 py-2 font-semibold">Typical angle</th>
+            <th class="px-4 py-2 font-semibold">Why</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+          <tr>
+            <td class="px-4 py-2 font-medium">Road race</td>
+            <td class="px-4 py-2">90–120mm</td>
+            <td class="px-4 py-2">−6° to −17°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Longer, steeper-drop stems stretch the torso for a lower, more aerodynamic position.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">Road endurance</td>
+            <td class="px-4 py-2">80–100mm</td>
+            <td class="px-4 py-2">−6° to −10°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Slightly shorter and less negative than race setups, trading a bit of aero for all-day comfort.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">Gravel / adventure</td>
+            <td class="px-4 py-2">70–90mm</td>
+            <td class="px-4 py-2">0° to −6°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Shorter reach and flatter angle keep handling stable and predictable on loose, uneven surfaces.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">MTB XC / down-country</td>
+            <td class="px-4 py-2">60–90mm</td>
+            <td class="px-4 py-2">−6° to 0°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Still a fairly long, low front end for efficient climbing and pedaling position.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">MTB trail / enduro</td>
+            <td class="px-4 py-2">35–60mm</td>
+            <td class="px-4 py-2">0° to +10°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Modern long-reach frames pair with short, slightly rising stems for quick, stable steering on descents.</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium">MTB downhill</td>
+            <td class="px-4 py-2">35–50mm</td>
+            <td class="px-4 py-2">0°</td>
+            <td class="px-4 py-2 text-gray-600 dark:text-gray-300">Shortest, flattest stems maximize steering leverage and stability at speed on rough terrain.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-gray-600 dark:text-gray-300 mt-4">
+      These ranges assume a frame that already fits your rider size — stem length is a fine-tuning tool, not a substitute for correct frame sizing. If you need to go outside these ranges by more than ~20mm to get comfortable, the frame is likely the wrong size, not the stem.
+    </p>
+  </section>
 </div>
 {% endblock content %}
 
 {% block extra-scripts %}
 <script>
   const ANGLES = [0, 4, 5, 6, 8, 10, 12, 17, 25, 35];
+  const LENGTHS = [35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140];
 
   let state = {
     lengthA: 100, angleA: 6, flipA: true,
@@ -323,7 +434,9 @@
     if (geoB) drawStem(geoB, COLOR_B, 'B', 22);
 
     svg += '</svg>';
-    document.getElementById('stemChart').innerHTML = svg;
+    const chart = document.getElementById('stemChart');
+    chart.innerHTML = svg;
+    chart.scrollLeft = (chart.scrollWidth - chart.clientWidth) / 2;
   }
 
   function buildStats() {
@@ -371,13 +484,14 @@
   }
 
   function readState() {
-    state.lengthA = Math.max(20, Math.min(150, parseFloat(document.getElementById('lengthA').value) || 100));
+    state.lengthA = parseFloat(document.getElementById('lengthA').value) || 100;
     state.angleA  = parseFloat(document.getElementById('angleA').value) || 0;
     state.flipA   = document.getElementById('flipA').checked;
-    state.lengthB = Math.max(20, Math.min(150, parseFloat(document.getElementById('lengthB').value) || 100));
+    state.lengthB = parseFloat(document.getElementById('lengthB').value) || 100;
     state.angleB  = parseFloat(document.getElementById('angleB').value) || 0;
     state.flipB   = document.getElementById('flipB').checked;
     state.hta     = Math.max(60, Math.min(75, parseFloat(document.getElementById('htaInput').value) || 73));
+    document.getElementById('htaValue').textContent = state.hta + '°';
   }
 
   function render() {
@@ -430,12 +544,21 @@
     });
   }
 
+  function populateLengths(selId, defaultLength) {
+    const sel = document.getElementById(selId);
+    LENGTHS.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l;
+      opt.textContent = l + 'mm';
+      if (l === defaultLength) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
   function wireEvents() {
     ['lengthA', 'angleA', 'flipA', 'lengthB', 'angleB', 'flipB', 'htaInput'].forEach(id => {
       document.getElementById(id).addEventListener('change', render);
     });
-    document.getElementById('lengthA').addEventListener('input', render);
-    document.getElementById('lengthB').addEventListener('input', render);
     document.getElementById('htaInput').addEventListener('input', render);
 
     document.getElementById('shareLinkBtn').addEventListener('click', function() {
@@ -451,6 +574,8 @@
 
   populateAngles('angleA', 6);
   populateAngles('angleB', 17);
+  populateLengths('lengthA', 100);
+  populateLengths('lengthB', 110);
   document.getElementById('flipA').checked = true;
   document.getElementById('flipB').checked = true;
   loadFromURL();

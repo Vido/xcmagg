@@ -11,7 +11,7 @@ Parameters:
   <div class="aspect-video bg-gray-100 dark:bg-gray-900 overflow-hidden">
     <img
       src="{{ primary.image.url }}"
-      alt="{{ post.title }}"
+      alt="{{ primary.alt_text|default:post.title }}"
       {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
   </div>

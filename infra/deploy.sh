@@ -19,6 +19,10 @@ rsync -avz --delete \
 
 ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml up --build -d"
 
+# Reload nginx so it re-resolves web/mcp container IPs immediately
+# instead of waiting on the resolver's valid=10s DNS cache TTL.
+ssh "$SERVER" "docker exec nginx nginx -s reload"
+
 # Optional DB migration: ./infra/deploy.sh --migrate
 if [[ "${1:-}" == "--migrate" ]]; then
   ssh "$SERVER" "cd $REMOTE_DIR && docker compose -f infra/docker-compose.yaml exec -T web uv run python manage.py migrate"

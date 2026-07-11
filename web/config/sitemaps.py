@@ -97,7 +97,7 @@ class CatalogItemSitemap(BaseSitemap):
         return [
             {
                 'loc': f"https://{DOMAIN}{photo.image.url}",
-                'caption': item.node.title or '',
+                'caption': photo.caption or photo.alt_text or item.node.title or '',
             }
             for photo in item.node.photos.all()
         ]
@@ -123,7 +123,7 @@ class PostSitemap(BaseSitemap):
         return [
             {
                 'loc': f"https://{DOMAIN}{photo.image.url}",
-                'caption': post.node.title or '',
+                'caption': photo.caption or photo.alt_text or post.node.title or '',
             }
             for photo in post.node.photos.all()
         ]

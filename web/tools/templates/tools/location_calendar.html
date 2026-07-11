@@ -148,7 +148,7 @@
         {{ city_name }} não tem eventos previstos em breve — confira as cidades próximas.
       </p>
       {% else %}
-      <ul class="space-y-3" aria-label="Provas em {{ city_name }}">
+      <ul id="city-events-list" class="space-y-3" aria-label="Provas em {{ city_name }}">
         {% for e in city_events %}
         <li class="flex gap-4 items-stretch rounded-xl border-2 border-green-300 dark:border-green-700 border-l-4 border-l-green-500 dark:border-l-green-400 p-3 hover:shadow-md transition bg-green-50 dark:bg-green-950">
           <div class="flex flex-col items-center justify-center shrink-0 w-16 rounded-lg py-2 bg-green-500 dark:bg-green-600 text-white" aria-hidden="true">
@@ -172,14 +172,12 @@
         </li>
         {% endfor %}
       </ul>
-      {% if city_event_count > 20 %}
-      <div class="mt-6">
-        <a href="/events/?city={{ filter_city|urlencode }}{% if filter_discipline %}&sport={{ filter_discipline|urlencode }}{% endif %}"
-           class="inline-block rounded-lg border border-gray-300 dark:border-neutral-600 px-5 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition">
-          Ver todos os {{ city_event_count }} eventos de {{ city_name }}
-        </a>
+      <div id="show-more-wrap" class="mt-4 hidden">
+        <button id="show-more-btn"
+          class="inline-block rounded-lg border border-gray-300 dark:border-neutral-600 px-5 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition">
+          Ver mais eventos
+        </button>
       </div>
-      {% endif %}
       {% endif %}
 
       <!-- Events near city -->
@@ -224,5 +222,27 @@
   const LOCATION_FILTER   = "{{ filter_city|escapejs }}";
   const UF_FILTER         = "{{ filter_uf }}";
   const DISCIPLINE_FILTER = "{{ filter_discipline|escapejs }}";
+
+  (function () {
+    const PAGE = 10;
+    const list = document.getElementById('city-events-list');
+    if (!list) return;
+    const items = Array.from(list.children);
+    if (items.length <= PAGE) return;
+
+    let shown = PAGE;
+    items.slice(shown).forEach(li => li.style.display = 'none');
+
+    const wrap = document.getElementById('show-more-wrap');
+    const btn  = document.getElementById('show-more-btn');
+    wrap.classList.remove('hidden');
+
+    btn.addEventListener('click', function () {
+      items.slice(shown, shown + PAGE).forEach(li => li.style.display = '');
+      shown += PAGE;
+      if (shown >= items.length) wrap.classList.add('hidden');
+      else btn.textContent = `Ver mais eventos (${items.length - shown} restantes)`;
+    });
+  })();
 </script>
 {% endblock extra-scripts %}

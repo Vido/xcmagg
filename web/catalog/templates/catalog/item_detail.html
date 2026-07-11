@@ -3,6 +3,22 @@
 
 {% block title %}{{ item.display_name }} - @{{ owner.username }}'s Inventory{% endblock %}
 
+{% with primary=item.primary_photo %}
+{% if primary %}
+{% block extra-head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  "contentUrl": "{{ primary.image.url }}",
+  "name": "{{ primary.alt_text|default:item.display_name|escapejs }}"{% if primary.caption %},
+  "description": "{{ primary.caption|escapejs }}"{% endif %}
+}
+</script>
+{% endblock extra-head %}
+{% endif %}
+{% endwith %}
+
 {% block content %}
 <div class="max-w-6xl mx-auto">
   

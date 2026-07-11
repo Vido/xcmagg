@@ -1,5 +1,17 @@
+import uuid as _uuid
+from pathlib import Path
+
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
+
+
+def _photo_upload_path(instance, filename):
+    ext = Path(filename).suffix[1:].lower() or 'jpg'
+    slug = slugify(instance.node.title)[:50]
+    shortcode = instance.node.shortcode
+    suffix = _uuid.uuid4().hex[:6]
+    return f"photos/{slug}-{shortcode}-{suffix}.{ext}"
 
 
 class Photo(models.Model):
@@ -10,7 +22,9 @@ class Photo(models.Model):
         related_name="photos",
     )
 
-    image = models.ImageField(upload_to="photos/")
+    image = models.ImageField(upload_to=_photo_upload_path)
+    alt_text = models.CharField(max_length=255, blank=True)
+    caption = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     is_primary = models.BooleanField(default=False)
