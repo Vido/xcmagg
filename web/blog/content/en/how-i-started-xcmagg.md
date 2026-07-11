@@ -56,7 +56,7 @@ until you live with it:
 > Serverless - 100% file-based.
 > The entire product is a scraper that writes a **JSONL file**,
 > plus a **static HTML page** that reads it.
-> The "database" is JSON, CSV, and DuckDB files.
+> The "database" is JSON, CSV, and [DuckDB](https://duckdb.org/) files.
 
 By serverless I mean truly serverless - not what AWS calls "cloud-hosted database".
 
@@ -73,9 +73,9 @@ Using the wrong abstraction will cost a lot.
 
 Data scraping is complex - it can seem chaotic at times.
 The crucial decision is where/when to apply abstraction.
-ab -> prefix meaning 'away from'
-traction -> to draw, pull
-scraper = pull away from?
+> *ab-* — prefix meaning "away from"
+> *traction* — to draw, pull
+> scraper = pull away from... someone else's data?
 
 The complexity lives in the pipeline that *produces* the file — not in serving it.
 The scraper follows a medallion architecture. Data moves through three layers,
@@ -83,7 +83,7 @@ getting cleaner at each step.
 
 ### Bronze — raw scraping
 
-TL;DR -> How we download HTML/JSON/PDF to the filesystem.
+> TL;DR -> How we download HTML/JSON/PDF to the filesystem.
 
 Bronze is where the dirt comes in. Each source gets its own crawler — about a dozen
 classes, one per website/api
@@ -99,7 +99,7 @@ means accepting that your sources are a cat-and-mouse game.
 
 ### Silver — normalization
 
-TL;DR -> How to load data into DuckDB
+> TL;DR -> How to load data into DuckDB
 
 Silver is where the chaos becomes structure. Two problems dominate: **dates** and
 **locations**, and both arrive as free text written by humans.
@@ -114,7 +114,7 @@ agents** (OpenAI tool-calling) to parse free text into a structured
 
 ### Gold — publishing
 
-TL;DR -> How to enrich and publish results
+> TL;DR -> How to enrich and publish results
 
 Gold is gold. A DuckDB `COPY` query flattens everything into one
 `data.jsonl`, and on the way out each event gets **geo-enriched**: I match its city
