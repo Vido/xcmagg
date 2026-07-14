@@ -43,6 +43,7 @@ class StaticViewSitemap(BaseSitemap):
             "tools:hydration-calculator",
             "tools:fuel-plan",
             "tools:stem-comparison",
+            "tools:dropbar-stem-comparison",
             "tools:gear-matrix",
             "tools:gearftp",
             "category-list",

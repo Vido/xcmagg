@@ -109,7 +109,7 @@
           type="text"
           name="manufacturer_label"
           placeholder="Search manufacturer…"
-          value="{{ item.manufacturer.title|default:item_form.initial.manufacturer.title|default:'' }}"
+          value="{% firstof item.manufacturer.title item_form.initial.manufacturer.title '' %}"
           autocomplete="off"
           hx-get="{% url 'manufacturer-lookups' %}"
           hx-trigger="keyup changed delay:150ms"

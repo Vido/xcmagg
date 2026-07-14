@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Stem Comparison & Calculator — Reach, Rise & Length | RaceFeed{% endblock %}
+{% block title %}Bike Stem Calculator — Compare Reach, Rise & Length | RaceFeed{% endblock %}
 
-{% block meta_description %}Stem calculator and comparison tool: visualize reach, rise, and effective length for any stem length and angle. Find the best stem for your bike fit.{% endblock %}
+{% block meta_description %}Free bike stem calculator: compare reach, rise & effective length for any stem length and angle. Visualize two stems side by side to dial in your bike fit.{% endblock %}
 
 {% block og_type %}website{% endblock %}
 {% block og_title %}Stem Comparison & Calculator | RaceFeed{% endblock %}
@@ -119,6 +119,8 @@
 
 {% block content %}
 <div id="stem-app" class="text-gray-900 dark:text-gray-100">
+  <h1 class="text-2xl font-bold mb-1">Bike Stem Calculator</h1>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">Compare stem reach, rise &amp; effective length for any length and angle. Adding drop bars? Use the <a href="{% url 'tools:dropbar-stem-comparison' %}" class="text-blue-600 dark:text-blue-400 hover:underline">handlebar &amp; cockpit calculator</a>.</p>
   <div class="grid gap-6 md:grid-cols-2 items-start">
 
     <!-- Controls -->
@@ -208,7 +210,7 @@
 
   <!-- FAQ -->
   <section class="mt-6 py-6" aria-label="Frequently Asked Questions">
-    <h1 class="text-lg font-semibold mb-1">Stem Comparison Tool — Reach &amp; Rise Calculator</h1>
+    <h2 class="text-lg font-semibold mb-1">Stem Comparison Tool — Reach &amp; Rise Calculator</h2>
     <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
 
@@ -389,16 +391,23 @@
 
       const arcR = 32 + offset;
       if (Math.abs(geo.deg) > 0.3) {
-        const arcStartX = ox + arcR;
-        const arcStartY = oy;
-        const arcEndX = ox + arcR * Math.cos(geo.deg * Math.PI / 180);
-        const arcEndY = oy - arcR * Math.sin(geo.deg * Math.PI / 180);
+        // stem angle is measured from the perpendicular to the steerer axis,
+        // so the arc runs from that datum ray to the stem line itself
+        const datumDeg = 90 - state.hta;
+        const a0 = datumDeg * Math.PI / 180;
+        const a1 = geo.effectiveDeg * Math.PI / 180;
+        const datumLen = arcR + 22;
+        svg += `<line x1="${ox}" y1="${oy}" x2="${ox + datumLen * Math.cos(a0)}" y2="${oy - datumLen * Math.sin(a0)}" stroke="${color}" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.35"/>`;
+        const arcStartX = ox + arcR * Math.cos(a0);
+        const arcStartY = oy - arcR * Math.sin(a0);
+        const arcEndX = ox + arcR * Math.cos(a1);
+        const arcEndY = oy - arcR * Math.sin(a1);
         const sweep = geo.deg < 0 ? 1 : 0;
         svg += `<path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 ${sweep} ${arcEndX} ${arcEndY}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.55"/>`;
-        const midDeg = geo.deg / 2;
+        const midRad = (datumDeg + geo.deg / 2) * Math.PI / 180;
         const textR = arcR + 13;
-        const tx = ox + textR * Math.cos(midDeg * Math.PI / 180);
-        const ty = oy - textR * Math.sin(midDeg * Math.PI / 180);
+        const tx = ox + textR * Math.cos(midRad);
+        const ty = oy - textR * Math.sin(midRad);
         svg += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="10" fill="${color}" opacity="0.8">${geo.deg > 0 ? '+' : ''}${geo.deg}°</text>`;
       }
 

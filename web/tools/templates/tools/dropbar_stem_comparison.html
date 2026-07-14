@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Drop Bar + Stem Calculator — Reach, Rise & Drop | RaceFeed{% endblock %}
+{% block title %}Handlebar Reach & Drop Calculator — Stem + Bar Cockpit | RaceFeed{% endblock %}
 
-{% block meta_description %}Combine stem and drop handlebar geometry: compare total reach to the hoods and drop position for two full cockpit setups. Free bike fit calculator.{% endblock %}
+{% block meta_description %}Combine stem and drop-bar geometry to see total reach to the hoods and drops. Check if an integrated cockpit will fit before you buy — free interactive bike-fit calculator.{% endblock %}
 
 {% block og_type %}website{% endblock %}
-{% block og_title %}Drop Bar + Stem Calculator | RaceFeed{% endblock %}
-{% block og_description %}Free calculator combining stem and drop bar reach/drop — see total hood and drop position for two setups.{% endblock %}
+{% block og_title %}Handlebar Reach & Drop Calculator | RaceFeed{% endblock %}
+{% block og_description %}Free interactive calculator: combine stem + drop bar to see total reach to the hoods and drops, and check integrated cockpit fit.{% endblock %}
 
 {% block extra-head %}
-  <link rel="canonical" href="https://racefeed.com.br/tools/dropbar-stem-comparison/" />
+  <link rel="canonical" href="https://racefeed.com.br/tools/integrated-cockpit-calculator/" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Drop Bar + Stem Calculator",
-    "alternateName": ["Dropbar Reach Drop Calculator", "Handlebar Reach Drop Calculator", "Road Bike Cockpit Calculator", "Stem and Bar Comparison Tool"],
-    "url": "https://racefeed.com.br/tools/dropbar-stem-comparison/",
-    "description": "Compare stem and drop handlebar reach, rise, and drop together across two full cockpit setups to find the right fit.",
+    "name": "Handlebar Reach & Drop Calculator",
+    "alternateName": ["Drop Bar + Stem Calculator", "Integrated Cockpit Calculator", "Cockpit Reach Calculator", "Total Reach Calculator", "Handlebar Reach Drop Calculator", "Road Bike Cockpit Calculator", "Stem and Bar Comparison Tool"],
+    "url": "https://racefeed.com.br/tools/integrated-cockpit-calculator/",
+    "description": "Combine stem and drop handlebar geometry to see total reach and drop to the hoods and drops across two full cockpit setups — and check whether an integrated cockpit will fit before buying.",
     "applicationCategory": "SportsApplication",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
@@ -89,6 +89,30 @@
           "@type": "Answer",
           "text": "This tool approximates the hood position at the bar's reach forward from the clamp, at the same height as the clamp. Real bars vary slightly by brand and by where the lever body sits on the bend. It is accurate enough for comparing two setups' relative change, not for a millimeter-exact fit."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Do spacers under the stem change reach and drop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Spacers move the stem up along the steerer tube, which is tilted back at the head tube angle. On a 73° head tube, each 10mm of spacers raises the bars by roughly 9.5mm and shortens reach by roughly 3mm. Use the spacers input on each setup to compare a slammed stem against a raised one."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I know what size integrated cockpit to buy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Match it to the hand position you already ride. Read the reach and rise off your current stem and bar, then enter the integrated cockpit's published stem length, stem angle, bar reach, and bar drop as the comparison setup here. A common bike-fit rule: if the cockpit shifts your hand position by more than about 1cm in reach or height, don't buy it. Getting it wrong is costly — a one-piece cockpit is expensive to replace and usually cannot be adjusted afterward."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can you change the stem length on an integrated cockpit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Barely. A one-piece cockpit fixes stem length, angle, bar reach, and drop together — you can usually only add or remove a small amount of spacer height (systems like Canyon's allow about 15mm), not change the length. That is why the size has to be right before you buy. Enter the cockpit's numbers as a comparison setup here to check its exact reach and drop against your current bike before committing."
+        }
       }
     ]
   }
@@ -112,6 +136,8 @@
 
 {% block content %}
 <div id="dropbar-app" class="text-gray-900 dark:text-gray-100">
+  <h1 class="text-2xl font-bold mb-1">Handlebar Reach &amp; Drop Calculator</h1>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">Combine stem + drop bar to see total reach to the hoods and drops — or check if an integrated cockpit will fit. Comparing stems only? Use the <a href="{% url 'tools:stem-comparison' %}" class="text-blue-600 dark:text-blue-400 hover:underline">stem calculator</a>.</p>
   <div class="grid gap-6 md:grid-cols-2 items-start">
 
     <!-- Controls -->
@@ -146,7 +172,11 @@
               <label for="angleA" class="block text-xs mb-1">Angle (°)</label>
               <select id="angleA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
-            <label class="col-span-2 inline-flex items-center gap-2 text-sm">
+            <div>
+              <label for="spacersA" class="block text-xs mb-1">Spacers under stem (mm)</label>
+              <select id="spacersA" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <label class="inline-flex items-center gap-2 text-sm self-end pb-1.5">
               <input class="accent-blue-600" type="checkbox" id="flipA"> 🔄 Flip stem
             </label>
           </div>
@@ -178,7 +208,11 @@
               <label for="angleB" class="block text-xs mb-1">Angle (°)</label>
               <select id="angleB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
             </div>
-            <label class="col-span-2 inline-flex items-center gap-2 text-sm">
+            <div>
+              <label for="spacersB" class="block text-xs mb-1">Spacers under stem (mm)</label>
+              <select id="spacersB" class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-1.5 text-sm"></select>
+            </div>
+            <label class="inline-flex items-center gap-2 text-sm self-end pb-1.5">
               <input class="accent-blue-600" type="checkbox" id="flipB"> 🔄 Flip stem
             </label>
           </div>
@@ -226,7 +260,7 @@
 
   <!-- FAQ -->
   <section class="mt-6 py-6" aria-label="Frequently Asked Questions">
-    <h1 class="text-lg font-semibold mb-1">Drop Bar + Stem Calculator — Reach &amp; Drop</h1>
+    <h2 class="text-lg font-semibold mb-1">Drop Bar + Stem Calculator — Reach &amp; Drop</h2>
     <h2 class="text-2xl font-semibold mb-4">Frequently Asked Questions</h2>
     <div class="rounded-xl border border-gray-200 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700 overflow-hidden">
 
@@ -267,6 +301,36 @@
         </summary>
         <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
           This tool approximates the hood position at the bar's reach forward from the clamp, at the same height as the clamp. Real bars vary slightly by brand and by where the lever body sits on the bend. It is accurate enough for comparing two setups' relative change, not for a millimeter-exact fit.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Do spacers under the stem change reach and drop?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Yes. Spacers move the stem up along the steerer tube, which is tilted back at the head tube angle. On a 73° head tube, each 10mm of spacers raises the bars by roughly 9.5mm and shortens reach by roughly 3mm. Use the spacers input on each setup to compare a slammed stem against a raised one.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">How do I know what size integrated cockpit to buy?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Match it to the hand position you already ride. Read the reach and rise off your current stem and bar, then enter the integrated cockpit's published stem length, stem angle, bar reach, and bar drop as the comparison setup here. A common bike-fit rule: if the cockpit shifts your hand position by more than about 1cm in reach or height, don't buy it. Getting it wrong is costly — a one-piece cockpit is expensive to replace and usually cannot be adjusted afterward.
+        </div>
+      </details>
+
+      <details class="group">
+        <summary class="flex justify-between items-center gap-3 cursor-pointer list-none px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800">
+          <h3 class="font-medium m-0">Can you change the stem length on an integrated cockpit?</h3>
+          <span class="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div class="px-4 pb-4 text-gray-600 dark:text-gray-300">
+          Barely. A one-piece cockpit fixes stem length, angle, bar reach, and drop together — you can usually only add or remove a small amount of spacer height (systems like Canyon's allow about 15mm), not change the length. That is why the size has to be right before you buy. Enter the cockpit's numbers as a comparison setup here to check its exact reach and drop against your current bike before committing.
         </div>
       </details>
 
@@ -315,6 +379,20 @@
       If your hoods feel right but the drops feel too far away or too low, the fix is usually a shallower bar — not a shorter stem, which would move the hoods too.
     </p>
   </section>
+
+  <!-- Integrated cockpit -->
+  <section class="mt-6 py-6" aria-label="Integrated cockpit fit">
+    <h2 class="text-2xl font-semibold mb-2">Will an Integrated Cockpit Fit You?</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-4">
+      An integrated cockpit fuses the bar and stem into a single unit — there is no stem to swap if the reach comes out wrong, so you have to get it right before you buy. Manufacturers publish each cockpit as a stem length (e.g. 100mm), a stem angle, and a bar reach and drop. Enter those numbers as one setup and your current bike as the other: the delta table shows exactly how far the integrated cockpit moves your hoods and drops versus what you ride today.
+    </p>
+    <ol class="list-decimal pl-5 text-gray-600 dark:text-gray-300 space-y-1">
+      <li>Find the cockpit's spec sheet: stem length, stem angle, bar reach, bar drop.</li>
+      <li>Enter your current bike as Setup A and the integrated cockpit as Setup B.</li>
+      <li>Keep ΔReach to the hoods within about ±10mm of your current fit, unless you are deliberately changing position.</li>
+      <li>Remember reach and drop move together on a one-piece cockpit — you cannot tune them separately after buying, so confirm both here first.</li>
+    </ol>
+  </section>
 </div>
 {% endblock content %}
 
@@ -324,28 +402,32 @@
   const LENGTHS = [35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140];
   const BAR_REACH = [60, 65, 70, 75, 80, 85, 90, 95, 100];
   const BAR_DROP = [100, 110, 115, 120, 125, 130, 135, 140, 145, 150];
+  const SPACERS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 50];
 
   let state = {
-    lengthA: 100, angleA: 6, flipA: true, barReachA: 75, barDropA: 125,
-    lengthB: 110, angleB: 17, flipB: true, barReachB: 80, barDropB: 130,
+    lengthA: 100, angleA: 6, flipA: true, barReachA: 75, barDropA: 125, spacersA: 0,
+    lengthB: 110, angleB: 17, flipB: true, barReachB: 80, barDropB: 130, spacersB: 0,
     hta: 73
   };
 
-  function stemGeometry(length, angle, flip) {
+  function stemGeometry(length, angle, flip, spacers) {
     const stemDeg = flip ? -angle : angle;
     const effectiveDeg = (90 - state.hta) + stemDeg;
     const rad = effectiveDeg * Math.PI / 180;
+    // spacers shift the clamp up the steerer axis: back by cos(HTA), up by sin(HTA)
+    const htaRad = state.hta * Math.PI / 180;
     return {
-      reach: length * Math.cos(rad),
-      rise:  length * Math.sin(rad),
+      reach: length * Math.cos(rad) - spacers * Math.cos(htaRad),
+      rise:  length * Math.sin(rad) + spacers * Math.sin(htaRad),
       deg: stemDeg,
       effectiveDeg,
-      length
+      length,
+      spacers
     };
   }
 
-  function cockpitGeometry(length, angle, flip, barReach, barDrop) {
-    const stem = stemGeometry(length, angle, flip);
+  function cockpitGeometry(length, angle, flip, barReach, barDrop, spacers) {
+    const stem = stemGeometry(length, angle, flip, spacers);
     const hoodsReach = stem.reach + barReach;
     const hoodsRise = stem.rise;
     const dropsReach = stem.reach + barReach * 0.1;
@@ -363,8 +445,8 @@
   const COLOR_A = '#6a1b9a', COLOR_B = '#e65100';
 
   function buildChart() {
-    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA);
-    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB);
+    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA, state.spacersA);
+    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB, state.spacersB);
 
     const points = [geoA, geoB];
     const maxRight = Math.max(...points.map(g => Math.max(g.hoods.reach, g.drops.reach)), 1);
@@ -400,38 +482,55 @@
       const dx = ox + geo.drops.reach * SCALE;
       const dy = oy - geo.drops.rise * SCALE;
 
-      const arcR = 26 + offset;
-      if (Math.abs(geo.stem.deg) > 0.3) {
-        const arcStartX = ox + arcR, arcStartY = oy;
-        const arcEndX = ox + arcR * Math.cos(geo.stem.deg * Math.PI / 180);
-        const arcEndY = oy - arcR * Math.sin(geo.stem.deg * Math.PI / 180);
-        const sweep = geo.stem.deg < 0 ? 1 : 0;
-        svg += `<path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 ${sweep} ${arcEndX} ${arcEndY}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+      // spacer stack sits on the steerer; the stem clamps at its top
+      const spacerLen = geo.stem.spacers * SCALE;
+      const bx = ox - spacerLen * Math.cos(htaRad);
+      const by = oy - spacerLen * Math.sin(htaRad);
+      if (geo.stem.spacers > 0) {
+        svg += `<line x1="${ox}" y1="${oy}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="8" stroke-linecap="butt" opacity="0.35"/>`;
+        svg += `<text x="${bx - 8}" y="${by + 3}" text-anchor="end" font-size="9" fill="${color}" opacity="0.8">${geo.stem.spacers}mm</text>`;
       }
 
-      svg += `<line x1="${ox}" y1="${oy}" x2="${sx}" y2="${sy}" stroke="${color}" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>`;
+      const arcR = 26 + offset;
+      if (Math.abs(geo.stem.deg) > 0.3) {
+        // stem angle is measured from the perpendicular to the steerer axis,
+        // so the arc runs from that datum ray to the stem line itself
+        const datumDeg = 90 - state.hta;
+        const a0 = datumDeg * Math.PI / 180;
+        const a1 = geo.stem.effectiveDeg * Math.PI / 180;
+        const datumLen = arcR + 18;
+        svg += `<line x1="${bx}" y1="${by}" x2="${bx + datumLen * Math.cos(a0)}" y2="${by - datumLen * Math.sin(a0)}" stroke="${color}" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.35"/>`;
+        const arcStartX = bx + arcR * Math.cos(a0);
+        const arcStartY = by - arcR * Math.sin(a0);
+        const arcEndX = bx + arcR * Math.cos(a1);
+        const arcEndY = by - arcR * Math.sin(a1);
+        const sweep = geo.stem.deg < 0 ? 1 : 0;
+        svg += `<path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 ${sweep} ${arcEndX} ${arcEndY}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+        const midRad = (datumDeg + geo.stem.deg / 2) * Math.PI / 180;
+        const textR = arcR + 12;
+        svg += `<text x="${bx + textR * Math.cos(midRad)}" y="${by - textR * Math.sin(midRad) + 4}" text-anchor="middle" font-size="10" fill="${color}" opacity="0.8">${geo.stem.deg > 0 ? '+' : ''}${geo.stem.deg}°</text>`;
+      }
+
+      svg += `<line x1="${bx}" y1="${by}" x2="${sx}" y2="${sy}" stroke="${color}" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>`;
       svg += `<circle cx="${sx}" cy="${sy}" r="5" fill="${color}"/>`;
 
-      // hook: flat lead-in, tight bend at the hoods, long gentle sweep landing flat at the drops
+      // bar drawn as one continuous curve from the stem clamp, per real side-profile geometry:
+      // diving ramp from clamp -> front bulge (max reach, vertical tangent, ~42% down)
+      // -> curl under -> near-horizontal tail back to the drop end tip
       const ds = dy - hy;
-      const r = ds * 0.16;                    // tight bend radius
-      const startX = hx - ds * 0.25;          // flat lead-in start
-      const bx = hx - r;                      // bend start
-      const fx = hx + ds * 0.04;              // front x after the bend
+      const c1x = sx + (hx - sx) * 0.45, c1y = hy + ds * 0.02;
+      const c2x = hx,                    c2y = hy + ds * 0.22;
+      const bulgeY = hy + ds * 0.42;
 
-      const c1x = bx + r * 0.8, c1y = hy;
-      const c2x = fx,           c2y = hy + r * 0.4;
-      const bendEndY = hy + r;
-
-      svg += `<path d="M ${startX} ${hy} L ${bx} ${hy}
-        C ${c1x} ${c1y}, ${c2x} ${c2y}, ${fx} ${bendEndY}
-        C ${fx} ${hy + ds * 0.16}, ${dx + (fx - dx) * 0.95} ${dy}, ${dx + (fx - dx) * 0.35} ${dy}
+      svg += `<path d="M ${sx} ${sy}
+        C ${c1x} ${c1y}, ${c2x} ${c2y}, ${hx} ${bulgeY}
+        C ${hx} ${hy + ds * 0.72}, ${dx + (hx - dx) * 0.55} ${dy}, ${dx + (hx - dx) * 0.28} ${dy}
         L ${dx} ${dy}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" opacity="0.55"/>`;
 
-      // hood marker pinned onto the tight bend (cubic bezier point at t=0.5)
-      const t = 0.5, u = 1 - t;
-      const hoodX = u*u*u*bx + 3*u*u*t*c1x + 3*u*t*t*c2x + t*t*t*fx;
-      const hoodY = u*u*u*hy + 3*u*u*t*c1y + 3*u*t*t*c2y + t*t*t*bendEndY;
+      // hood marker on the upper front of the ramp (cubic bezier point at t=0.62)
+      const t = 0.62, u = 1 - t;
+      const hoodX = u*u*u*sx + 3*u*u*t*c1x + 3*u*t*t*c2x + t*t*t*hx;
+      const hoodY = u*u*u*sy + 3*u*u*t*c1y + 3*u*t*t*c2y + t*t*t*bulgeY;
       svg += `<circle cx="${hoodX}" cy="${hoodY}" r="6" fill="${color}" opacity="0.85"/>`;
       svg += `<text x="${hoodX + 10}" y="${hoodY - 8}" font-size="9" fill="${color}" opacity="0.85">hoods</text>`;
       svg += `<circle cx="${dx}" cy="${dy}" r="7" fill="${color}"/>`;
@@ -449,8 +548,8 @@
   }
 
   function buildStats() {
-    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA);
-    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB);
+    const geoA = cockpitGeometry(state.lengthA, state.angleA, state.flipA, state.barReachA, state.barDropA, state.spacersA);
+    const geoB = cockpitGeometry(state.lengthB, state.angleB, state.flipB, state.barReachB, state.barDropB, state.spacersB);
 
     const badge = (cls, char) =>
       `<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${cls === 'a' ? '#6a1b9a' : '#e65100'};color:#fff;font-size:0.7rem;font-weight:700;line-height:18px;text-align:center;margin-right:4px">${char}</span>`;
@@ -462,7 +561,7 @@
 
     const block = (geo, color, badgeCls, char, label, state_) => `
       <div class="stat-block">
-        <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">${badge(badgeCls, char)} ${label} — ${state_.length}mm ${geo.stem.deg > 0 ? '+' : ''}${geo.stem.deg}°, ${state_.barReach}/${state_.barDrop}mm bar</div>
+        <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">${badge(badgeCls, char)} ${label} — ${state_.length}mm ${geo.stem.deg > 0 ? '+' : ''}${geo.stem.deg}°, ${state_.barReach}/${state_.barDrop}mm bar${geo.stem.spacers > 0 ? `, ${geo.stem.spacers}mm spacers` : ''}</div>
         <div class="mb-1">Reach to hoods: <span class="stat-value" style="color:${color}">${geo.hoods.reach} mm</span></div>
         <div class="mb-1">Rise at hoods: <span class="stat-value" style="color:${color}">${sign(geo.hoods.rise)}${geo.hoods.rise} mm</span></div>
         <div class="mb-1">Reach to drops: <span class="stat-value" style="color:${color}">${geo.drops.reach} mm</span></div>
@@ -497,11 +596,13 @@
     state.flipA     = document.getElementById('flipA').checked;
     state.barReachA = parseFloat(document.getElementById('barReachA').value) || 75;
     state.barDropA  = parseFloat(document.getElementById('barDropA').value) || 125;
+    state.spacersA  = parseFloat(document.getElementById('spacersA').value) || 0;
     state.lengthB   = parseFloat(document.getElementById('lengthB').value) || 110;
     state.angleB    = parseFloat(document.getElementById('angleB').value) || 0;
     state.flipB     = document.getElementById('flipB').checked;
     state.barReachB = parseFloat(document.getElementById('barReachB').value) || 80;
     state.barDropB  = parseFloat(document.getElementById('barDropB').value) || 130;
+    state.spacersB  = parseFloat(document.getElementById('spacersB').value) || 0;
     state.hta       = Math.max(60, Math.min(75, parseFloat(document.getElementById('htaInput').value) || 73));
     document.getElementById('htaValue').textContent = state.hta + '°';
   }
@@ -520,12 +621,14 @@
     if (state.flipA) p.set('fa', '1');
     p.set('bra', state.barReachA);
     p.set('bda', state.barDropA);
+    if (state.spacersA > 0) p.set('sa', state.spacersA);
     p.set('hta', state.hta);
     p.set('lb', state.lengthB);
     p.set('ab', state.angleB);
     if (state.flipB) p.set('fb', '1');
     p.set('brb', state.barReachB);
     p.set('bdb', state.barDropB);
+    if (state.spacersB > 0) p.set('sb', state.spacersB);
     history.replaceState(null, '', '?' + p.toString());
   }
 
@@ -537,6 +640,7 @@
     if (p.get('fa') === '1') document.getElementById('flipA').checked = true;
     if (p.has('bra')) document.getElementById('barReachA').value = p.get('bra');
     if (p.has('bda')) document.getElementById('barDropA').value = p.get('bda');
+    if (p.has('sa')) setSelect('spacersA', parseFloat(p.get('sa')));
     if (p.has('hta')) document.getElementById('htaInput').value = p.get('hta');
     if (p.has('lb')) {
       document.getElementById('lengthB').value = p.get('lb');
@@ -544,6 +648,7 @@
       if (p.get('fb') === '1') document.getElementById('flipB').checked = true;
       if (p.has('brb')) document.getElementById('barReachB').value = p.get('brb');
       if (p.has('bdb')) document.getElementById('barDropB').value = p.get('bdb');
+      if (p.has('sb')) setSelect('spacersB', parseFloat(p.get('sb')));
     }
   }
 
@@ -565,8 +670,8 @@
   }
 
   function wireEvents() {
-    ['lengthA', 'angleA', 'flipA', 'barReachA', 'barDropA',
-     'lengthB', 'angleB', 'flipB', 'barReachB', 'barDropB', 'htaInput'].forEach(id => {
+    ['lengthA', 'angleA', 'flipA', 'barReachA', 'barDropA', 'spacersA',
+     'lengthB', 'angleB', 'flipB', 'barReachB', 'barDropB', 'spacersB', 'htaInput'].forEach(id => {
       document.getElementById(id).addEventListener('change', render);
     });
     document.getElementById('htaInput').addEventListener('input', render);
@@ -590,6 +695,8 @@
   populateSelect('barReachB', BAR_REACH, 80, r => r + 'mm');
   populateSelect('barDropA', BAR_DROP, 125, d => d + 'mm');
   populateSelect('barDropB', BAR_DROP, 130, d => d + 'mm');
+  populateSelect('spacersA', SPACERS, 0, s => s + 'mm');
+  populateSelect('spacersB', SPACERS, 0, s => s + 'mm');
   document.getElementById('flipA').checked = true;
   document.getElementById('flipB').checked = true;
   loadFromURL();
