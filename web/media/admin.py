@@ -9,7 +9,7 @@ class PhotoInline(admin.TabularInline):
     model = Photo
     extra = 0
     readonly_fields = ('image_preview', 'created_at')
-    fields = ('image', 'image_preview', 'created_at')  # show both
+    fields = ('image', 'image_preview', 'alt_text', 'caption', 'created_at')
 
     def image_preview(self, obj):
         if obj.image:

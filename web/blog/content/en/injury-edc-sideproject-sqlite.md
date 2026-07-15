@@ -75,7 +75,7 @@ Instead of separate database tables for users, gear items, posts, collections, a
 
 Passwordless authentication. Users get a one-time token link by email — no password to forget, no account to recover.
 
-The wonderful side benefit is an **authentication bridge for mobile**: scan the QR code on desktop, point your camera on mobile, tap — you're in. Onboarding for a gear community shouldn't feel like filling out tax forms. The passwordless path removes friction at the exact moment new users decide whether to stay.
+The wonderful side benefit is an **authentication bridge for mobile**: scan the QR code on desktop, point your camera on mobile, tap — you're in. [Onboarding for a gear community](/welcome/) shouldn't feel like filling out tax forms. The passwordless path removes friction at the exact moment new users decide whether to stay.
 
 Security overhead? Token invalidation, replay protection — all the usual concerns. Simple answer: store tokens in a cache backend (Memcached here). Cache naturally has TTL, so ephemeral tokens expire on their own. No cleanup jobs, no `used_at` columns, no stale token graveyard in the database.
 

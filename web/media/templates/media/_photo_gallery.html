@@ -29,34 +29,40 @@ Required context:
     {% if gallery %}
       <!-- Static Primary Photo (SEO-friendly, always in DOM) -->
       {% with primary=gallery.0 %}
-        <div 
+        <figure
           x-show="currentIndex === 0"
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0"
           x-transition:enter-end="opacity-100"
-          class="absolute inset-0">
+          class="absolute inset-0 m-0">
           <img src="{{ primary.image.url }}"
                alt="{{ primary.alt_text|default:obj.display_name|default:obj.title }}"
                fetchpriority="high"
                loading="eager"
                class="w-full h-full object-cover">
-        </div>
+          {% if primary.caption %}
+            <figcaption class="absolute inset-x-0 bottom-0 bg-black/50 text-white text-sm px-3 py-1.5">{{ primary.caption }}</figcaption>
+          {% endif %}
+        </figure>
       {% endwith %}
 
       <!-- Dynamic Photos (lazy-loaded) -->
       {% for photo in gallery %}
         {% if forloop.counter0 > 0 %}
-          <div 
+          <figure
             x-show="currentIndex === {{ forloop.counter0 }}"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100"
-            class="absolute inset-0">
-            <img src="{{ photo.image.url }}" 
-                 alt="{{ photo.alt_text|default:obj.display_name|default:obj.title }}" 
+            class="absolute inset-0 m-0">
+            <img src="{{ photo.image.url }}"
+                 alt="{{ photo.alt_text|default:obj.display_name|default:obj.title }}"
                  class="w-full h-full object-cover"
                  loading="lazy">
-          </div>
+            {% if photo.caption %}
+              <figcaption class="absolute inset-x-0 bottom-0 bg-black/50 text-white text-sm px-3 py-1.5">{{ photo.caption }}</figcaption>
+            {% endif %}
+          </figure>
         {% endif %}
       {% endfor %}
 
@@ -117,10 +123,6 @@ Required context:
     {% endif %}
 
   </div>
-
-  {% if gallery.0.caption %}
-  <p class="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">{{ gallery.0.caption }}</p>
-  {% endif %}
 
   <!-- Thumbnails -->
   {% if gallery|length > 1 %}
