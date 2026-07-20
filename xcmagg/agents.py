@@ -90,9 +90,9 @@ SPORTS = {
     'X-Triathlon':          'Cross Triathlon',
     'Triathlon':            'Triathlon',
     'Triatlhon':            'Triathlon',
-    'Triatlo':              'Triathlon',
-    'Duathlon':             'Triathlon',
-    'Duatlhon':             'Triathlon',
+    # Duathlon
+    'Duathlon':             'Duathlon',
+    'Duatlhon':             'Duathlon',
     # Natação:
     'Aquathon':             'Triathlon',
     'Natação':              'Natação',

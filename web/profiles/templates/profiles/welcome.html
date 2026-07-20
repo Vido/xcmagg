@@ -4,6 +4,8 @@
 {% load socialaccount %}
 {% load widget_tweaks %}
 
+{% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'welcome' %}" />{% endblock canonical %}
+
 {% block card-header %}
 <div class="text-center">
     <h2 class="text-3xl font-bold text-gray-900 dark:text-white">

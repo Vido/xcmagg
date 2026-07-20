@@ -795,6 +795,20 @@
         return zones
   }
 
+  // Charts inherit the page theme: transparent backgrounds + font color
+  // matching the Tailwind dark-mode class on <html>.
+  function isDarkTheme() {
+    return document.documentElement.classList.contains('dark');
+  }
+
+  function chartTheme() {
+    return {
+      paper_bgcolor: 'transparent',
+      plot_bgcolor: 'transparent',
+      font: { color: isDarkTheme() ? '#e5e7eb' : '#374151' },
+    };
+  }
+
   const layout1 = {
     autosize: true,
     height: 200,
@@ -825,9 +839,9 @@ function update_gauges(cadence) {
     render_losses();
 
     const maxSpeed = 10 + (100 - 10) * (-grade + 30) / 60;
-    Plotly.react("speedDiv", [speed_bullet(velocity, maxSpeed)], layout1);
-    Plotly.react("cadenceDiv", [cadence_gauge(cadence, 30, 120),], layout2);
-    Plotly.react("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], layout3);
+    Plotly.react("speedDiv", [speed_bullet(velocity, maxSpeed)], {...layout1, ...chartTheme()});
+    Plotly.react("cadenceDiv", [cadence_gauge(cadence, 30, 120),], {...layout2, ...chartTheme()});
+    Plotly.react("ftpDiv", [ftp_gauge(power_legs, ftp_zones(ftp))], {...layout3, ...chartTheme()});
 
     const crank_m = crank_length_mm / 1000;
     const gain_ratio = development / (2 * Math.PI * crank_m);
@@ -1149,7 +1163,7 @@ $(function () {
 
   function render_losses(){
     Plotly.react('lossesDiv', [plot_losses()],
-      {height: 200, autosize: true, margin: { t: 0, b: 10, l: 0, r: 0 }}
+      {height: 200, autosize: true, margin: { t: 0, b: 10, l: 0, r: 0 }, ...chartTheme()}
     );
 
     const gradient_w = Math.abs(power_gradient);
@@ -1459,14 +1473,13 @@ function humanize(seconds) {
       xaxis: { title: { text: 'Cog (teeth)', standoff: 6 }, dtick: 3, fixedrange: true },
       yaxis: { title: 'km/h', fixedrange: true },
       shapes: [{ type: 'line', x0: 8.5, x1: 52.5, y0: v_eq * 3.6, y1: v_eq * 3.6,
-                 line: { color: '#555', width: 1.5, dash: 'dot' } }],
+                 line: { color: isDarkTheme() ? '#9ca3af' : '#555', width: 1.5, dash: 'dot' } }],
       annotations: [{ x: 52, y: v_eq * 3.6, xanchor: 'right', yanchor: 'bottom',
                       text: `${veqKmh} km/h @ FTP`, showarrow: false,
-                      font: { size: 11, color: '#555' } }],
+                      font: { size: 11, color: isDarkTheme() ? '#9ca3af' : '#555' } }],
       margin: { t: 16, r: 16, b: 48, l: 48 },
       bargap: 0.1,
-      plot_bgcolor: 'transparent',
-      paper_bgcolor: 'transparent',
+      ...chartTheme(),
     }, { responsive: true, displayModeBar: false });
 
     document.getElementById('sbgFTP').textContent = ftp;
@@ -1492,5 +1505,12 @@ function humanize(seconds) {
     // registered, so the first call must be triggered manually.
     updateSpeedByGearChart();
   })();
+
+  // Re-render all Plotly charts when the theme toggles (the switcher flips
+  // the `dark` class on <html>).
+  new MutationObserver(() => {
+    update_gauges(crankrpm);
+    updateSpeedByGearChart();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
 {% endblock extra-scripts %}

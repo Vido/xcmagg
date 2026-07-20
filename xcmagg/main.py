@@ -3,6 +3,8 @@ from pprint import pprint
 from cronos import *
 from aggregators import *
 from generalists import *
+from organizers import *
+from federations import *
 from bronze import BronzeLayer
 from silver import SilverLayer, Parser
 
@@ -33,6 +35,8 @@ crawlers = [
     Polesportivo(),
     RandonneursBrasil(),
     Sympla(),
+    ASCABiker(),
+    # ProximaProva(), # All /evento/ detail pages HTTP 500 — url=PK dead. See class note.
     # FPCiclismo(), # 503
     # Fmc(), # No links
     # FpcParana(), # WIP

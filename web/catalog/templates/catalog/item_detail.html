@@ -223,14 +223,16 @@
       </div>
       
       {# TODO: Message Owner + Add To Wishlist — backend ~30% built, URL wired to placeholder. Uncomment when implemented. #}
-      {# {% if item.owner != request.user %}
+      {% comment %}
+      {% if item.owner != request.user %}
         {% if not item.is_catalog and item.is_listed %}
         <div class="flex gap-3">
           <button ...>Message Owner</button>
           {% endif %}
           <button ...>Add To Wishlist</button>
         </div>
-      {% endif %} #}
+      {% endif %}
+      {% endcomment %}
 
 
     </div>

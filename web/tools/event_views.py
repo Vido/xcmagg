@@ -282,8 +282,6 @@ def city_calendar(request, city_slug, discipline=None):
             events = []
         else:
             events = [e for e in all_city_events if e.get('discipline') == discipline] if discipline else all_city_events
-            if discipline and not events:
-                raise Http404
 
             lat = lon = None
             for e in all_city_events:

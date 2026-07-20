@@ -1,6 +1,7 @@
 import re
 import json
 import time
+from html import unescape
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin, urlsplit, urlunsplit, unquote_plus
@@ -29,71 +30,6 @@ def canonical_ticketsports_url(url: str) -> str:
     prefix, slug, event_id = m.groups()
     path = f'{prefix}{slugify(unquote_plus(slug))}-{event_id}'
     return urlunsplit((parts.scheme, parts.netloc.lower(), path, '', ''))
-
-
-class ConfederacaoBrasileira:
-    # REJECTED — no per-event URL. Calendar is a flat 120-row table with no
-    # detail pages; the only links are organizer sites/emails (non-unique: 12
-    # events share one domain, many are instagram profiles or bare homepages,
-    # some are leaked mailto). url=PK invariant fails — would need a synthetic
-    # key that dereferences to nothing. Deep-linked rows (inscricoes.com.br,
-    # ticketsports) we already scrape direct. Not worth it.
-    URL = 'https://www.cbc.esp.br/modalidades/calendario/busca/mtb'
-    REPO = Path('cbc.esp.br')
-    META = {
-        'Category': 'Federação',
-        'DDD': '43',
-    }
-
-class FederacaoPaulista():
-    URL = 'https://fpciclismo.org.br/index.php/calendario-estrada/'
-    REPO = Path('fpciclismo.org.br')
-    META = {
-        'Category': 'Federação',
-        'DDD': '11',
-    }
-
-class FederacaoMineira():
-    URL = 'https://fmc.org.br/calendario/'
-    REPO = Path('fmc.org.br')
-    META = {
-        'Category': 'Federação',
-        'DDD': '31',
-    }
-
-class FederacaoCarioca():
-    URL = 'https://fecierj.org.br/calendario/xcm/'
-    REPO = Path('fecierj.org.br')
-    META = {
-        'Category': 'Federação',
-        'DDD': '24',
-    }
-
-class FederacaoTriSC():
-    # SKIP — low yield. 28 triathlon-only events with a clean /prova/<slug>/<id>
-    # PK, but ~1/3 of the ticket links point at ticketsports (already scraped via
-    # TicketSportsAPI2) and 20/28 have no registration link at all. Net new
-    # uniquely-addressable events ≈ 3. Not worth a crawler.
-    URL = 'https://fetrisc.org.br/'
-    REPO = Path('fetrisc.org.br')
-    META = {
-        'Category': 'Federação',
-        'DDD': '48',
-    }
-
-
-class ConfederacaoTriathlon():
-    # REJECTED — "CBC disease". cbtri.org.br just iframes the national tri
-    # calendar at vemprotri.org.br/calendario: 43 server-rendered event cards
-    # (title + DD.MM date + location) but 0/43 carry a per-event URL. No PK, no
-    # click target. Same failure as ConfederacaoBrasileira. Federations publish
-    # display-only calendars — value lives at the ticketing platforms we already
-    # scrape (ticketsports, sympla).
-    URL = 'https://www.vemprotri.org.br/calendario'  # cbtri.org.br iframes this
-    REPO = Path('vemprotri.org.br')
-    META = {
-        'Category': 'Federação',
-    }
 
 
 class BlueTicket():
@@ -126,17 +62,6 @@ class GuiaDaCorrida():
     REPO = Path('guiadacorrida.com')
     META = {
         'Category': 'Agregador',
-    }
-
-
-class RaveliSports():
-    # STUB — not implemented. Main sport: Corrida de Rua.
-    # Contact: +55 11 96337-9609
-    URL = 'https://www.ravelisports.com.br/eventos'
-    REPO = Path('ravelisports.com.br')
-    META = {
-        'Category': 'Organizador',
-        'DDD': '11',
     }
 
 
@@ -223,15 +148,7 @@ class SuaInscricao(Crawler, Extractor):
         return events_acc
 
 
-class ASCABiker():
-    URL = 'https://ascabiker.com.br/'
-    REPO = Path('ascabiker.com.br')
-    META = {
-        'Category': 'Organizador',
-        'DDD': '35',
-    }
-
-class ASCABiker():
+class BikeDoSul():
     URL = 'https://www.bikedosul.com.br/'
     REPO = Path('bikedosul.com.br')
     META = {
@@ -254,22 +171,6 @@ class AgendaOffroad():
     META = {
         'Category': 'Agregador',
         'DDD': '41',
-    }
-
-
-class Chelso():
-    URL = 'https://chelso.com.br/site/category/provas-presenciais'
-    META = {
-        'Category': 'Organizador',
-        'DDD': '19',
-    }
-
-
-class CopaInterior():
-    URL = 'https://www.copainterior.com.br/'
-    META = {
-        'Category': 'Organizador',
-        'DDD': '19',
     }
 
 
@@ -467,16 +368,6 @@ class TicketSportsAPI2(Crawler, Extractor):
 
         return events_acc
 
-
-
-class TourDaRoca():
-    # STUB — registration migrated to RaizesEsportes platform. See RaizesEsportes.
-    URL = 'https://tourdaroca.com.br/'
-    REPO = Path('tourdaroca.com.br')
-    META = {
-        'Category': 'Organizador',
-        'DDD': '11',
-    }
 
 
 class RaizesEsportes(Crawler, Extractor):
@@ -693,4 +584,115 @@ class InscricoesBr(Crawler, Extractor):
         events_acc = []
         for card in soup.find_all('a', class_='event-item'):
             events_acc.append(self.parse(card, fp))
+        return events_acc
+
+
+# Local lives in the event description prose, two phrasings:
+#   "acontece em Casa Branca (MG)"  /  "em Caraguatatuba/SP"
+# Anchored-on-"em" form tried first so the city capture doesn't swallow a
+# capitalized sentence prefix; bare form is the fallback.
+_PP_CITY = r'([A-ZÀ-Ý][A-Za-zÀ-ÿ.\s-]{1,49}?)\s*(?:\(([A-Z]{2})\)|/([A-Z]{2})\b)'
+_PP_LOCAL_ANCHORED_RE = re.compile(r'\bem\s+' + _PP_CITY)
+_PP_LOCAL_RE = re.compile(_PP_CITY)
+
+
+class ProximaProva(Crawler, Extractor):
+    """MTB-focused calendar aggregator. WordPress + The Events Calendar:
+    events come from the tribe REST API (title/dates/url/description — venue
+    is always empty, local is parsed out of the description). Sport comes
+    from the custom pp_modalidade taxonomy, only exposed on the wp/v2
+    endpoint, joined back to tribe events by event link.
+
+    DISABLED (2026-07-16) — site is broken: every /evento/ detail page (and
+    the /eventos/ listing) returns HTTP 500 after ~20s (PHP fatal), only the
+    homepage + REST APIs respond. url=PK dereferences to a dead page, and the
+    `website` fallback field is a non-unique organizer homepage (23 unique
+    across 40 events — CBC disease). Crawler kept implemented + working
+    against the REST API; re-enable in main.py if they fix their templates.
+    Meanwhile the organizer sites it aggregates are stubbed below."""
+    URL = 'https://proximaprova.com.br/'
+    REPO = Path('proximaprova.com.br')
+    META = {
+        'Category': 'Agregador',
+    }
+
+    EVENTS_API = 'https://proximaprova.com.br/wp-json/tribe/events/v1/events'
+    WP2_API = 'https://proximaprova.com.br/wp-json/wp/v2/tribe_events'
+    MODALIDADE_API = 'https://proximaprova.com.br/wp-json/wp/v2/pp_modalidade'
+
+    # pp_modalidade term name -> canonical sport (agents.SPORTS values);
+    # unmapped/absent terms fall back to '' = LLM classification downstream.
+    MODALIDADE_SPORT = {
+        'Mountain Bike': 'Mountain bike',
+        'Estrada': 'Ciclismo',
+        'Gravel': 'Ciclismo',
+        'Cicloturismo': 'Ciclismo',
+        'Corrida': 'Corrida de Rua',
+        'Trail': 'Trail running',
+    }
+
+    def title(self, data) -> str:
+        return unescape(data['title']).strip()
+
+    def date(self, data) -> str:
+        start = data['start_date'][:10]
+        end = (data.get('end_date') or '')[:10]
+        return f'{start} a {end}' if end and end != start else start
+
+    def _desc_text(self, data) -> str:
+        return BeautifulSoup(data.get('description', ''), 'lxml').get_text(' ', strip=True)
+
+    def local(self, data) -> str:
+        text = self._desc_text(data)
+        m = _PP_LOCAL_ANCHORED_RE.search(text) or _PP_LOCAL_RE.search(text)
+        if not m:
+            return ''
+        uf = m.group(2) or m.group(3)
+        return f'{m.group(1).strip()}/{uf}'
+
+    def description(self, data) -> str:
+        return self._desc_text(data)
+
+    def url(self, data) -> str:
+        return data['url']
+
+    def sport(self, data) -> str:
+        return self._sport_by_link.get(data['url'], '')
+
+    def _sport_lookup(self) -> dict:
+        _, terms = self.get_json(
+            self.MODALIDADE_API, suffix='modalidades.json',
+            params={'per_page': 100})
+        names = {t['id']: t['name'] for t in terms}
+
+        lookup, page = {}, 1
+        while True:
+            _, rows = self.get_json(
+                self.WP2_API, suffix=f'wp2-{page}.json',
+                params={'per_page': 100, 'page': page,
+                        '_fields': 'link,pp_modalidade'})
+            for row in rows:
+                mods = (names.get(i, '') for i in row.get('pp_modalidade', []))
+                sport = next(
+                    (self.MODALIDADE_SPORT[m] for m in mods
+                     if m in self.MODALIDADE_SPORT), '')
+                lookup[row['link']] = sport
+            if len(rows) < 100:
+                break
+            page += 1
+        return lookup
+
+    def trigger(self):
+        self._sport_by_link = self._sport_lookup()
+
+        events_acc, page = [], 1
+        while True:
+            fp, data = self.get_json(
+                self.EVENTS_API, suffix=f'tribe-{page}.json',
+                params={'per_page': 50, 'page': page})
+            for row in data.get('events', []):
+                events_acc.append(self.parse(row, fp))
+            if page >= data.get('total_pages', 1):
+                break
+            page += 1
         return events_acc

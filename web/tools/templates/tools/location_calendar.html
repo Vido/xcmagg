@@ -90,7 +90,7 @@
   <!-- Header -->
   <header class="mb-6">
     <h1 class="text-3xl font-bold mb-1">
-      {% if discipline_name %}Provas de {{ discipline_name }} em {{ city_name }}, {{ uf|upper }}{% else %}Calendário de Ciclismo em {{ city_name }}, {{ uf|upper }}{% endif %}
+      {% if discipline_name %}Provas de {{ discipline_name }} em {{ city_name }} - {{ uf|upper }}{% else %}Calendário de Ciclismo em {{ city_name }} - {{ uf|upper }}{% endif %}
     </h1>
     <p class="text-gray-500 dark:text-gray-400">
       {{ state_name }}{% if year %} · {{ city_event_count }} evento{{ city_event_count|pluralize:"s" }} em {{ year }}{% endif %}
@@ -142,10 +142,16 @@
     <div>
 
       <!-- Events in city -->
-      <h2 class="text-xl font-semibold mb-4">Eventos em {{ city_name }}</h2>
+      <h2 class="text-xl font-semibold mb-4">
+        {% if discipline_name %}Eventos de {{ discipline_name }} em {{ city_name }}{% else %}Eventos em {{ city_name }}{% endif %}
+      </h2>
       {% if not city_events %}
       <p class="text-gray-500 dark:text-gray-400 py-4">
-        {{ city_name }} não tem eventos previstos em breve — confira as cidades próximas.
+        {% if discipline_name %}
+        Não encontramos eventos de {{ discipline_name }} em {{ city_name }} - {{ uf|upper }} — confira as cidades próximas.
+        {% else %}
+        Não encontramos eventos em {{ city_name }} - {{ uf|upper }} — confira as cidades próximas.
+        {% endif %}
       </p>
       {% else %}
       <ul id="city-events-list" class="space-y-3" aria-label="Provas em {{ city_name }}">
@@ -181,8 +187,12 @@
       {% endif %}
 
       <!-- Events near city -->
-      {% if nearby_events %}
       <h2 class="text-xl font-semibold mt-10 mb-4">Eventos perto de {{ city_name }}</h2>
+      {% if not nearby_events %}
+      <p class="text-gray-500 dark:text-gray-400 py-4">
+        Nenhum evento encontrado nas cidades próximas.
+      </p>
+      {% else %}
       <ul class="space-y-3" aria-label="Provas perto de {{ city_name }}">
         {% for e in nearby_events %}
         <li class="flex gap-4 items-stretch rounded-xl border p-3 hover:shadow-sm transition bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700">
@@ -211,6 +221,7 @@
       {% endif %}
 
     </div>
+
 
   </div>
 

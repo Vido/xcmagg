@@ -146,15 +146,6 @@ class InscricaoExtreme(Crawler, Extractor):
     }
 
 
-class GLPromo:
-    URL = 'https://www.glpromo.com.br/eventos-esportivos-tipo/bike/4'
-    REPO = Path('glpromo.com.br')
-    META = {
-        'Category': 'Empresa de Organizadora',
-        'DDD': '43',
-    }
-
-
 class GpsControlCrono(Crawler, Extractor):
     URL = 'https://www.gpscontrolcrono.com.br/'
     REPO = Path('gpscontrolcrono.com.br')
@@ -327,10 +318,6 @@ class Peloto(Crawler, Extractor):
             events_acc.append(self.parse(soup2, fp))
 
         return events_acc
-
-
-class ProximaProva():
-    URL = 'https://proximaprova.com.br/eventos/'
 
 
 class CronosCariri():

@@ -92,7 +92,7 @@
           type="text"
           name="parent_label"
           placeholder="Search category, manufacturer, or product…"
-          value="{{ post.node.parent.title|default:node_form.initial.parent.title|default:'' }}"
+          value="{% firstof post.node.parent.title node_form.initial.parent.title '' %}"
           autocomplete="off"
           hx-get="{% url 'parent-node-lookup' %}"
           hx-trigger="keyup changed delay:150ms"

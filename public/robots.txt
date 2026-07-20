@@ -22,5 +22,6 @@ Disallow: /vote/
 Disallow: /rate/
 Disallow: /comments/new/
 Disallow: /photos/upload/
+Disallow: /welcome/
 
 Sitemap: https://racefeed.com.br/sitemap.xml

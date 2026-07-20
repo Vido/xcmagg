@@ -11,7 +11,7 @@
     </h2>
     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
       {% trans "Don’t have an account?" %}
-      <a href="{% url 'welcome' %}" class="font-medium text-primary-600 hover:underline">
+      <a href="{% url 'welcome' %}" rel="nofollow" class="font-medium text-primary-600 hover:underline">
         {% trans "Sign up" %}
       </a>
     </p>
@@ -76,7 +76,7 @@
   {% endif %}
   <p class="text-xs text-gray-500 dark:text-gray-400">
 
-      {% trans "Prefer an alternative method?" %} <a href="{% url2 'welcome' %}" class="hover:underline">
+      {% trans "Prefer an alternative method?" %} <a href="{% url2 'welcome' %}" rel="nofollow" class="hover:underline">
       {% trans "Login with OTT" %}</a>
     <br>
     <a href="{% url 'account_reset_password' %}"

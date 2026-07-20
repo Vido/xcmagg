@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 
@@ -127,7 +127,10 @@ def catalog_details(request, brand, shortcode, slug):
 
     if slug != node.slug:
         return redirect(
-            reverse("catalog-details", args=[brand, shortcode, slug]),
+            "catalog-details",
+            brand,
+            shortcode,
+            node.slug,
             permanent=True,
         )
 

@@ -23,7 +23,7 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-K196Y4ZCFK');
+    gtag('config', 'G-K196Y4ZCFK', { cookie_domain: 'racefeed.com.br' });
   </script>
   {% else %}
   <script>
@@ -40,6 +40,7 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
   <!-- SEO / Brand -->
+  {% block robots %}<meta name="robots" content="index, follow" />{% endblock robots %}
   <meta name="description" content="{% block meta_description %}A community of cyclists sharing real gear experience, plus free tools for gearing, nutrition, and bike fit.{% endblock %}" />
 
   <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
@@ -271,7 +272,7 @@
                 <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
               </svg>
             </button>
-            <a href="{% url2 'welcome' next=request.path %}" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_desktop'})" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+            <a href="{% url2 'welcome' next=request.path %}" rel="nofollow" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_desktop'})" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
               Enter
             </a>
           {% endif %}
@@ -377,7 +378,7 @@
             Logout
           </a>
         {% else %}
-          <a href="{% url2 'welcome' next=request.path %}" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_mobile'})" class="block bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-2 rounded-md text-base font-medium">
+          <a href="{% url2 'welcome' next=request.path %}" rel="nofollow" onclick="gtag('event','click_enter',{'event_category':'engagement','event_label':'nav_mobile'})" class="block bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-2 rounded-md text-base font-medium">
             Enter
           </a>
         {% endif %}

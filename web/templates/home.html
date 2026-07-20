@@ -68,7 +68,7 @@
         </svg>
         <span class="text-xs font-medium text-rose-700 dark:text-rose-300 leading-tight">Gear & FTP</span>
       </a>
-      <a href="{% if request.user.is_authenticated %}{% url 'feed' %}{% else %}{% url 'welcome' %}{% endif %}" class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-sky-100 dark:bg-sky-900/40 hover:bg-sky-200 dark:hover:bg-sky-900/60 transition text-center snap-start shrink-0">
+      <a href="{% if request.user.is_authenticated %}{% url 'feed' %}{% else %}{% url 'welcome' %}{% endif %}" {% if not request.user.is_authenticated %}rel="nofollow"{% endif %} class="flex flex-col items-center justify-center gap-2 min-w-[72px] h-[72px] md:min-w-[96px] md:h-24 rounded-2xl bg-sky-100 dark:bg-sky-900/40 hover:bg-sky-200 dark:hover:bg-sky-900/60 transition text-center snap-start shrink-0">
         <svg class="w-6 h-6 md:w-8 md:h-8 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
@@ -241,6 +241,7 @@
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a
         href="{% url 'welcome' %}"
+        rel="nofollow"
         class="inline-flex items-center px-8 py-4 bg-zinc-100 dark:bg-zinc-800 text-violet-800 dark:text-violet-300 font-semibold text-lg rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition shadow-xl"
       >
         Sign Up Free
@@ -251,6 +252,7 @@
 
       <a
         href="{% url 'welcome' %}"
+        rel="nofollow"
         class="inline-flex items-center px-8 py-4 bg-transparent border border-zinc-500/60 text-zinc-200 font-semibold text-lg rounded-lg hover:border-zinc-300 hover:text-white transition"
       >
         Learn More

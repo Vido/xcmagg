@@ -13,7 +13,7 @@ deploy() {
     # sitemap.xml is now generated dynamically by Django at /sitemap.xml — no longer
     # a static file; the scraper publish must not touch it.
 
-    scp "$PUBLIC_DIR"/* root@164.92.148.125:/var/www/xcmagg/public/
+    scp -r "$PUBLIC_DIR"/* root@164.92.148.125:/var/www/xcmagg/public/
     scp "$DATA_DIR/events.duckdb" root@164.92.148.125:/var/www/xcmagg/data/events.duckdb
 }
 
